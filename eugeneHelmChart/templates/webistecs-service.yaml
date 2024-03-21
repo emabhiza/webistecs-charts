@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webistecs-service
+  labels:
+    {{- include "webistecs.labels" . | nindent 4 }}
+spec:
+  type: NodePort
+  ports:
+    - name: "http"
+      port: 8000
+      targetPort: 80
+      nodePort: {{ .Values.webistecs.service.nodePortHttp }}
+      protocol: TCP
+  selector:
+    {{- include "webistecs.selectorLabels" . | nindent 4 }}

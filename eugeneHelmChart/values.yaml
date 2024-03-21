@@ -1,0 +1,102 @@
+webistecs:
+  nameOverride: ""
+  replicaCount: 1
+  image:
+    repository: docker.io/emabhiza/webistecs
+    tag: 1
+  imagePullSecret: myregistrykey
+  secrets:
+    coinbaseApiKeySecret: my-secret
+    coinbaseApiSecretSecret: my-secret
+  service:
+    nodePortHttp: 30080
+
+dbMigrationJob:
+  image:
+    repository: emabhiza/webistecs-migrations
+    tag: 1
+  environment:
+    aspNetCoreEnvironment: Production
+    defaultConnectionString: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+  volumeMounts:
+    - name: db-storage
+      mountPath: /mnt/nfsshare/webistecs-database
+  volumes:
+    - name: db-storage
+      persistentVolumeClaim:
+        claimName: webistecs-db-pvc
+  annotations:
+    argocd:
+      hook: PreSync
+      hookWeight: "5"
+      hookDeletePolicy: "BeforeHookCreation,HookSucceeded"
+
+grafana:
+  auth:
+    disableLoginForm: true
+  nameOverride: ""
+  replicaCount: 1
+  image:
+    repository: grafana/grafana-enterprise
+    tag: latest
+  env:
+    GF_LOG_LEVEL: info
+  resources: {}
+  configMapName: grafana-dashboard-provisioning
+  service:
+    type: NodePort
+    port: 3000
+    targetPort: 3000
+    nodePort: 30091
+
+grafanaPV:
+  name: grafana-nfs-volume
+  capacity:
+    storage: 1Gi
+  accessModes: ReadWriteOnce
+  reclaimPolicy: Retain
+  storageClassName: nfs-storage
+  nfs:
+    path: /mnt/nfsshare/grafana
+    server: 192.168.68.107
+
+grafanaPVC:
+  name: grafana-nfs-claim
+  storageClassName: nfs-storage
+  accessModes: ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+prometheus:
+  kubeStateMetrics:
+    enabled: false
+  nameOverride: ""
+  replicaCount: 1
+  image:
+    repository: prom/prometheus
+    tag: latest
+  service:
+    type: NodePort
+    nodePort: 30090
+
+prometheusPVC:
+  name: prometheus-nfs-claim
+  storageClassName: nfs-storage
+  accessModes: ReadWriteOnce
+  size: 10Gi
+
+prometheusPV:
+  name: prometheus-nfs-volume
+  size: 10Gi
+  accessModes: ReadWriteOnce
+  reclaimPolicy: Retain
+  storageClassName: nfs-storage
+  nfs:
+    path: /mnt/nfsshare/prometheus
+    server: 192.168.68.107
+
+kube-state-metrics:
+  service:
+    type: NodePort
+    nodePort: 30088

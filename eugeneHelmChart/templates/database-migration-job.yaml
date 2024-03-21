@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-db-migration"
+  annotations:
+    argocd.argoproj.io/hook: "{{ .Values.dbMigrationJob.annotations.argocd.hook }}"
+    argocd.argoproj.io/hook-weight: "{{ .Values.dbMigrationJob.annotations.argocd.hookWeight }}"
+    argocd.argoproj.io/hook-delete-policy: "{{ .Values.dbMigrationJob.annotations.argocd.hookDeletePolicy }}"
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
+            - name: ConnectionStrings__DefaultConnection
+              value: "{{ .Values.dbMigrationJob.environment.defaultConnectionString }}"
+          volumeMounts:
+            {{- toYaml .Values.dbMigrationJob.volumeMounts | nindent 12 }}
+      volumes:
+        {{- toYaml .Values.dbMigrationJob.volumes | nindent 8 }}
+      restartPolicy: Never

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.grafanaPV.name }}
+  labels:
+    type: grafana
+spec:
+  capacity:
+    storage: {{ .Values.grafanaPV.capacity.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - {{ .Values.grafanaPV.accessModes }}
+  persistentVolumeReclaimPolicy: {{ .Values.grafanaPV.reclaimPolicy }}
+  storageClassName: {{ .Values.grafanaPV.storageClassName }}
+  nfs:
+    path: {{ .Values.grafanaPV.nfs.path }}
+    server: {{ .Values.grafanaPV.nfs.server }}

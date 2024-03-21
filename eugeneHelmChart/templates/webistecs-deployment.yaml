@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webistecs
+  labels:
+    {{- include "webistecs.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.webistecs.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "webistecs.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "webistecs.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: my-container
+          image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: COINBASE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.coinbaseApiKeySecret }}
+                  key: cb_apiKey
+            - name: COINBASE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  key: cb_apiSecret
+        - name: node-exporter
+          image: "prom/node-exporter:latest"
+          ports:
+            - containerPort: 9100
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.webistecs.imagePullSecret }}

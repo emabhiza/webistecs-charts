@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.grafana.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "grafana.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "grafana.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:7.0.1
+          securityContext:
+            runAsUser: 472 # Set the container to run as user ID 472
+          env:
+            - name: GF_LOG_LEVEL
+              value: "debug"
+          ports:
+            - containerPort: 3000
+          resources:
+            {{- toYaml .Values.grafana.resources | nindent 12 }}
+          volumeMounts:
+            - name: grafana-data
+              mountPath: "/var/lib/grafana"
+      volumes:
+        - name: grafana-data
+          persistentVolumeClaim:
+            claimName: grafana-nfs-claim  
