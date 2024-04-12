@@ -13,4 +13,4 @@ spec:
   storageClassName: nfs-storage
   nfs:
     path: /mnt/nfsshare/webistecs-database
-    server: 192.168.68.105
+    server: 192.168.68.107
