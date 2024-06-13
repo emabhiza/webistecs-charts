@@ -3,7 +3,7 @@ webistecs:
   replicaCount: 2
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: 1
+    tag: 2
   imagePullSecret: myregistrykey
   secrets:
     coinbaseApiKeySecret: my-secret
@@ -14,7 +14,7 @@ webistecs:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 1
+    tag: 2
   environment:
     aspNetCoreEnvironment: Production
     defaultConnectionString: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
