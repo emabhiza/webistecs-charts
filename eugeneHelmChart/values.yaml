@@ -38,7 +38,7 @@ grafana:
   replicaCount: 1
   image:
     repository: grafana/grafana-enterprise
-    tag: latest
+    tag: 11.0.0
   env:
     GF_LOG_LEVEL: info
   resources: {}
