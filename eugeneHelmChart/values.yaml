@@ -1,6 +1,6 @@
 webistecs:
   nameOverride: ""
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: docker.io/emabhiza/webistecs
     tag: 2
