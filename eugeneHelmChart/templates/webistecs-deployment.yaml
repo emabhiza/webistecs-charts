@@ -37,6 +37,18 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
                   key: cb_apiSecret
+            - name: DATABASE_PATH
+              value: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
+          resources:
+            requests:
+              memory: "{{ .Values.webistecs.resources.requests.memory }}"
+              cpu: "{{ .Values.webistecs.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.webistecs.resources.limits.memory }}"
+              cpu: "{{ .Values.webistecs.resources.limits.cpu }}"
+          volumeMounts:
+            - name: db-volume
+              mountPath: /mnt/nfsshare
         - name: node-exporter
           image: "prom/node-exporter:latest"
           ports:
@@ -44,3 +56,8 @@ spec:
       restartPolicy: Always
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
+      volumes:
+        - name: db-volume
+          hostPath:
+            path: {{ .Values.webistecs.volume.hostPath }}
+            type: DirectoryOrCreate
