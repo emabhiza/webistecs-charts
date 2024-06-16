@@ -14,7 +14,7 @@ webistecs:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 2
+    tag: 1
   environment:
     aspNetCoreEnvironment: Production
     defaultConnectionString: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
