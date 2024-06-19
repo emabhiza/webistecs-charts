@@ -40,6 +40,8 @@ spec:
                   key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
+            - name: ConnectionStrings__WebistecsContext
+              value: {{ .Values.webistecs.environment.connectionStrings.webistecsContext }}
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"

@@ -1,4 +1,3 @@
-
 # values.yaml
 webistecs:
   nameOverride: "webistecs"
@@ -7,6 +6,9 @@ webistecs:
   image:
     repository: docker.io/emabhiza/webistecs
     tag: 2
+  environment:
+    connectionStrings:
+      webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -40,7 +42,6 @@ nodeExporter:
   name: "node-exporter"
   image: "prom/node-exporter:latest"
   containerPort: 9100
-
 
 
 dbMigrationJob:
