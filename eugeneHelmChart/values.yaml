@@ -1,17 +1,33 @@
+
+# values.yaml
 webistecs:
-  nameOverride: ""
+  nameOverride: "webistecs"
   replicaCount: 1
+  containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
     tag: 2
-  imagePullSecret: myregistrykey
+  imagePullPolicy: "Always"
+  containerPort: 80
+  readinessProbe:
+    path: "/healthz"
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
   secrets:
-    coinbaseApiKeySecret: my-secret
-    coinbaseApiSecretSecret: my-secret
+    coinbaseApiKeySecret: "my-secret"
+    coinbaseApiKey: "cb_apiKey"
+    coinbaseApiSecretSecret: "my-secret"
+    coinbaseApiSecret: "cb_apiSecret"
+  databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
+  volumeMountPath: "/mnt/nfsshare"
   service:
     nodePortHttp: 30080
+  restartPolicy: "Always"
+  imagePullSecret: "myregistrykey"
   volume:
-    hostPath: /mnt/nfsshare
+    hostPath: "/mnt/nfsshare"
+    type: "DirectoryOrCreate"
   resources:
     requests:
       memory: "512Mi"
@@ -19,6 +35,12 @@ webistecs:
     limits:
       memory: "1Gi"
       cpu: "1000m"
+
+nodeExporter:
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
+
 
 
 dbMigrationJob:
@@ -105,8 +127,3 @@ prometheusPV:
   nfs:
     path: /mnt/nfsshare/prometheus
     server: 192.168.68.107
-
-kube-state-metrics:
-  service:
-    type: NodePort
-    nodePort: 30088

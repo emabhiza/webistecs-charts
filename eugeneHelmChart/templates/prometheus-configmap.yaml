@@ -15,17 +15,12 @@ data:
         kubernetes_sd_configs:
           - role: pod
         metric_relabel_configs:
-          
-      - job_name: 'kube-state-metrics'
-        static_configs:
-          - targets: ['192.168.68.107:30088']
 
       - job_name: 'webistecs'
         relabel_configs:
           - source_labels: [__meta_kubernetes_service_label_mylabel]
             target_label: webistecs
         static_configs:
-          - targets: ['webistecs.default.svc.cluster.local:8000']
           - targets: ['192.168.68.107:30080']
 
       - job_name: 'node-exporter'
