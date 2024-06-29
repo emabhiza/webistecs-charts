@@ -5,6 +5,8 @@ metadata:
   name: {{ .Values.webistecs.nameOverride | default .Chart.Name }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
+  annotations:
+    docker-image: {{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
   selector:
