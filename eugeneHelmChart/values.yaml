@@ -47,7 +47,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 1
+    tag: 1-test-a
   environment:
     aspNetCoreEnvironment: Production
     defaultConnectionString: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
