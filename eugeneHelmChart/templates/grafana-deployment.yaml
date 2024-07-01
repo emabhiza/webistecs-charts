@@ -20,6 +20,8 @@ spec:
           securityContext:
             runAsUser: 472 # Set the container to run as user ID 472
           env:
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "{{ .Values.grafana.auth.disableLoginForm | toString }}"
             - name: GF_LOG_LEVEL
               value: "debug"
           ports:
