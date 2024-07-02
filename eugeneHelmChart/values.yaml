@@ -21,6 +21,8 @@ webistecs:
     coinbaseApiKey: "cb_apiKey"
     coinbaseApiSecretSecret: "my-secret"
     coinbaseApiSecret: "cb_apiSecret"
+    coingeckoSecret: "my-secret"
+    coingeckoApiKey: "coingecko_apiKey"
   databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
   service:
