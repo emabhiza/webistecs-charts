@@ -44,6 +44,16 @@ spec:
               value: {{ .Values.webistecs.databasePath }}
             - name: ConnectionStrings__WebistecsContext
               value: {{ .Values.webistecs.environment.connectionStrings.webistecsContext }}
+            - name: Logging__Rules__0__ProviderName
+              value: "*"
+            - name: Logging__Rules__0__CategoryName
+              value: "Microsoft.AspNetCore.Hosting.Diagnostics"
+            - name: Logging__Rules__0__LogLevel
+              value: "Information"
+            - name: Logging__Rules__0__Filter__IncludeScopes
+              value: "false"
+            - name: Logging__Rules__0__Filter__Predicate
+              value: "IsNotHealthCheck"
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
