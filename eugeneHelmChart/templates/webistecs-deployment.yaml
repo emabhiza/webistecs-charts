@@ -49,6 +49,8 @@ spec:
               value: {{ .Values.webistecs.databasePath }}
             - name: ConnectionStrings__WebistecsContext
               value: {{ .Values.webistecs.environment.webistecsContext }}
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"

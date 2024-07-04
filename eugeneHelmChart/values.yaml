@@ -7,6 +7,7 @@ webistecs:
     repository: docker.io/emabhiza/webistecs
     tag: test-app-1
   environment:
+    aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
