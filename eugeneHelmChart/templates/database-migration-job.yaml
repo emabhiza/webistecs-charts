@@ -18,6 +18,8 @@ spec:
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__DefaultConnection
               value: "{{ .Values.dbMigrationJob.environment.defaultConnectionString }}"
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
           volumeMounts:
             {{- toYaml .Values.dbMigrationJob.volumeMounts | nindent 12 }}
       volumes:
