@@ -8,7 +8,7 @@ webistecs:
     tag: test-app-1
   environment:
     connectionStrings:
-      webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+      WebistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
