@@ -66,6 +66,13 @@ dbMigrationJob:
       hook: PreSync
       hookWeight: "5"
       hookDeletePolicy: "BeforeHookCreation,HookSucceeded"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
 
 grafana:
   auth:
