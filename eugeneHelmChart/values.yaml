@@ -82,7 +82,13 @@ grafana:
     tag: 11.0.0
   env:
     GF_LOG_LEVEL: info
-  resources: {}
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
   configMapName: grafana-dashboard-provisioning
   service:
     type: NodePort
@@ -120,6 +126,13 @@ prometheus:
   service:
     type: NodePort
     nodePort: 30090
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
 
 prometheusPVC:
   name: prometheus-nfs-claim
