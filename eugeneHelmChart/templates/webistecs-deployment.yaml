@@ -47,12 +47,14 @@ spec:
                   key: {{ .Values.webistecs.secrets.coingeckoApiKey }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
-          - name: ENVIRONMENT
-            value: {{ .Values.env.ENVIRONMENT }}
-          - name: ConnectionStrings__DefaultConnection
-            value: {{ .Values.env.ConnectionStrings__DefaultConnection }}
-          - name: ConnectionStrings__WebistecsContext
-            value: {{ .Values.env.ConnectionStrings__WebistecsContext }}
+            - name: ENVIRONMENT
+              value: {{ .Values.env.ENVIRONMENT }}
+            - name: ENVIRONMENT_TYPE
+              value: {{ .Values.env.ENVIRONMENT }}
+            - name: ConnectionStrings__DefaultConnection
+              value: {{ .Values.env.ConnectionStrings__DefaultConnection }}
+            - name: ConnectionStrings__WebistecsContext
+              value: {{ .Values.env.ConnectionStrings__WebistecsContext }}
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"

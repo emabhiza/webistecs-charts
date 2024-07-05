@@ -47,6 +47,7 @@ nodeExporter:
 
 env:
   ENVIRONMENT: Production
+  ENVIRONMENT_TYPE: Production
   ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
   ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
 
