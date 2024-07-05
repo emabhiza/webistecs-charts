@@ -48,9 +48,9 @@ spec:
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
           - name: ENVIRONMENT
-            value: {{ .Values.env.ASPNETCORE_ENVIRONMENT }}
-          - name: ENVIRONMENT_TYPE
-            value: {{ .Values.env.ASPNETCORE_ENVIRONMENT }}
+            value: {{ .Values.env.ENVIRONMENT }}
+{{/*          - name: ENVIRONMENT_TYPE*/}}
+{{/*            value: {{ .Values.env.ENVIRONMENT }}*/}}
           - name: ConnectionStrings__DefaultConnection
             value: {{ .Values.env.ConnectionStrings__DefaultConnection }}
           - name: ConnectionStrings__WebistecsContext
