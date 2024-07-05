@@ -47,10 +47,12 @@ spec:
                   key: {{ .Values.webistecs.secrets.coingeckoApiKey }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
-            - name: ConnectionStrings__WebistecsContext
-              value: {{ .Values.webistecs.environment.webistecsContext }}
-            - name: ASPNETCORE_ENVIRONMENT
-              value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
+          - name: ASPNETCORE_ENVIRONMENT
+            value: {{ .Values.env.ASPNETCORE_ENVIRONMENT }}
+          - name: ConnectionStrings__DefaultConnection
+            value: {{ .Values.env.ConnectionStrings__DefaultConnection }}
+          - name: ConnectionStrings__WebistecsContext
+            value: {{ .Values.env.ConnectionStrings__WebistecsContext }}
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"

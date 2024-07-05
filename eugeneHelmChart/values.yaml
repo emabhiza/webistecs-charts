@@ -45,6 +45,10 @@ nodeExporter:
   image: "prom/node-exporter:latest"
   containerPort: 9100
 
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
+  ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
 
 dbMigrationJob:
   image:
