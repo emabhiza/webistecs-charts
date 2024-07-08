@@ -46,8 +46,7 @@ nodeExporter:
   containerPort: 9100
 
 env:
-  ENVIRONMENT: Production
-  ENVIRONMENT_TYPE: Production
+  ASPNETCORE_ENVIRONMENT: Production
   ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
   ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
 
