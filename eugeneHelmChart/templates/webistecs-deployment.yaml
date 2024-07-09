@@ -48,15 +48,9 @@ spec:
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
             - name: ASPNETCORE_ENVIRONMENT
-              value: {{ .Values.env.ASPNETCORE_ENVIRONMENT }}
-            - name: ENVIRONMENT
-              value: {{ .Values.env.ASPNETCORE_ENVIRONMENT }}
-            - name: ENVIRONMENT_TYPE
-              value: {{ .Values.env.ENVIRONMENT }}
-            - name: ConnectionStrings__DefaultConnection
-              value: {{ .Values.env.ConnectionStrings__DefaultConnection }}
+              value: {{ .Values.webistecs.environment.aspNetCoreEnvironment }}
             - name: ConnectionStrings__WebistecsContext
-              value: {{ .Values.env.ConnectionStrings__WebistecsContext }}
+              value: {{ .Values.webistecs.environment.webistecsContext}}
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
