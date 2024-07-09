@@ -1,4 +1,10 @@
 # values.yaml
+
+commonEnvironment:
+  ASPNETCORE_ENVIRONMENT: Production
+  ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
+  ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
+
 webistecs:
   nameOverride: "webistecs"
   replicaCount: 1
@@ -6,9 +12,6 @@ webistecs:
   image:
     repository: docker.io/emabhiza/webistecs
     tag: test-app-1
-  environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -23,7 +26,6 @@ webistecs:
     coinbaseApiSecret: "cb_apiSecret"
     coingeckoSecret: "my-secret"
     coingeckoApiKey: "coingecko_apiKey"
-  databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
   service:
     nodePortHttp: 30080
@@ -39,6 +41,10 @@ webistecs:
     limits:
       memory: "1Gi"
       cpu: "1000m"
+  environment:
+    ASPNETCORE_ENVIRONMENT: { { .Values.commonEnvironment.ASPNETCORE_ENVIRONMENT } }
+    ConnectionStrings__DefaultConnection: { { .Values.commonEnvironment.ConnectionStrings__DefaultConnection } }
+    ConnectionStrings__WebistecsContext: { { .Values.commonEnvironment.ConnectionStrings__WebistecsContext } }
 
 nodeExporter:
   name: "node-exporter"
@@ -53,10 +59,11 @@ env:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: test-v1
+    tag: master-db-1
   environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+    ASPNETCORE_ENVIRONMENT: { { .Values.commonEnvironment.ASPNETCORE_ENVIRONMENT } }
+    ConnectionStrings__DefaultConnection: { { .Values.commonEnvironment.ConnectionStrings__DefaultConnection } }
+    ConnectionStrings__WebistecsContext: { { .Values.commonEnvironment.ConnectionStrings__WebistecsContext } }
   volumeMounts:
     - name: db-storage
       mountPath: /mnt/nfsshare/webistecs-database
