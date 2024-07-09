@@ -1,10 +1,4 @@
 # values.yaml
-
-commonEnvironment:
-  ASPNETCORE_ENVIRONMENT: Production
-  ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
-  ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
-
 webistecs:
   nameOverride: "webistecs"
   replicaCount: 1
@@ -43,27 +37,28 @@ webistecs:
       cpu: "1000m"
   environment:
     ASPNETCORE_ENVIRONMENT: { { .Values.commonEnvironment.ASPNETCORE_ENVIRONMENT } }
-    ConnectionStrings__DefaultConnection: { { .Values.commonEnvironment.ConnectionStrings__DefaultConnection } }
-    ConnectionStrings__WebistecsContext: { { .Values.commonEnvironment.ConnectionStrings__WebistecsContext } }
-
-nodeExporter:
-  name: "node-exporter"
-  image: "prom/node-exporter:latest"
-  containerPort: 9100
+    ConnectionStrings__DefaultConnection: { { .Values.env.ConnectionStrings__DefaultConnection } }
+    ConnectionStrings__WebistecsContext: { { .Values.env.ConnectionStrings__WebistecsContext } }
 
 env:
   ASPNETCORE_ENVIRONMENT: Production
   ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
   ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
 
+nodeExporter:
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
+
+
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
     tag: master-db-1
   environment:
-    ASPNETCORE_ENVIRONMENT: { { .Values.commonEnvironment.ASPNETCORE_ENVIRONMENT } }
-    ConnectionStrings__DefaultConnection: { { .Values.commonEnvironment.ConnectionStrings__DefaultConnection } }
-    ConnectionStrings__WebistecsContext: { { .Values.commonEnvironment.ConnectionStrings__WebistecsContext } }
+    ASPNETCORE_ENVIRONMENT: { { .Values.env.ASPNETCORE_ENVIRONMENT } }
+    ConnectionStrings__DefaultConnection: { { .Values.env.ConnectionStrings__DefaultConnection } }
+    ConnectionStrings__WebistecsContext: { { .Values.env.ConnectionStrings__WebistecsContext } }
   volumeMounts:
     - name: db-storage
       mountPath: /mnt/nfsshare/webistecs-database
