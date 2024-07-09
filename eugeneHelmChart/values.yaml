@@ -6,6 +6,9 @@ webistecs:
   image:
     repository: docker.io/emabhiza/webistecs
     tag: test-app-1
+  environment:
+    aspNetCoreEnvironment: Production
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -20,6 +23,7 @@ webistecs:
     coinbaseApiSecret: "cb_apiSecret"
     coingeckoSecret: "my-secret"
     coingeckoApiKey: "coingecko_apiKey"
+  databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
   service:
     nodePortHttp: 30080
@@ -35,15 +39,6 @@ webistecs:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-  environment:
-    ASPNETCORE_ENVIRONMENT: { { .Values.commonEnvironment.ASPNETCORE_ENVIRONMENT } }
-    ConnectionStrings__DefaultConnection: { { .Values.env.ConnectionStrings__DefaultConnection } }
-    ConnectionStrings__WebistecsContext: { { .Values.env.ConnectionStrings__WebistecsContext } }
-
-env:
-  ASPNETCORE_ENVIRONMENT: Production
-  ConnectionStrings__DefaultConnection: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
-  ConnectionStrings__WebistecsContext: Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db
 
 nodeExporter:
   name: "node-exporter"
@@ -54,11 +49,10 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: master-db-1
+    tag: test-v1
   environment:
-    ASPNETCORE_ENVIRONMENT: { { .Values.env.ASPNETCORE_ENVIRONMENT } }
-    ConnectionStrings__DefaultConnection: { { .Values.env.ConnectionStrings__DefaultConnection } }
-    ConnectionStrings__WebistecsContext: { { .Values.env.ConnectionStrings__WebistecsContext } }
+    aspNetCoreEnvironment: Production
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   volumeMounts:
     - name: db-storage
       mountPath: /mnt/nfsshare/webistecs-database
