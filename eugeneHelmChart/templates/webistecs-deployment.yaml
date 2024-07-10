@@ -47,7 +47,7 @@ spec:
                   key: {{ .Values.webistecs.secrets.coingeckoApiKey }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
-            - name: ASPNETCORE_ENVIRONMENT
+            - name: ENVIRONMENT
               value: {{ .Values.webistecs.environment.aspNetCoreEnvironment }}
             - name: ConnectionStrings__WebistecsContext
               value: {{ .Values.webistecs.environment.webistecsContext}}
