@@ -40,11 +40,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
-            - name: COINGECKO_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.coingeckoSecret }}
-                  key: {{ .Values.webistecs.secrets.coingeckoApiKey }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
             - name: ENVIRONMENT
