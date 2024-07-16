@@ -2,36 +2,45 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
+  namespace: monitoring
   labels:
-    {{- include "grafana.labels" . | nindent 4 }}
+    app: grafana
+    component: ui
 spec:
-  replicas: {{ .Values.grafana.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "grafana.selectorLabels" . | nindent 6 }}
+      app: grafana
+      component: ui
   template:
     metadata:
       labels:
-        {{- include "grafana.selectorLabels" . | nindent 8 }}
+        app: grafana
+        component: ui
     spec:
       containers:
         - name: grafana
-          image: grafana/grafana:11.0.0
+          image: "grafana/grafana-enterprise:11.0.0"
           securityContext:
-            runAsUser: 472 # Set the container to run as user ID 472
+            runAsUser: 472
           env:
             - name: GF_AUTH_DISABLE_LOGIN_FORM
-              value: "{{ .Values.grafana.auth.disableLoginForm | toString }}"
+              value: "false"
             - name: GF_LOG_LEVEL
-              value: "debug"
+              value: "info"
           ports:
             - containerPort: 3000
           resources:
-            {{- toYaml .Values.grafana.resources | nindent 12 }}
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
           volumeMounts:
             - name: grafana-data
               mountPath: "/var/lib/grafana"
       volumes:
         - name: grafana-data
           persistentVolumeClaim:
-            claimName: grafana-nfs-claim  
+            claimName: grafana-nfs-claim

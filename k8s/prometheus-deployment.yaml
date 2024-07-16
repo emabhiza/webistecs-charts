@@ -2,17 +2,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
+  namespace: monitoring
   labels:
-    {{- include "prometheus.labels" . | nindent 4 }}
+    app: prometheus
+    component: server
 spec:
-  replicas: {{ .Values.prometheus.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "prometheus.selectorLabels" . | nindent 6 }}
+      app: prometheus
+      component: server
   template:
     metadata:
       labels:
-        {{- include "prometheus.selectorLabels" . | nindent 8 }}
+        app: prometheus
+        component: server
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -20,20 +24,25 @@ spec:
     spec:
       containers:
         - name: prometheus
-          image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
+          image: "prom/prometheus:latest"
           ports:
             - containerPort: 9090
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
             - name: prometheus-data
-              mountPath: /prometheus  # Ensure this matches your Prometheus configuration
+              mountPath: /prometheus
           resources:
-            {{- toYaml .Values.prometheus.resources | nindent 12 }}
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
       volumes:
         - name: prometheus-data
           persistentVolumeClaim:
-            claimName: prometheus-nfs-claim  # NFS-backed PVC for Prometheus data
+            claimName: prometheus-nfs-claim
         - name: config-volume
           configMap:
-            name: prometheus-config 
+            name: prometheus-config
