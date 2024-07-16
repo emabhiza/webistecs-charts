@@ -1,17 +1,37 @@
+# values.yaml
 webistecs:
-  nameOverride: ""
+  nameOverride: "webistecs"
   replicaCount: 1
+  containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: 2
-  imagePullSecret: myregistrykey
+    tag: beta-1
+  environment:
+    aspNetCoreEnvironment: Production
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+  imagePullPolicy: "Always"
+  containerPort: 80
+  readinessProbe:
+    path: "/healthz"
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
   secrets:
-    coinbaseApiKeySecret: my-secret
-    coinbaseApiSecretSecret: my-secret
+    coinbaseApiKeySecret: "my-secret"
+    coinbaseApiKey: "cb_apiKey"
+    coinbaseApiSecretSecret: "my-secret"
+    coinbaseApiSecret: "cb_apiSecret"
+    coingeckoSecret: "my-secret"
+    coingeckoApiKey: "coingecko_apiKey"
+  databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
+  volumeMountPath: "/mnt/nfsshare"
   service:
     nodePortHttp: 30080
+  restartPolicy: "Always"
+  imagePullSecret: "myregistrykey"
   volume:
-    hostPath: /mnt/nfsshare
+    hostPath: "/mnt/nfsshare"
+    type: "DirectoryOrCreate"
   resources:
     requests:
       memory: "512Mi"
@@ -20,14 +40,19 @@ webistecs:
       memory: "1Gi"
       cpu: "1000m"
 
+nodeExporter:
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
+
 
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 1
+    tag: webistecs-migrations-1.0.0
   environment:
     aspNetCoreEnvironment: Production
-    defaultConnectionString: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
   volumeMounts:
     - name: db-storage
       mountPath: /mnt/nfsshare/webistecs-database
@@ -40,10 +65,17 @@ dbMigrationJob:
       hook: PreSync
       hookWeight: "5"
       hookDeletePolicy: "BeforeHookCreation,HookSucceeded"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
 
 grafana:
   auth:
-    disableLoginForm: true
+    disableLoginForm: false
   nameOverride: ""
   replicaCount: 1
   image:
@@ -51,7 +83,13 @@ grafana:
     tag: 11.0.0
   env:
     GF_LOG_LEVEL: info
-  resources: {}
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
   configMapName: grafana-dashboard-provisioning
   service:
     type: NodePort
@@ -89,6 +127,13 @@ prometheus:
   service:
     type: NodePort
     nodePort: 30090
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
 
 prometheusPVC:
   name: prometheus-nfs-claim
@@ -105,8 +150,3 @@ prometheusPV:
   nfs:
     path: /mnt/nfsshare/prometheus
     server: 192.168.68.107
-
-kube-state-metrics:
-  service:
-    type: NodePort
-    nodePort: 30088

@@ -1,9 +1,12 @@
+# Deployment YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webistecs
+  name: {{ .Values.webistecs.nameOverride | default .Chart.Name }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
+  annotations:
+    docker-image: {{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
   selector:
@@ -15,30 +18,34 @@ spec:
         {{- include "webistecs.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: my-container
+        - name: {{ .Values.webistecs.containerName }}
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.webistecs.containerPort }}
           readinessProbe:
             httpGet:
-              path: /healthz
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
+              path: {{ .Values.webistecs.readinessProbe.path }}
+              port: {{ .Values.webistecs.readinessProbe.port }}
+            initialDelaySeconds: {{ .Values.webistecs.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.webistecs.readinessProbe.periodSeconds }}
           env:
             - name: COINBASE_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.coinbaseApiKeySecret }}
-                  key: cb_apiKey
+                  key: {{ .Values.webistecs.secrets.coinbaseApiKey }}
             - name: COINBASE_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
-                  key: cb_apiSecret
+                  key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
             - name: DATABASE_PATH
-              value: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
+              value: {{ .Values.webistecs.databasePath }}
+            - name: ENVIRONMENT
+              value: {{ .Values.webistecs.environment.aspNetCoreEnvironment }}
+            - name: ConnectionStrings__WebistecsContext
+              value: {{ .Values.webistecs.environment.webistecsContext}}
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
@@ -48,16 +55,16 @@ spec:
               cpu: "{{ .Values.webistecs.resources.limits.cpu }}"
           volumeMounts:
             - name: db-volume
-              mountPath: /mnt/nfsshare
-        - name: node-exporter
-          image: "prom/node-exporter:latest"
+              mountPath: {{ .Values.webistecs.volumeMountPath }}
+        - name: {{ .Values.nodeExporter.name }}
+          image: "{{ .Values.nodeExporter.image }}"
           ports:
-            - containerPort: 9100
-      restartPolicy: Always
+            - containerPort: {{ .Values.nodeExporter.containerPort }}
+      restartPolicy: {{ .Values.webistecs.restartPolicy }}
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:
         - name: db-volume
           hostPath:
             path: {{ .Values.webistecs.volume.hostPath }}
-            type: DirectoryOrCreate
+            type: {{ .Values.webistecs.volume.type }}

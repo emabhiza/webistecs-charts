@@ -16,8 +16,15 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
-            - name: ConnectionStrings__DefaultConnection
-              value: "{{ .Values.dbMigrationJob.environment.defaultConnectionString }}"
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
+          resources:
+            requests:
+              memory: "{{ .Values.dbMigrationJob.resources.requests.memory }}"
+              cpu: "{{ .Values.dbMigrationJob.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.dbMigrationJob.resources.limits.memory }}"
+              cpu: "{{ .Values.dbMigrationJob.resources.limits.cpu }}"
           volumeMounts:
             {{- toYaml .Values.dbMigrationJob.volumeMounts | nindent 12 }}
       volumes:
