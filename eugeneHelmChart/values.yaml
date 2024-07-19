@@ -8,7 +8,7 @@ webistecs:
     tag: beta-1
   environment:
     aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -23,7 +23,7 @@ webistecs:
     coinbaseApiSecret: "cb_apiSecret"
     coingeckoSecret: "my-secret"
     coingeckoApiKey: "coingecko_apiKey"
-  databasePath: "/mnt/nfsshare/webistecs-database/local-webistecs.db"
+  databasePath: "/mnt/nfsshare/webistecs-database/webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
   service:
     nodePortHttp: 30080
@@ -39,6 +39,12 @@ webistecs:
     limits:
       memory: "1Gi"
       cpu: "1000m"
+  logging:
+    enabled: "true"
+    module: "docker"
+    fileset:
+      stdout: "true"
+      stderr: "true"
 
 nodeExporter:
   name: "node-exporter"
@@ -52,7 +58,7 @@ dbMigrationJob:
     tag: webistecs-migrations-1.0.0
   environment:
     aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/local-webistecs.db"
+    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/webistecs.db"
   volumeMounts:
     - name: db-storage
       mountPath: /mnt/nfsshare/webistecs-database
@@ -73,80 +79,18 @@ dbMigrationJob:
       memory: "1Gi"
       cpu: "1000m"
 
-grafana:
-  auth:
-    disableLoginForm: false
-  nameOverride: ""
-  replicaCount: 1
-  image:
-    repository: grafana/grafana-enterprise
-    tag: 11.0.0
-  env:
-    GF_LOG_LEVEL: info
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-  configMapName: grafana-dashboard-provisioning
-  service:
-    type: NodePort
-    port: 3000
-    targetPort: 3000
-    nodePort: 30091
 
-grafanaPV:
-  name: grafana-nfs-volume
-  capacity:
-    storage: 1Gi
-  accessModes: ReadWriteOnce
-  reclaimPolicy: Retain
-  storageClassName: nfs-storage
-  nfs:
-    path: /mnt/nfsshare/grafana
-    server: 192.168.68.107
-
-grafanaPVC:
-  name: grafana-nfs-claim
-  storageClassName: nfs-storage
-  accessModes: ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+alertmanager:
+  enabled: false
 
 prometheus:
-  kubeStateMetrics:
+  pushgateway:
     enabled: false
-  nameOverride: ""
-  replicaCount: 1
-  image:
-    repository: prom/prometheus
-    tag: latest
-  service:
-    type: NodePort
-    nodePort: 30090
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
+  server:
+    enabled: true
 
-prometheusPVC:
-  name: prometheus-nfs-claim
-  storageClassName: nfs-storage
-  accessModes: ReadWriteOnce
-  size: 10Gi
+  nodeExporter:
+    enabled: true
 
-prometheusPV:
-  name: prometheus-nfs-volume
-  size: 10Gi
-  accessModes: ReadWriteOnce
-  reclaimPolicy: Retain
-  storageClassName: nfs-storage
-  nfs:
-    path: /mnt/nfsshare/prometheus
-    server: 192.168.68.107
+kubeStateMetrics:
+  enabled: false
