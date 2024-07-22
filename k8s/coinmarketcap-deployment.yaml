@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coinmarketcap-exporter
+  namespace: monitoring
+  labels:
+    app: coinmarketcap-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coinmarketcap-exporter
+  template:
+    metadata:
+      labels:
+        app: coinmarketcap-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "9101"
+    spec:
+      containers:
+        - name: coinmarketcap-exporter
+          image: emabhiza/coinmarketcap-exporter:beta-16
+          ports:
+            - containerPort: 9101
+          env:
+            - name: API_KEY
+              value: "b842737a-d60a-479b-9de6-892b49a16581"
+            - name: CURRENCY
+              value: "USD"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
+      imagePullSecrets:
+        - name: myregistrykey

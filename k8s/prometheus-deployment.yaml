@@ -25,6 +25,9 @@ spec:
       containers:
         - name: prometheus
           image: "prom/prometheus:latest"
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.retention.time=30d"
           ports:
             - containerPort: 9090
           volumeMounts:

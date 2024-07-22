@@ -146,5 +146,3 @@ kubectl scale deployment webistecs-alertmanager --replicas=0
 
 kubectl delete deployment webistecs-kube-state-metrics
 ```
-
-1	Bitcoin	BTC	65689.82	66174.2978821812	54092.7956126002	2024-07-19 15:16:41.6666602	071BE3A1-022F-5747-A0A8-B678BF78F97A	8	651B6C86-620B-43A9-BDF5-8B3ECE020AF3	2024-06-17 17:17:11.1753117	2024-06-17 17:17:11.1753118
