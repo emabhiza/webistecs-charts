@@ -12,7 +12,7 @@ data:
 
     [INPUT]
         Name              tail
-        Path              /var/log/containers/*.log
+        Path              /var/log/containers/webistecs*.log
         Parser            docker
         Tag               kube.*
         Refresh_Interval  5
