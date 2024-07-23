@@ -8,15 +8,15 @@ metadata:
 spec:
   type: {{ .Values.elasticsearch.service.type }}
   ports:
-    - port: {{ .Values.elasticsearch.pv.ports.http.containerPort }}
-      targetPort: {{ .Values.elasticsearch.pv.ports.http.containerPort }}
+    - port: {{ .Values.elasticsearch.ports.http.containerPort }}
+      targetPort: {{ .Values.elasticsearch.ports.http.containerPort }}
       protocol: TCP
       name: http
-      nodePort: {{ .Values.elasticsearch.pv.ports.http.nodePort }}
-    - port: {{ .Values.elasticsearch.pv.ports.transport.containerPort }}
-      targetPort: {{ .Values.elasticsearch.pv.ports.transport.containerPort }}
+      nodePort: {{ .Values.elasticsearch.ports.http.nodePort }}
+    - port: {{ .Values.elasticsearch.ports.transport.containerPort }}
+      targetPort: {{ .Values.elasticsearch.ports.transport.containerPort }}
       protocol: TCP
       name: transport
-      nodePort: {{ .Values.elasticsearch.pv.ports.transport.nodePort }}
+      nodePort: {{ .Values.elasticsearch.ports.transport.nodePort }}
   selector:
     app: {{ .Values.elasticsearch.name }}

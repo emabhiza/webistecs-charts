@@ -26,8 +26,8 @@ spec:
             - name: ES_JAVA_OPTS
               value: {{ .Values.elasticsearch.env.javaOpts | quote }}
           ports:
-            - containerPort: {{ .Values.elasticsearch.pv.ports.http.containerPort }}
-            - containerPort: {{ .Values.elasticsearch.pv.ports.transport.containerPort }}
+            - containerPort: {{ .Values.elasticsearch.ports.http.containerPort }}
+            - containerPort: {{ .Values.elasticsearch.ports.transport.containerPort }}
           volumeMounts:
             - name: {{ .Values.elasticsearch.volumeMount.name }}
               mountPath: {{ .Values.elasticsearch.volumeMount.mountPath }}

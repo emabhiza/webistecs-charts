@@ -197,6 +197,8 @@ prometheus:
       type: "prometheus"
   pv:
     name: "prometheus-nfs-volume"
+    matchLabels:
+      type: "prometheus"
     storage: "10Gi"
     path: "/mnt/nfsshare/prometheus"
     server: "192.168.68.107"
