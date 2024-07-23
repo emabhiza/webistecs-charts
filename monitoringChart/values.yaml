@@ -1,15 +1,3 @@
-argocd:
-  server:
-    service:
-      name: "argocd-server"
-      namespace: "argocd"
-      type: NodePort
-      ports:
-        http:
-          port: 80
-          targetPort: 8080
-          nodePort: 30007
-
 coinmarketcapExporter:
   name: "coinmarketcap-exporter"
   namespace: "monitoring"
@@ -220,3 +208,21 @@ prometheus:
       coinmarketcapExporterTarget: "192.168.68.107:32005"
       websitecsTarget: "192.168.68.107:30080"
       nodeExporterTarget: "192.168.68.107:9100"
+
+prometheusNodeExporter:
+  enabled: true
+  nameOverride: ""
+  fullnameOverride: ""
+  replicaCount: 1
+  image:
+    repository: prom/node-exporter
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9100
+    targetPort: 9100
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
