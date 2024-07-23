@@ -11,6 +11,6 @@ spec:
     - name: "9101"
       port: 9101
       targetPort: 9101
-      nodePort: 32005  # You can choose a port in the range 30000-32767
+      nodePort: 32005  
   selector:
     app: coinmarketcap-exporter

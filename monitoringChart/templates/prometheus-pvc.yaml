@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.prometheus.pvc.name }}
+  namespace: {{ .Values.prometheus.namespace }}
+spec:
+  selector:
+    matchLabels:
+      type: {{ .Values.prometheus.pvc.matchLabels.type }}
+  storageClassName: {{ .Values.prometheus.pvc.storageClassName }}
+  accessModes:
+    - {{ .Values.prometheus.pvc.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.prometheus.pvc.storage }}

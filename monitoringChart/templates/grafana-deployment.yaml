@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.grafana.name }}
+  namespace: {{ .Values.grafana.namespace }}
+  labels:
+    app: {{ .Values.grafana.labels.app }}
+    component: {{ .Values.grafana.labels.component }}
+spec:
+  replicas: {{ .Values.grafana.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.grafana.labels.app }}
+      component: {{ .Values.grafana.labels.component }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.grafana.labels.app }}
+        component: {{ .Values.grafana.labels.component }}
+    spec:
+      containers:
+        - name: {{ .Values.grafana.name }}
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
+          securityContext:
+            runAsUser: {{ .Values.grafana.securityContext.runAsUser }}
+          env:
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: {{ .Values.grafana.env.disableLoginForm | quote }}
+            - name: GF_LOG_LEVEL
+              value: {{ .Values.grafana.env.logLevel | quote }}
+          ports:
+            - containerPort: {{ .Values.grafana.ports.containerPort }}
+          resources:
+            requests:
+              memory: "{{ .Values.grafana.resources.requests.memory }}"
+              cpu: "{{ .Values.grafana.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.grafana.resources.limits.memory }}"
+              cpu: "{{ .Values.grafana.resources.limits.cpu }}"
+          volumeMounts:
+            - name: {{ .Values.grafana.volumeMount.name }}
+              mountPath: {{ .Values.grafana.volumeMount.mountPath }}
+      volumes:
+        - name: {{ .Values.grafana.volumeMount.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.grafana.pvc.name }}

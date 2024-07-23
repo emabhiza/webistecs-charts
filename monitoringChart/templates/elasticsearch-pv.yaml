@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.elasticsearch.pv.name }}
+  labels:
+    app: {{ .Values.elasticsearch.name }}
+spec:
+  capacity:
+    storage: {{ .Values.elasticsearch.pv.storage }}
+  accessModes:
+    - {{ .Values.elasticsearch.pv.accessModes }}
+  persistentVolumeReclaimPolicy: {{ .Values.elasticsearch.pv.reclaimPolicy }}
+  storageClassName: {{ .Values.elasticsearch.pv.storageClassName }}
+  hostPath:
+    path: {{ .Values.elasticsearch.pv.path }}
