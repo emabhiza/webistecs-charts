@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.elasticsearch.pvc.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.elasticsearch.name }}
+spec:
+  accessModes:
+    - {{ .Values.elasticsearch.pv.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.elasticsearch.pvc.storage }}
+  volumeName: {{ .Values.elasticsearch.pv.name }}

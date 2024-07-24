@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.prometheus.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.prometheus.labels.app }}
+    component: {{ .Values.prometheus.labels.component }}
+spec:
+  replicas: {{ .Values.prometheus.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.prometheus.labels.app }}
+      component: {{ .Values.prometheus.labels.component }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.prometheus.labels.app }}
+        component: {{ .Values.prometheus.labels.component }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.prometheus.ports.containerPort }}"
+    spec:
+      containers:
+        - name: {{ .Values.prometheus.name }}
+          image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
+          args:
+            - "--config.file={{ .Values.prometheus.args.configFile }}"
+            - "--storage.tsdb.retention.time={{ .Values.prometheus.args.retentionTime }}"
+          ports:
+            - containerPort: {{ .Values.prometheus.ports.containerPort }}
+          volumeMounts:
+            - name: {{ .Values.prometheus.volumeMounts.config.name }}
+              mountPath: {{ .Values.prometheus.volumeMounts.config.mountPath }}
+            - name: {{ .Values.prometheus.volumeMounts.data.name }}
+              mountPath: {{ .Values.prometheus.volumeMounts.data.mountPath }}
+          resources:
+            requests:
+              memory: "{{ .Values.prometheus.resources.requests.memory }}"
+              cpu: "{{ .Values.prometheus.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.prometheus.resources.limits.memory }}"
+              cpu: "{{ .Values.prometheus.resources.limits.cpu }}"
+      volumes:
+        - name: {{ .Values.prometheus.volumeMounts.data.name }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.prometheus.pvc.name }}
+        - name: {{ .Values.prometheus.volumeMounts.config.name }}
+          configMap:
+            name: {{ .Values.prometheus.configMap.name }}

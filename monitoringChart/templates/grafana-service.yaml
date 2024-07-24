@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.grafana.name }}-service
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.grafana.labels.app }}
+    component: {{ .Values.grafana.labels.component }}
+spec:
+  type: {{ .Values.grafana.service.type }}
+  ports:
+    - name: grafana
+      port: {{ .Values.grafana.ports.containerPort }}
+      targetPort: {{ .Values.grafana.ports.containerPort }}
+      nodePort: {{ .Values.grafana.ports.nodePort }}
+      protocol: TCP
+  selector:
+    app: {{ .Values.grafana.labels.app }}
+    component: {{ .Values.grafana.labels.component }}

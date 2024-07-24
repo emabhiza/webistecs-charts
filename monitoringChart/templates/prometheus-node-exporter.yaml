@@ -1,0 +1,44 @@
+{{- if .Values.prometheusNodeExporter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+spec:
+  replicas: {{ .Values.prometheusNodeExporter.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+    spec:
+      containers:
+        - name: node-exporter
+          image: "{{ .Values.prometheusNodeExporter.image.repository }}:{{ .Values.prometheusNodeExporter.image.tag }}"
+          imagePullPolicy: {{ .Values.prometheusNodeExporter.image.pullPolicy }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.prometheusNodeExporter.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.prometheusNodeExporter.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+spec:
+  type: {{ .Values.prometheusNodeExporter.service.type }}
+  ports:
+    - port: {{ .Values.prometheusNodeExporter.service.port }}
+      targetPort: {{ .Values.prometheusNodeExporter.service.targetPort }}
+  selector:
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+{{- end }}

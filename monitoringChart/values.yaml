@@ -1,0 +1,223 @@
+global:
+  namespace: monitoring
+  raspberryIP: 192.168.68.107
+
+coinmarketcapExporter:
+  name: "coinmarketcap-exporter"
+  replicas: 1
+  image:
+    repository: emabhiza/coinmarketcap-exporter
+    tag: beta-16
+  imagePullSecrets: "myregistrykey"
+  containerPort: 9101
+  service:
+    type: NodePort
+    nodePort: 32005
+  environment:
+    apiKey: "b842737a-d60a-479b-9de6-892b49a16581"
+    currency: "USD"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+
+webistecs:
+  pv:
+    name: "webistecs-db-pv"
+    labels:
+      type: "webistecs-db"
+    capacity: "20Gi"
+    accessModes: "ReadWriteOnce"
+    persistentVolumeReclaimPolicy: "Retain"
+    storageClassName: "nfs-storage"
+    nfs:
+      path: "/mnt/nfsshare/webistecs-database"
+  pvc:
+    name: "webistecs-db-pvc"
+    accessModes: "ReadWriteOnce"
+    resources:
+      requests:
+        storage: "20Gi"
+    storageClassName: "nfs-storage"
+    selector:
+      matchLabels:
+        type: "webistecs-db"
+        
+elasticsearch:
+  name: "elasticsearch"
+  replicas: 1
+  image:
+    repository: docker.elastic.co/elasticsearch/elasticsearch
+    tag: "8.3.2"
+  env:
+    discoveryType: "single-node"
+    securityEnabled: "false"
+    javaOpts: "-Xms512m -Xmx512m"
+  ports:
+    http:
+      containerPort: 9200
+      nodePort: 32000
+    transport:
+      containerPort: 9300
+      nodePort: 32001
+  volumeMount:
+    name: "elasticsearch-data"
+    mountPath: "/usr/share/elasticsearch/data"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  pvc:
+    name: "elasticsearch-data-pvc"
+    storage: "5Gi"
+  pv:
+    name: "elasticsearch-data-pv"
+    storage: "5Gi"
+    path: "/mnt/nfsshare/elastic"
+    storageClassName: "local-path"
+    accessModes: "ReadWriteOnce"
+    reclaimPolicy: "Retain"
+  service:
+    type: NodePort
+
+grafana:
+  name: "grafana"
+  labels:
+    app: "grafana"
+    component: "ui"
+  replicas: 1
+  image:
+    repository: "grafana/grafana-enterprise"
+    tag: "11.0.0"
+  securityContext:
+    runAsUser: 472
+  env:
+    disableLoginForm: "false"
+    logLevel: "info"
+  ports:
+    containerPort: 3000
+    nodePort: 30091
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+  volumeMount:
+    name: "grafana-data"
+    mountPath: "/var/lib/grafana"
+  pvc:
+    name: "grafana-nfs-claim"
+    storage: "1Gi"
+  pv:
+    name: "grafana-nfs-volume"
+    storage: "1Gi"
+    path: "/mnt/nfsshare/grafana"
+    storageClassName: "nfs-storage"
+    accessModes: "ReadWriteOnce"
+    reclaimPolicy: "Retain"
+  service:
+    type: NodePort
+
+kibana:
+  name: "kibana"
+  labels:
+    app: "kibana"
+  replicas: 1
+  image:
+    repository: "docker.elastic.co/kibana/kibana"
+    tag: "8.3.2"
+  env:
+    elasticsearchHosts: "http://elasticsearch-service:9200"
+  ports:
+    containerPort: 5601
+    nodePort: 32002
+  service:
+    type: NodePort
+
+
+prometheus:
+  name: "prometheus"
+  labels:
+    app: "prometheus"
+    component: "server"
+  replicas: 1
+  image:
+    repository: "prom/prometheus"
+    tag: "latest"
+  scrapeInterval: "1m"
+  args:
+    configFile: "/etc/prometheus/prometheus.yml"
+    retentionTime: "30d"
+  ports:
+    containerPort: 9090
+    nodePort: 30090
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+  volumeMounts:
+    config:
+      name: "config-volume"
+      mountPath: "/etc/prometheus"
+    data:
+      name: "prometheus-data"
+      mountPath: "/prometheus"
+  pvc:
+    name: "prometheus-nfs-claim"
+    storage: "10Gi"
+    storageClassName: "nfs-storage"
+    accessModes: "ReadWriteOnce"
+    matchLabels:
+      type: "prometheus"
+  pv:
+    name: "prometheus-nfs-volume"
+    matchLabels:
+      type: "prometheus"
+    storage: "10Gi"
+    path: "/mnt/nfsshare/prometheus"
+    server: "192.168.68.107"
+    storageClassName: "nfs-storage"
+    accessModes: "ReadWriteOnce"
+    reclaimPolicy: "Retain"
+  service:
+    type: NodePort
+  configMap:
+    name: prometheus-config
+    labels:
+      mylabel: prometheus-configmap
+    scrapeConfigs:
+      kubernetesPods: "kubernetes-pods"
+      kubeStateMetrics: "kube-state-metrics"
+      coinmarketcapExporter: "coinmarketcap-exporter"
+      websitecs: "websitecs"
+      nodeExporter: "node-exporter"
+      coinmarketcapExporterTarget: "{{ .Values.global.raspberryIP }}:32005"
+      websitecsTarget: "{{ .Values.global.raspberryIP }}:30080"
+      nodeExporterTarget: "{{ .Values.global.raspberryIP }}:9100"
+
+prometheusNodeExporter:
+  enabled: true
+  name: node-exporter
+  replicaCount: 1
+  image:
+    repository: prom/node-exporter
+    tag: "v1.5.0"  
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9100
+    targetPort: 9100
+  resources: {}
+
+
