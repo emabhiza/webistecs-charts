@@ -1,18 +1,19 @@
+{{- if .Values.prometheusNodeExporter.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "monitoringChart.fullname" . }}-node-exporter
+  name: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
   labels:
-    {{- include "monitoringChart.labels" . | nindent 4 }}
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
 spec:
   replicas: {{ .Values.prometheusNodeExporter.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "monitoringChart.name" . }}-node-exporter
+      app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
   template:
     metadata:
       labels:
-        app: {{ include "monitoringChart.name" . }}-node-exporter
+        app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
     spec:
       containers:
         - name: node-exporter
@@ -28,13 +29,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "monitoringChart.fullname" . }}-node-exporter
+  name: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
   labels:
-    {{- include "monitoringChart.labels" . | nindent 4 }}
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
 spec:
   type: {{ .Values.prometheusNodeExporter.service.type }}
   ports:
     - port: {{ .Values.prometheusNodeExporter.service.port }}
       targetPort: {{ .Values.prometheusNodeExporter.service.targetPort }}
   selector:
-    app: {{ include "monitoringChart.name" . }}-node-exporter
+    app: {{ .Values.prometheusNodeExporter.name | default "node-exporter" }}
+{{- end }}
