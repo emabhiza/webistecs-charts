@@ -13,4 +13,4 @@ spec:
   storageClassName: {{ .Values.webistecs.pv.storageClassName }}
   nfs:
     path: {{ .Values.webistecs.pv.nfs.path }}
-    server: {{ .Values.webistecs.pv.nfs.server }}
+    server: {{ .Values.global.raspberryIP }}

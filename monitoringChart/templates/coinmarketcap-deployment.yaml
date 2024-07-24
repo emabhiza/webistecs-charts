@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.coinmarketcapExporter.name }}
-  namespace: {{ .Values.coinmarketcapExporter.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.coinmarketcapExporter.name }}
 spec:

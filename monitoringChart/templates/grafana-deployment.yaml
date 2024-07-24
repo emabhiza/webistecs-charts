@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.grafana.name }}
-  namespace: {{ .Values.grafana.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.grafana.labels.app }}
     component: {{ .Values.grafana.labels.component }}

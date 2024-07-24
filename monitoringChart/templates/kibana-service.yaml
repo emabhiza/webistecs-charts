@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.kibana.name }}-service
-  namespace: {{ .Values.kibana.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.kibana.labels.app }}
 spec:

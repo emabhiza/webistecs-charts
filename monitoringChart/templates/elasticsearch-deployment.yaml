@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.elasticsearch.name }}
-  namespace: {{ .Values.elasticsearch.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.elasticsearch.name }}
 spec:

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: {{ .Values.prometheus.pv.name }}
-  namespace: {{ .Values.prometheus.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     type: {{ .Values.prometheus.pv.matchLabels.type }}
 spec:
@@ -15,4 +15,4 @@ spec:
   storageClassName: {{ .Values.prometheus.pv.storageClassName }}
   nfs:
     path: {{ .Values.prometheus.pv.path }}
-    server: {{ .Values.prometheus.pv.server }}
+    server: {{ .Values.global.raspberryIP }}

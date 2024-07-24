@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.prometheus.name }}
-  namespace: {{ .Values.prometheus.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.prometheus.labels.app }}
     component: {{ .Values.prometheus.labels.component }}

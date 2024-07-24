@@ -23,11 +23,11 @@ spec:
             - name: PROVISIONER_NAME
               value: example.com/nfs
             - name: NFS_SERVER
-              value: 192.168.68.107
+              value: {{ .Values.global.raspberryIP }}
             - name: NFS_PATH
               value: /mnt/nfsshare
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 192.168.68.107
+            server: {{ .Values.global.raspberryIP }}
             path: /mnt/nfsshare

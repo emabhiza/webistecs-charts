@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.kibana.name }}
-  namespace: {{ .Values.kibana.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.kibana.labels.app }}
 spec:

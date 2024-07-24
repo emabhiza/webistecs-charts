@@ -1,6 +1,9 @@
+global:
+  namespace: monitoring
+  raspberryIP: 192.168.68.107
+
 coinmarketcapExporter:
   name: "coinmarketcap-exporter"
-  namespace: "monitoring"
   replicas: 1
   image:
     repository: emabhiza/coinmarketcap-exporter
@@ -32,7 +35,6 @@ webistecs:
     storageClassName: "nfs-storage"
     nfs:
       path: "/mnt/nfsshare/webistecs-database"
-      server: "192.168.68.107"
   pvc:
     name: "webistecs-db-pvc"
     accessModes: "ReadWriteOnce"
@@ -46,7 +48,6 @@ webistecs:
         
 elasticsearch:
   name: "elasticsearch"
-  namespace: "monitoring"
   replicas: 1
   image:
     repository: docker.elastic.co/elasticsearch/elasticsearch
@@ -87,7 +88,6 @@ elasticsearch:
 
 grafana:
   name: "grafana"
-  namespace: "monitoring"
   labels:
     app: "grafana"
     component: "ui"
@@ -120,7 +120,6 @@ grafana:
     name: "grafana-nfs-volume"
     storage: "1Gi"
     path: "/mnt/nfsshare/grafana"
-    server: "192.168.68.107"
     storageClassName: "nfs-storage"
     accessModes: "ReadWriteOnce"
     reclaimPolicy: "Retain"
@@ -129,7 +128,6 @@ grafana:
 
 kibana:
   name: "kibana"
-  namespace: "monitoring"
   labels:
     app: "kibana"
   replicas: 1
@@ -147,7 +145,6 @@ kibana:
 
 prometheus:
   name: "prometheus"
-  namespace: "monitoring"
   labels:
     app: "prometheus"
     component: "server"
@@ -196,18 +193,18 @@ prometheus:
   service:
     type: NodePort
   configMap:
-    name: "prometheus-config"
+    name: prometheus-config
     labels:
-      mylabel: "prometheus-configmap"
+      mylabel: prometheus-configmap
     scrapeConfigs:
       kubernetesPods: "kubernetes-pods"
       kubeStateMetrics: "kube-state-metrics"
       coinmarketcapExporter: "coinmarketcap-exporter"
       websitecs: "websitecs"
       nodeExporter: "node-exporter"
-      coinmarketcapExporterTarget: "192.168.68.107:32005"
-      websitecsTarget: "192.168.68.107:30080"
-      nodeExporterTarget: "192.168.68.107:9100"
+      coinmarketcapExporterTarget: "{{ .Values.global.raspberryIP }}:32005"
+      websitecsTarget: "{{ .Values.global.raspberryIP }}:30080"
+      nodeExporterTarget: "{{ .Values.global.raspberryIP }}:9100"
 
 prometheusNodeExporter:
   enabled: true
