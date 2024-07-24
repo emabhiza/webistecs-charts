@@ -13,4 +13,4 @@ spec:
   storageClassName: {{ .Values.grafana.pv.storageClassName }}
   nfs:
     path: {{ .Values.grafana.pv.path }}
-    server: {{ .Values.grafana.pv.server }}
+    server: {{ .Values.global.raspberryIP }}
