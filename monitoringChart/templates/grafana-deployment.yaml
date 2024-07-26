@@ -38,6 +38,8 @@ spec:
               value: {{ .Values.grafana.env.disableLoginForm | quote }}
             - name: GF_LOG_LEVEL
               value: {{ .Values.grafana.env.logLevel | quote }}
+            - name: GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION
+              value: {{ .Values.grafana.env.disableInitialAdminCreation | quote }}
           ports:
             - containerPort: {{ .Values.grafana.ports.containerPort }}
           resources:

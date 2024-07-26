@@ -118,8 +118,6 @@ grafana:
     name: monitoring-secrets
     adminUserKey: grafana-username
     adminPasswordKey: grafana-password
-  adminUser: "grafana-username"
-  adminPassword: "grafana-password"
   pvc:
     name: "grafana-nfs-claim"
     storage: "1Gi"
@@ -132,6 +130,7 @@ grafana:
     reclaimPolicy: "Retain"
   service:
     type: NodePort
+
 
 kibana:
   name: "kibana"
