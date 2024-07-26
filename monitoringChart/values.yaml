@@ -100,7 +100,7 @@ grafana:
   env:
     disableLoginForm: "false"
     logLevel: "info"
-    disableInitialAdminCreation: true
+    disableInitialAdminCreation: false
   ports:
     containerPort: 3000
     nodePort: 30091
