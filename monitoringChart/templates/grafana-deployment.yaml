@@ -24,6 +24,16 @@ spec:
           securityContext:
             runAsUser: {{ .Values.grafana.securityContext.runAsUser }}
           env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.grafana.secret.name }}
+                  key: {{ .Values.grafana.secret.adminUserKey }}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.grafana.secret.name }}
+                  key: {{ .Values.grafana.secret.adminPasswordKey }}
             - name: GF_AUTH_DISABLE_LOGIN_FORM
               value: {{ .Values.grafana.env.disableLoginForm | quote }}
             - name: GF_LOG_LEVEL
