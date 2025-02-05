@@ -17,11 +17,11 @@ webistecs:
     initialDelaySeconds: 5
     periodSeconds: 10
   secrets:
-    coinbaseApiKeySecret: "my-secret"
+    coinbaseApiKeySecret: "webistecs-secret"
     coinbaseApiKey: "cb_apiKey"
-    coinbaseApiSecretSecret: "my-secret"
+    coinbaseApiSecretSecret: "webistecs-secret"
     coinbaseApiSecret: "cb_apiSecret"
-    coingeckoSecret: "my-secret"
+    coingeckoSecret: "webistecs-secret"
     coingeckoApiKey: "coingecko_apiKey"
   databasePath: "/mnt/nfsshare/webistecs-database/webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
