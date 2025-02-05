@@ -35,5 +35,9 @@ data:
           - targets: ['{{ .Values.prometheus.configMap.scrapeConfigs.websitecsTarget }}']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
-        static_configs:
-          - targets: ['{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporterTarget }}']
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name]
+            action: keep
+            regex: monitoring;node-exporter

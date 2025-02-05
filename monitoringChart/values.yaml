@@ -210,7 +210,7 @@ prometheus:
       nodeExporter: "node-exporter"
       coinmarketcapExporterTarget: "192.168.68.107:32005"
       websitecsTarget: "192.168.68.107:30080"
-      nodeExporterTarget: "192.168.68.107:9100"
+      nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
 
 prometheusNodeExporter:
   enabled: true
