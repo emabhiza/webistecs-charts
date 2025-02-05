@@ -9,7 +9,7 @@ spec:
   ports:
     - name: "http"
       port: 8000
-      targetPort: 80
+      targetPort: 8080
       nodePort: {{ .Values.webistecs.service.nodePortHttp }}
       protocol: TCP
   selector:
