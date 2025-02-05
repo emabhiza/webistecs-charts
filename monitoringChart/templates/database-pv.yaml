@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ .Values.webistecs.pv.name }}
+  name: webistecs-db-pv
   labels:
-    type: {{ .Values.webistecs.pv.labels.type }}
+    type: webistecs-db
 spec:
   capacity:
-    storage: {{ .Values.webistecs.pv.capacity }}
+    storage: 20Gi
   accessModes:
-    - {{ .Values.webistecs.pv.accessModes }}
-  persistentVolumeReclaimPolicy: {{ .Values.webistecs.pv.persistentVolumeReclaimPolicy }}
-  storageClassName: {{ .Values.webistecs.pv.storageClassName }}
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-storage
   nfs:
-    path: {{ .Values.webistecs.pv.nfs.path }}
-    server: {{ .Values.global.raspberryIP }}
+    path: /mnt/nfsshare/webistecs-database
+    server: 192.168.68.107

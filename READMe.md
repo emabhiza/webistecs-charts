@@ -146,3 +146,6 @@ kubectl scale deployment webistecs-alertmanager --replicas=0
 
 kubectl delete deployment webistecs-kube-state-metrics
 ```
+
+
+helm install argo-cd argo/argo-cd --namespace argocd --create-namespace --replace
