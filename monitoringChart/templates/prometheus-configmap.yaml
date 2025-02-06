@@ -32,7 +32,7 @@ data:
           - source_labels: [__meta_kubernetes_service_label_mylabel]
             target_label: websitecs
         static_configs:
-          - targets: ['webistecs-service.default.svc.cluster.local:8000']
+          - targets: ['192.168.68.107:30080']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
         kubernetes_sd_configs:
