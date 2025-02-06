@@ -32,7 +32,9 @@ data:
           - source_labels: [__meta_kubernetes_service_label_mylabel]
             target_label: websitecs
         static_configs:
-          - targets: ['{{ .Values.prometheus.configMap.scrapeConfigs.websitecsTarget }}']
+          - targets: ['webistecs-service.default.svc.cluster.local:8080']
+        params:
+          max_scrape_size: ['100MB']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
         kubernetes_sd_configs:
