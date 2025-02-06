@@ -21,6 +21,8 @@ webistecs:
     coinbaseApiKey: "cb_apiKey"
     coinbaseApiSecretSecret: "webistecs-secret"
     coinbaseApiSecret: "cb_apiSecret"
+    krakenPublicKey: "kraken_publicKey"
+    krakenPrivateKey: "kraken_privateKey"
     coingeckoSecret: "webistecs-secret"
     coingeckoApiKey: "coingecko_apiKey"
   databasePath: "/mnt/nfsshare/webistecs-database/webistecs.db"

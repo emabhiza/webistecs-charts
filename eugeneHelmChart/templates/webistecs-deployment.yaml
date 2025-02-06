@@ -48,6 +48,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
+            - name: KRAKEN_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  key: {{ .Values.webistecs.secrets.krakenPublicKey }}
+            - name: KRAKEN_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  key: {{ .Values.webistecs.secrets.krakenPrivateKey }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
             - name: ENVIRONMENT
