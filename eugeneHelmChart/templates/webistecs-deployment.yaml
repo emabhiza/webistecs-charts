@@ -41,23 +41,33 @@ spec:
             - name: COINBASE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.coinbaseApiKeySecret }}
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiKey }}
             - name: COINBASE_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
             - name: KRAKEN_PUBLIC_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.krakenPublicKey }}
             - name: KRAKEN_PRIVATE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.coinbaseApiSecretSecret }}
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.krakenPrivateKey }}
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: {{ .Values.webistecs.secrets.telegramChatId }}
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: {{ .Values.webistecs.secrets.telegramBotToken }}
             - name: DATABASE_PATH
               value: {{ .Values.webistecs.databasePath }}
             - name: ENVIRONMENT

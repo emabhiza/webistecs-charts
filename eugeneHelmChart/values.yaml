@@ -17,14 +17,14 @@ webistecs:
     initialDelaySeconds: 5
     periodSeconds: 10
   secrets:
-    coinbaseApiKeySecret: "webistecs-secret"
+    coingeckoApiKey: "coingecko_apiKey"
     coinbaseApiKey: "cb_apiKey"
-    coinbaseApiSecretSecret: "webistecs-secret"
     coinbaseApiSecret: "cb_apiSecret"
     krakenPublicKey: "kraken_publicKey"
     krakenPrivateKey: "kraken_privateKey"
-    coingeckoSecret: "webistecs-secret"
-    coingeckoApiKey: "coingecko_apiKey"
+    telegramBotToken: "telegram_botToken"
+    telegramChatId: "telegram_botToken"
+    webistecsSecret: "webistecs-secret"
   databasePath: "/mnt/nfsshare/webistecs-database/webistecs.db"
   volumeMountPath: "/mnt/nfsshare"
   service:
