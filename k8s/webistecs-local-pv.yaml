@@ -6,7 +6,7 @@ metadata:
     type: webistecs
 spec:
   capacity:
-    storage: 50Gi              # Adjust size as needed
+    storage: 50Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
