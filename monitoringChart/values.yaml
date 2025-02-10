@@ -180,22 +180,12 @@ prometheus:
       name: "prometheus-data"
       mountPath: "/prometheus"
   pvc:
-    name: "prometheus-nfs-claim"
-    storage: "10Gi"
-    storageClassName: "nfs-storage"
+    name: "my-usb-pvc"
+    storage: "50Gi"
+    storageClassName: "local-storage"
     accessModes: "ReadWriteOnce"
     matchLabels:
       type: "prometheus"
-  pv:
-    name: "prometheus-nfs-volume"
-    matchLabels:
-      type: "prometheus"
-    storage: "10Gi"
-    path: "/mnt/nfsshare/prometheus"
-    server: "192.168.68.107"
-    storageClassName: "nfs-storage"
-    accessModes: "ReadWriteOnce"
-    reclaimPolicy: "Retain"
   service:
     type: NodePort
   configMap:
@@ -211,6 +201,7 @@ prometheus:
       coinmarketcapExporterTarget: "192.168.68.107:32005"
       websitecsTarget: "192.168.68.107:30080"
       nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
+
 
 prometheusNodeExporter:
   enabled: true

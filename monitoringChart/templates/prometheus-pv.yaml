@@ -1,18 +1,12 @@
 apiVersion: v1
-kind: PersistentVolume
+kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prometheus.pv.name }}
+  name: {{ .Values.prometheus.pvc.name }}
   namespace: {{ .Values.global.namespace }}
-  labels:
-    type: {{ .Values.prometheus.pv.matchLabels.type }}
 spec:
-  capacity:
-    storage: {{ .Values.prometheus.pv.storage }}
-  volumeMode: Filesystem
+  storageClassName: {{ .Values.prometheus.pvc.storageClassName }}
   accessModes:
-    - {{ .Values.prometheus.pv.accessModes }}
-  persistentVolumeReclaimPolicy: {{ .Values.prometheus.pv.reclaimPolicy }}
-  storageClassName: {{ .Values.prometheus.pv.storageClassName }}
-  nfs:
-    path: {{ .Values.prometheus.pv.path }}
-    server: {{ .Values.global.raspberryIP }}
+    - {{ .Values.prometheus.pvc.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.prometheus.pvc.storage }}

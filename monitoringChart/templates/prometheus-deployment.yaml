@@ -22,6 +22,8 @@ spec:
         prometheus.io/path: "/metrics"
         prometheus.io/port: "{{ .Values.prometheus.ports.containerPort }}"
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: "raspberrypi"
       containers:
         - name: {{ .Values.prometheus.name }}
           image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"

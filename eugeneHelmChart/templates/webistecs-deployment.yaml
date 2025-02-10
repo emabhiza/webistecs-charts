@@ -93,6 +93,5 @@ spec:
         - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:
         - name: db-volume
-          hostPath:
-            path: {{ .Values.webistecs.volume.hostPath }}
-            type: {{ .Values.webistecs.volume.type }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.webistecs.volume.persistentVolumeClaim.claimName }}

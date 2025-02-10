@@ -4,12 +4,12 @@ metadata:
   name: {{ .Values.prometheus.pvc.name }}
   namespace: {{ .Values.global.namespace }}
 spec:
-  selector:
-    matchLabels:
-      type: {{ .Values.prometheus.pvc.matchLabels.type }}
   storageClassName: {{ .Values.prometheus.pvc.storageClassName }}
   accessModes:
     - {{ .Values.prometheus.pvc.accessModes }}
   resources:
     requests:
       storage: {{ .Values.prometheus.pvc.storage }}
+  selector:
+    matchLabels:
+      type: {{ .Values.prometheus.pvc.matchLabels.type }}
