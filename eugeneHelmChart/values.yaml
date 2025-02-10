@@ -8,7 +8,8 @@ webistecs:
     tag: fix-migrations-app
   environment:
     aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/mnt/nfsshare/webistecs-database/webistecs.db"
+    # Updated connection string:
+    webistecsContext: "Data Source=/db/webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
