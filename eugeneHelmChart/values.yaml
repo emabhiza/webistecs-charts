@@ -61,9 +61,6 @@ dbMigrationJob:
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
-  volumeMounts:
-    - name: db-storage
-      mountPath: /mnt/nfsshare/webistecs-database
   volumes:
     - name: db-storage
       persistentVolumeClaim:

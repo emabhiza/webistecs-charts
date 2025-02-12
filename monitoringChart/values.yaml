@@ -24,33 +24,11 @@ coinmarketcapExporter:
       memory: "512Mi"
       cpu: "200m"
 
-webistecs:
-  pv:
-    name: "webistecs-db-pv"
-    labels:
-      type: "webistecs-db"
-    capacity: "20Gi"
-    accessModes: "ReadWriteOnce"
-    persistentVolumeReclaimPolicy: "Retain"
-    storageClassName: "nfs-storage"
-    nfs:
-      path: "/mnt/nfsshare/webistecs-database"
-  pvc:
-    name: "webistecs-db-pvc"
-    accessModes: "ReadWriteOnce"
-    resources:
-      requests:
-        storage: "20Gi"
-    storageClassName: "nfs-storage"
-    selector:
-      matchLabels:
-        type: "webistecs-db"
-        
 elasticsearch:
   name: "elasticsearch"
   replicas: 1
   image:
-    repository: docker.elastic.co/elasticsearch/elasticsearch
+    repository: "docker.elastic.co/elasticsearch/elasticsearch"
     tag: "8.3.2"
   env:
     discoveryType: "single-node"
@@ -74,17 +52,11 @@ elasticsearch:
       memory: "1Gi"
       cpu: "500m"
   pvc:
-    name: "elasticsearch-data-pvc"
-    storage: "5Gi"
-  pv:
-    name: "elasticsearch-data-pv"
-    storage: "5Gi"
-    path: "/mnt/nfsshare/elastic"
-    storageClassName: "local-path"
-    accessModes: "ReadWriteOnce"
-    reclaimPolicy: "Retain"
+    name: "elastic-local-pvc"
+    storage: "50Gi"
   service:
     type: NodePort
+
 
 grafana:
   name: "grafana"
@@ -98,9 +70,9 @@ grafana:
   securityContext:
     runAsUser: 472
   env:
-    disableLoginForm: "false"
+    disableLoginForm: "true"
     logLevel: "info"
-    disableInitialAdminCreation: false
+    disableInitialAdminCreation: "true"
   ports:
     containerPort: 3000
     nodePort: 30091
@@ -114,22 +86,12 @@ grafana:
   volumeMount:
     name: "grafana-data"
     mountPath: "/var/lib/grafana"
-  secret:
-    name: monitoring-secrets
-    adminUserKey: grafana-username
-    adminPasswordKey: grafana-password
   pvc:
-    name: "grafana-nfs-claim"
-    storage: "1Gi"
-  pv:
-    name: "grafana-nfs-volume"
-    storage: "1Gi"
-    path: "/mnt/nfsshare/grafana"
-    storageClassName: "nfs-storage"
-    accessModes: "ReadWriteOnce"
-    reclaimPolicy: "Retain"
+    name: "grafana-local-pvc"   # Updated to our new local PVC name
+    storage: "10Gi"
   service:
     type: NodePort
+
 
 
 kibana:

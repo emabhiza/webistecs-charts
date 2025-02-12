@@ -9,6 +9,8 @@ metadata:
 spec:
   template:
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: migration
           image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"

@@ -1,12 +1,23 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: {{ .Values.prometheus.pvc.name }}
-  namespace: {{ .Values.global.namespace }}
+  name: local-usb-pv
+  labels:
+    type: local
 spec:
-  storageClassName: {{ .Values.prometheus.pvc.storageClassName }}
+  storageClassName: local-storage
+  capacity:
+    storage: 983Gi
   accessModes:
-    - {{ .Values.prometheus.pvc.accessModes }}
-  resources:
-    requests:
-      storage: {{ .Values.prometheus.pvc.storage }}
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  local:
+    path: /media/eugenemabhiza/76E8-CACF/webistecs/prometheus
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - raspberrypi

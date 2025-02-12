@@ -1,14 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.elasticsearch.pvc.name }}
-  namespace: {{ .Values.global.namespace }}
-  labels:
-    app: {{ .Values.elasticsearch.name }}
+  name: elastic-local-pvc
 spec:
+  storageClassName: local-storage
   accessModes:
-    - {{ .Values.elasticsearch.pv.accessModes }}
+    - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.elasticsearch.pvc.storage }}
-  volumeName: {{ .Values.elasticsearch.pv.name }}
+      storage: 50Gi
