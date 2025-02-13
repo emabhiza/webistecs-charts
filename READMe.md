@@ -149,3 +149,7 @@ kubectl delete deployment webistecs-kube-state-metrics
 
 
 helm install argo-cd argo/argo-cd --namespace argocd --create-namespace --replace
+
+
+
+kubectl patch pv local-usb-pv -p '{"spec":{"claimRef":{"namespace":"monitoring","name":"my-usb-pvc"}}}'

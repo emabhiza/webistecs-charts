@@ -1,15 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.prometheus.pvc.name }}
-  namespace: {{ .Values.global.namespace }}
+  name: my-usb-pvc
+  namespace: monitoring
 spec:
-  selector:
-    matchLabels:
-      type: {{ .Values.prometheus.pvc.matchLabels.type }}
-  storageClassName: {{ .Values.prometheus.pvc.storageClassName }}
   accessModes:
-    - {{ .Values.prometheus.pvc.accessModes }}
+    - ReadWriteOnce
+  storageClassName: local-storage
   resources:
     requests:
-      storage: {{ .Values.prometheus.pvc.storage }}
+      storage: 50Gi

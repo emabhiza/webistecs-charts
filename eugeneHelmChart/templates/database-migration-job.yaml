@@ -9,6 +9,8 @@ metadata:
 spec:
   template:
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
         - name: migration
           image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
@@ -26,7 +28,10 @@ spec:
               memory: "{{ .Values.dbMigrationJob.resources.limits.memory }}"
               cpu: "{{ .Values.dbMigrationJob.resources.limits.cpu }}"
           volumeMounts:
-            {{- toYaml .Values.dbMigrationJob.volumeMounts | nindent 12 }}
+            - name: db-storage
+              mountPath: /db
       volumes:
-        {{- toYaml .Values.dbMigrationJob.volumes | nindent 8 }}
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: webistecs-db-pvc
       restartPolicy: Never

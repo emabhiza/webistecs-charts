@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: elastic-local-pvc
+  name: my-usb-pvc
 spec:
   storageClassName: local-storage
   accessModes:

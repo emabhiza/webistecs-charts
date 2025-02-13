@@ -3,12 +3,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: webistecs-db-pvc
 spec:
+  storageClassName: local-storage
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
-  storageClassName: nfs-storage
-  selector:
-    matchLabels:
-      type: webistecs-db
+      storage: 50Gi

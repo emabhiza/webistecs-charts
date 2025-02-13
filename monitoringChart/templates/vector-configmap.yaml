@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: monitoring
+data:
+  vector.toml: |
+    # INPUT: Read logs from container logs
+    [sources.kubernetes_logs]
+    type = "file"
+    include = ["/var/log/containers/webistecs*.log"]
+    ignore_older = 86400
+    fingerprint.strategy = "device_and_inode"
+
+    [sinks.console]
+    type = "console"
+    inputs = ["parse_json_logs"]
+    encoding.codec = "json"
+
+    # TRANSFORM: Extract Kubernetes metadata manually (Fixed VRL)
+    [transforms.parse_kubernetes_metadata]
+    type = "remap"
+    inputs = ["kubernetes_logs"]
+    source = '''
+    parsed = parse_regex!(string!(.file), r'^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-(?P<uid>[a-f0-9]+)\.log$')
+    if !is_null(parsed) {
+      .kubernetes = {"pod": parsed.pod, "namespace": parsed.namespace, "container": parsed.container}
+    }
+    '''
+
+    # TRANSFORM: Parse JSON logs (Fixed error coalescing issue)
+    [transforms.parse_json_logs]
+    type = "remap"
+    inputs = ["parse_kubernetes_metadata"]
+    source = '''
+    if is_string(.message) {
+      .log = parse_json(.message) ?? {}
+    }
+    '''
+
+    # OUTPUT: Send logs to Elasticsearch
+    [sinks.elasticsearch]
+    type = "elasticsearch"
+    inputs = ["parse_json_logs"]
+    endpoints = ["http://elasticsearch-service.monitoring.svc.cluster.local:9200"]
+    mode = "bulk"
+    compression = "gzip"
+    api_version = "v8"
+
+    # Use Elasticsearch Data Stream instead of an index
+    [sinks.elasticsearch.data_stream]
+    type = "logs"
+    dataset = "vector"
+    namespace = "default"
+
+    # Batch settings
+    [sinks.elasticsearch.batch]
+    max_events = 5000
+    timeout_secs = 5

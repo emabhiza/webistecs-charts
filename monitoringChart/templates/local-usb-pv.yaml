@@ -2,17 +2,15 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: local-usb-pv
-  labels:
-    type: local
 spec:
-  storageClassName: local-storage
   capacity:
     storage: 983Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
   local:
-    path: /media/eugenemabhiza/76E8-CACF/webistecs/prometheus
+    path: /media/eugenemabhiza/76E8-CACF
   nodeAffinity:
     required:
       nodeSelectorTerms:
