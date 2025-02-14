@@ -18,6 +18,12 @@ spec:
       containers:
         - name: {{ .Values.elasticsearch.name }}
           image: "{{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 9200
+            failureThreshold: 30
+            periodSeconds: 10
           env:
             - name: discovery.type
               value: {{ .Values.elasticsearch.env.discoveryType | quote }}
