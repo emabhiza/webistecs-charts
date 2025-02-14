@@ -5,24 +5,101 @@ metadata:
   namespace: monitoring
 data:
   vector.toml: |
-    [sources.my_logs]
+    # INPUT: Read logs from container logs
+    [sources.kubernetes_logs]
     type = "file"
-    include = ["/var/log/containers/simplified*.log"]
+    include = ["/var/log/containers/webistecs*.log"]
     ignore_older = 86400
     fingerprint.strategy = "device_and_inode"
 
-    [transforms.parse]
+    # TRANSFORM: Group multi-line logs into a single event
+    [transforms.group_multiline_logs]
+    type = "reduce"
+    inputs = ["kubernetes_logs"]
+    group_by = ["file"]  # Group by the file path to ensure logs from the same file are grouped
+    merge_strategies."message" = "concat_newline"  # Concatenate messages with newlines
+
+    # TRANSFORM: Extract Kubernetes metadata manually (Fixed VRL)
+    [transforms.parse_kubernetes_metadata]
     type = "remap"
-    inputs = ["my_logs"]
+    inputs = ["group_multiline_logs"]
     source = '''
-    if is_string(.message) {
-      . = merge(., parse_regex!(.message, r'^\[(?P<timestamp>[^\]]+)\] \[(?P<level>[^\]]+)\] (?P<message>.+)$'))
-    } else {
-      .
+    parsed = parse_regex!(string!(.file), r'^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-(?P<uid>[a-f0-9]+)\.log$')
+    if !is_null(parsed) {
+      .kubernetes = {"pod": parsed.pod, "namespace": parsed.namespace, "container": parsed.container}
     }
     '''
 
-    [sinks.console]
-    type = "console"
-    inputs = ["parse"]
-    encoding.codec = "json"
+    # TRANSFORM: Parse JSON logs (Fixed error coalescing issue)
+    [transforms.parse_json_logs]
+    type = "remap"
+    inputs = ["parse_kubernetes_metadata"]
+    source = '''
+    if is_string(.message) {
+      .log = parse_json(.message) ?? {}
+    }
+    '''
+    [transforms.parse_regex_logs]
+    type = "remap"
+    inputs = ["parse_json_logs"]
+    source = '''
+    if is_string(.message) {
+    parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) \w+ F \[(?P<level>\w+)\] (?P<message>.+)$')
+    if !is_null(parsed) {
+    . = merge(., parsed)
+    .timestamp = parsed.timestamp
+     }
+     }
+     '''
+
+    [transforms.format_logs]
+    type = "remap"
+    inputs = ["parse_regex_logs"]
+    source = '''
+    # Extract relevant fields from the log
+    .timestamp = to_string(.timestamp) ?? now()
+    .level = to_string(.level) ?? "INFO"
+    .message = to_string(.message) ?? ""
+
+    # Add Kubernetes metadata to the log
+    .pod = .kubernetes.pod
+    .namespace = .kubernetes.namespace
+    .container = .kubernetes.container
+
+    # Remove unnecessary fields
+    del(.log)
+    del(.kubernetes)
+    del(.file)
+
+    # Format the final log message
+    .formatted_message = join!(
+    [
+    "[", .timestamp, "] ",
+    "[", .level, "] ",
+    "[Pod: ", .pod, "] ",
+    "[Container: ", .container, "] ",
+    .message
+    ],
+    ""
+     )
+    '''
+
+    # OUTPUT: Send logs to Elasticsearch
+    [sinks.elasticsearch]
+    type = "elasticsearch"
+    inputs = ["format_logs"]
+    endpoints = ["http://elasticsearch-service.monitoring.svc.cluster.local:9200"]
+    mode = "bulk"
+    compression = "gzip"
+    api_version = "v8"
+
+    # Use Elasticsearch Data Stream instead of an index
+    [sinks.elasticsearch.data_stream]
+    type = "logs"
+    dataset = "vector"
+    namespace = "default"
+
+    # Batch settings
+    [sinks.elasticsearch.batch]
+    max_events = 5000
+    timeout_secs = 5
