@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: elastic-local-pvc
+  namespace: monitoring
 spec:
   storageClassName: local-storage
   accessModes:

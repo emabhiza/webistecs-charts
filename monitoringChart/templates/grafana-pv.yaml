@@ -4,7 +4,7 @@ metadata:
   name: grafana-local-pv
 spec:
   capacity:
-    storage: 10Gi                 # Adjust size as needed
+    storage: 10Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
