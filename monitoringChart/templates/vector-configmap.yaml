@@ -5,74 +5,24 @@ metadata:
   namespace: monitoring
 data:
   vector.toml: |
-    # INPUT: Read logs from container logs
-    [sources.kubernetes_logs]
+    [sources.my_logs]
     type = "file"
-    include = ["/var/log/containers/*.log"]
+    include = ["/var/log/containers/simplified*.log"]
     ignore_older = 86400
     fingerprint.strategy = "device_and_inode"
 
-    # TRANSFORM: Group multi-line logs into a single event
-    [transforms.group_multiline_logs]
-    type = "reduce"
-    inputs = ["kubernetes_logs"]
-    group_by = ["file"]
-    merge_strategies."message" = "concat_newline"
-
-    # TRANSFORM: Enrich events with Kubernetes metadata
-    [transforms.add_k8s_metadata]
-    type = "kubernetes_metadata"
-    inputs = ["group_multiline_logs"]
-
-    # TRANSFORM: Filter logs for pods with label app.kubernetes.io/name = "webistecs"
-    [transforms.filter_webistecs]
-    type = "filter"
-    inputs = ["add_k8s_metadata"]
-    condition = '.kubernetes.labels["app.kubernetes.io/name"] == "webistecs"'
-
-    # TRANSFORM: Parse JSON logs (if the message is JSON)
-    [transforms.parse_json_logs]
+    [transforms.parse]
     type = "remap"
-    inputs = ["filter_webistecs"]
+    inputs = ["my_logs"]
     source = '''
     if is_string(.message) {
-      .json_log = parse_json(.message) ?? {}
+      . = merge(., parse_regex!(.message, r'^\[(?P<timestamp>[^\]]+)\] \[(?P<level>[^\]]+)\] (?P<message>.+)$'))
+    } else {
+      .
     }
     '''
 
-    # TRANSFORM: Build a structured log object
-    [transforms.format_logs]
-    type = "remap"
-    inputs = ["parse_json_logs"]
-    source = '''
-    .timestamp = .json_log.timestamp ? to_string(.json_log.timestamp) : to_string(now())
-    .level = .json_log.level ? to_string(.json_log.level) : "INFO"
-    .message = .json_log.message ? to_string(.json_log.message) : string!(.message)
-    if exists(.json_log.exception) {
-      .exception = .json_log.exception
-    }
-    .pod = .kubernetes.pod ?? ""
-    .namespace = .kubernetes.namespace ?? ""
-    .container = .kubernetes.container ?? ""
-    del(.json_log)
-    del(.kubernetes)
-    del(.file)
-    '''
-
-    # OUTPUT: Send structured logs to Elasticsearch using a data stream
-    [sinks.elasticsearch]
-    type = "elasticsearch"
-    inputs = ["format_logs"]
-    endpoints = ["http://elasticsearch-service.monitoring.svc.cluster.local:9200"]
-    mode = "bulk"
-    compression = "gzip"
-    api_version = "v8"
-
-    [sinks.elasticsearch.data_stream]
-    type = "logs"
-    dataset = "vector"
-    namespace = "default"
-
-    [sinks.elasticsearch.batch]
-    max_events = 5000
-    timeout_secs = 5
+    [sinks.console]
+    type = "console"
+    inputs = ["parse"]
+    encoding.codec = "json"
