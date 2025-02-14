@@ -39,16 +39,27 @@ data:
       .log = parse_json(.message) ?? {}
     }
     '''
-
-    # TRANSFORM: Format log messages for better readability
-    [transforms.format_logs]
+    [transforms.parse_regex_logs]
     type = "remap"
     inputs = ["parse_json_logs"]
     source = '''
+    if is_string(.message) {
+    parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) \w+ F \[(?P<level>\w+)\] (?P<message>.+)$')
+    if !is_null(parsed) {
+    . = merge(., parsed)
+    .timestamp = parsed.timestamp
+     }
+     }
+     '''
+
+    [transforms.format_logs]
+    type = "remap"
+    inputs = ["parse_regex_logs"]
+    source = '''
     # Extract relevant fields from the log
-    .timestamp = to_string(.log.timestamp) ?? to_string(.log.time) ?? now()
-    .level = to_string(.log.level) ?? "INFO"
-    .message = to_string(.log.message) ?? to_string(.log.msg) ?? to_string(.log) ?? ""
+    .timestamp = to_string(.timestamp) ?? now()
+    .level = to_string(.level) ?? "INFO"
+    .message = to_string(.message) ?? ""
 
     # Add Kubernetes metadata to the log
     .pod = .kubernetes.pod
@@ -70,7 +81,7 @@ data:
     .message
     ],
     ""
-    )
+     )
     '''
 
     # OUTPUT: Send logs to Elasticsearch
