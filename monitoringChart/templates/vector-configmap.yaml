@@ -61,16 +61,16 @@ data:
     del(.file)
 
     # Format the final log message
-    .formatted_message = string!(join!(
-      [
-        "[", .timestamp, "] ",
-        "[", .level, "] ",
-        "[Pod: ", .pod, "] ",
-        "[Container: ", .container, "] ",
-        .message
-      ],
-      ""
-    ))
+    .formatted_message = join!(
+    [
+    "[", .timestamp, "] ",
+    "[", .level, "] ",
+    "[Pod: ", .pod, "] ",
+    "[Container: ", .container, "] ",
+    .message
+    ],
+    ""
+    )
     '''
 
     # OUTPUT: Send logs to Elasticsearch
