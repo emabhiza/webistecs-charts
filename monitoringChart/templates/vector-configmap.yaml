@@ -12,15 +12,17 @@ data:
     ignore_older = 86400
     fingerprint.strategy = "device_and_inode"
 
-    [sinks.console]
-    type = "console"
-    inputs = ["parse_json_logs"]
-    encoding.codec = "json"
+    # TRANSFORM: Group multi-line logs into a single event
+    [transforms.group_multiline_logs]
+    type = "reduce"
+    inputs = ["kubernetes_logs"]
+    group_by = ["file"]  # Group by the file path to ensure logs from the same file are grouped
+    merge_strategies."message" = "concat_newline"  # Concatenate messages with newlines
 
     # TRANSFORM: Extract Kubernetes metadata manually (Fixed VRL)
     [transforms.parse_kubernetes_metadata]
     type = "remap"
-    inputs = ["kubernetes_logs"]
+    inputs = ["group_multiline_logs"]
     source = '''
     parsed = parse_regex!(string!(.file), r'^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-(?P<uid>[a-f0-9]+)\.log$')
     if !is_null(parsed) {
@@ -38,10 +40,43 @@ data:
     }
     '''
 
+    # TRANSFORM: Format log messages for better readability
+    [transforms.format_logs]
+    type = "remap"
+    inputs = ["parse_json_logs"]
+    source = '''
+    # Extract relevant fields from the log
+    .timestamp = to_string(.log.timestamp) ?? to_string(.log.time) ?? now()
+    .level = to_string(.log.level) ?? "INFO"
+    .message = to_string(.log.message) ?? to_string(.log.msg) ?? to_string(.log) ?? ""
+
+    # Add Kubernetes metadata to the log
+    .pod = .kubernetes.pod
+    .namespace = .kubernetes.namespace
+    .container = .kubernetes.container
+
+    # Remove unnecessary fields
+    del(.log)
+    del(.kubernetes)
+    del(.file)
+
+    # Format the final log message
+    .formatted_message = join!(
+    [
+    "[", .timestamp, "] ",
+    "[", .level, "] ",
+    "[Pod: ", .pod, "] ",
+    "[Container: ", .container, "] ",
+    .message
+    ],
+    ""
+    )
+    '''
+
     # OUTPUT: Send logs to Elasticsearch
     [sinks.elasticsearch]
     type = "elasticsearch"
-    inputs = ["parse_json_logs"]
+    inputs = ["format_logs"]
     endpoints = ["http://elasticsearch-service.monitoring.svc.cluster.local:9200"]
     mode = "bulk"
     compression = "gzip"

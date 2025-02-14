@@ -7,6 +7,7 @@ metadata:
     app: {{ .Values.prometheus.labels.app }}
     component: {{ .Values.prometheus.labels.component }}
 spec:
+
   replicas: {{ .Values.prometheus.replicas }}
   selector:
     matchLabels:
@@ -24,6 +25,8 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: "raspberrypi"
+      securityContext:
+          fsGroup: 65534
       containers:
         - name: {{ .Values.prometheus.name }}
           image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
