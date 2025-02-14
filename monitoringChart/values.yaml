@@ -140,7 +140,7 @@ prometheus:
       mountPath: "/etc/prometheus"
     data:
       name: "prometheus-data"
-      mountPath: "/prometheus"
+      mountPath: "/prometheus/data"
   pvc:
     name: "my-usb-pvc"
     storage: "50Gi"
