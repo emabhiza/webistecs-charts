@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /media/eugenemabhiza/76E8-CACF/webistecs/elastic
+    path: /media/emabhiza/webistecsStorage/webistecs/elastic
   nodeAffinity:
     required:
       nodeSelectorTerms:

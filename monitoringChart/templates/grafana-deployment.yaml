@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.grafana.name }}
-  namespace: {{ .Values.global.namespace }}
+  namespace: {{ .Values.global.namespace | default "monitoring" }}
   labels:
     app: {{ .Values.grafana.labels.app }}
     component: {{ .Values.grafana.labels.component }}
@@ -34,6 +34,10 @@ spec:
               value: "http://192.168.68.107:30091/"
             - name: GF_SERVER_HTTP_ADDR
               value: "0.0.0.0"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: "Viewer"
           ports:
             - containerPort: {{ .Values.grafana.ports.containerPort }}
           resources:
@@ -44,9 +48,20 @@ spec:
               memory: "{{ .Values.grafana.resources.limits.memory }}"
               cpu: "{{ .Values.grafana.resources.limits.cpu }}"
           volumeMounts:
-            - name: {{ .Values.grafana.volumeMount.name }}
-              mountPath: {{ .Values.grafana.volumeMount.mountPath }}
+            - name: grafana-data
+              mountPath: "/var/lib/grafana"
+            - name: grafana-plugins
+              mountPath: "/var/lib/grafana/plugins"
+            - name: grafana-config
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
       volumes:
-        - name: {{ .Values.grafana.volumeMount.name }}
+        - name: grafana-data
           persistentVolumeClaim:
-            claimName: {{ .Values.grafana.pvc.name }}
+            claimName: {{ .Values.grafana.pvcData.name }}
+        - name: grafana-plugins
+          persistentVolumeClaim:
+            claimName: {{ .Values.grafana.pvcPlugins.name }}
+        - name: grafana-config
+          configMap:
+            name: grafana-config
