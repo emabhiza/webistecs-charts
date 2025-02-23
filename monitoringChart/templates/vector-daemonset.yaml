@@ -36,7 +36,7 @@ spec:
             name: vector-config
         - name: vector-storage
           hostPath:
-            path: /media/eugenemabhiza/76E8-CACF/vector
+            path: /media/emabhiza/webistecsStorage/webistecs/vector
             type: DirectoryOrCreate
         - name: varlog
           hostPath:

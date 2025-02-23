@@ -72,7 +72,7 @@ grafana:
   env:
     disableLoginForm: "true"
     logLevel: "info"
-    disableInitialAdminCreation: "true"
+    disableInitialAdminCreation: "false"
   ports:
     containerPort: 3000
     nodePort: 30091
@@ -83,15 +83,25 @@ grafana:
     limits:
       memory: "512Mi"
       cpu: "200m"
-  volumeMount:
-    name: "grafana-data"
-    mountPath: "/var/lib/grafana"
-  pvc:
-    name: "grafana-local-pvc"   # Updated to our new local PVC name
+
+  # Define two PVC references now:
+  pvcData:
+    name: "grafana-local-pvc"
     storage: "10Gi"
+
+  pvcPlugins:
+    name: "grafana-plugins-pvc"
+    storage: "2Gi"
+
+  # Keep volumeMounts
+  volumeMounts:
+    - name: grafana-data
+      mountPath: "/var/lib/grafana"
+    - name: grafana-plugins
+      mountPath: "/var/lib/grafana/plugins"
+
   service:
     type: NodePort
-
 
 
 kibana:

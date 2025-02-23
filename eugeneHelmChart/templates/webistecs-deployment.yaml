@@ -38,22 +38,22 @@ spec:
             initialDelaySeconds: {{ .Values.webistecs.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.webistecs.readinessProbe.periodSeconds }}
           env:
-            - name: COINBASE_KEY
+            - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiKey }}
-            - name: COINBASE_SECRET
+            - name: COINBASE__PRIVATEKEYNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbaseApiSecret }}
-            - name: KRAKEN_PUBLIC_KEY
+            - name: KRAKEN__PUBLICKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.krakenPublicKey }}
-            - name: KRAKEN_PRIVATE_KEY
+            - name: KRAKEN__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
