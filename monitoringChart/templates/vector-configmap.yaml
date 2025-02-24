@@ -16,10 +16,10 @@ data:
     [transforms.group_multiline_logs]
     type = "reduce"
     inputs = ["kubernetes_logs"]
-    group_by = ["file"]  # Group by the file path to ensure logs from the same file are grouped
-    merge_strategies."message" = "concat_newline"  # Concatenate messages with newlines
+    group_by = ["file"]
+    merge_strategies."message" = "concat_newline"
 
-    # TRANSFORM: Extract Kubernetes metadata manually (Fixed VRL)
+    # TRANSFORM: Extract Kubernetes metadata
     [transforms.parse_kubernetes_metadata]
     type = "remap"
     inputs = ["group_multiline_logs"]
@@ -30,7 +30,7 @@ data:
     }
     '''
 
-    # TRANSFORM: Parse JSON logs (Fixed error coalescing issue)
+    # TRANSFORM: Parse JSON logs
     [transforms.parse_json_logs]
     type = "remap"
     inputs = ["parse_kubernetes_metadata"]
@@ -39,49 +39,39 @@ data:
       .log = parse_json(.message) ?? {}
     }
     '''
+
+    # TRANSFORM: Parse regex logs
     [transforms.parse_regex_logs]
     type = "remap"
     inputs = ["parse_json_logs"]
     source = '''
     if is_string(.message) {
-    parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) \w+ F \[(?P<level>\w+)\] (?P<message>.+)$')
-    if !is_null(parsed) {
-    . = merge(., parsed)
-    .timestamp = parsed.timestamp
-     }
-     }
-     '''
+      parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) \w+ F \[(?P<level>\w+)\] (?P<message>.+)$')
+      if !is_null(parsed) {
+        . = merge(., parsed)
+        .timestamp = parsed.timestamp
+      }
+    }
+    '''
 
+    # TRANSFORM: Format logs
     [transforms.format_logs]
     type = "remap"
     inputs = ["parse_regex_logs"]
     source = '''
-    # Extract relevant fields from the log
     .timestamp = to_string(.timestamp) ?? now()
     .level = to_string(.level) ?? "INFO"
     .message = to_string(.message) ?? ""
-
-    # Add Kubernetes metadata to the log
     .pod = .kubernetes.pod
     .namespace = .kubernetes.namespace
     .container = .kubernetes.container
-
-    # Remove unnecessary fields
     del(.log)
     del(.kubernetes)
     del(.file)
-
-    # Format the final log message
     .formatted_message = join!(
-    [
-    "[", .timestamp, "] ",
-    "[", .level, "] ",
-    "[Pod: ", .pod, "] ",
-    "[Container: ", .container, "] ",
-    .message
-    ],
-    ""
-     )
+      ["[", .timestamp, "] ", "[", .level, "] ", "[Pod: ", .pod, "] ", "[Container: ", .container, "] ", .message],
+      ""
+    )
     '''
 
     # OUTPUT: Send logs to Elasticsearch
@@ -93,13 +83,11 @@ data:
     compression = "gzip"
     api_version = "v8"
 
-    # Use Elasticsearch Data Stream instead of an index
     [sinks.elasticsearch.data_stream]
     type = "logs"
     dataset = "vector"
     namespace = "default"
 
-    # Batch settings
     [sinks.elasticsearch.batch]
-    max_events = 5000
-    timeout_secs = 5
+    max_events = 1000  # Reduced batch size for Raspberry Pi
+    timeout_secs = 10  # Increased timeout
