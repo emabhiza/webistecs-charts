@@ -1,10 +1,11 @@
+# loki-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-config
   namespace: logging
 data:
-  local-config.yaml: |
+  loki.yaml: |
     auth_enabled: false
     server:
       http_listen_port: 3100
