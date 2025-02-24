@@ -80,4 +80,4 @@ data:
     inputs = ["format_logs"]
     endpoint = "http://loki.monitoring.svc.cluster.local:3100"
     labels = {"pod" = ".pod", "namespace" = ".namespace", "container" = ".container", "level" = ".level"}
-    encoding = "json"
+    encoding.codec = "json"
