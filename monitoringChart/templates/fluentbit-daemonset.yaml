@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentbit
+  namespace: monitoring
+  labels:
+    app: fluentbit
+spec:
+  selector:
+    matchLabels:
+      app: fluentbit
+  template:
+    metadata:
+      labels:
+        app: fluentbit
+    spec:
+      containers:
+        - name: fluentbit
+          image: fluent/fluent-bit:1.9.10
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 200Mi
+              cpu: 100m
+            requests:
+              memory: 100Mi
+              cpu: 50m
+          volumeMounts:
+            - name: config
+              mountPath: /fluent-bit/etc/
+            - name: varlog
+              mountPath: /var/log
+            - name: fluentbit-primary
+              mountPath: /var/log/fluentbit/primary
+            - name: fluentbit-secondary
+              mountPath: /var/log/fluentbit/secondary
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: fluentbit-config
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: fluentbit-primary
+          persistentVolumeClaim:
+            claimName: fluentbit-primary-pvc
+        - name: fluentbit-secondary
+          persistentVolumeClaim:
+            claimName: fluentbit-secondary-pvc
