@@ -12,7 +12,7 @@ data:
 
     ingester:
       wal:
-        dir: /var/loki/wal  # Write-Ahead Log directory
+        dir: /var/loki/wal
       lifecycler:
         address: 0.0.0.0
         ring:
@@ -36,9 +36,8 @@ data:
             period: 24h
 
     storage_config:
-      boltdb_shipper:
-        active_index_directory: /var/loki/index
-        cache_location: /var/loki/cache
+      tsdb:
+        directory: /var/loki/tsdb
       filesystem:
         directory: /var/loki/chunks
 
