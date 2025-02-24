@@ -20,13 +20,13 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: FLB_DISABLE_JEMALLOC
-              value: "1"
+              value: "true"
           resources:
             limits:
-              memory: 200Mi
+              memory: 500Mi  # Increased memory limit
               cpu: 100m
             requests:
-              memory: 100Mi
+              memory: 200Mi  # Increased memory request
               cpu: 50m
           volumeMounts:
             - name: config
