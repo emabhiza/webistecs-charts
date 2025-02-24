@@ -50,6 +50,7 @@ data:
       max_entries_limit_per_query: 5000
       max_query_series: 1000
       allow_structured_metadata: false  # Disable structured metadata
+      max_entry_size: 10MB
 
     compactor:
       working_directory: /var/loki/compactor
