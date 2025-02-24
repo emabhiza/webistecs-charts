@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluentd-config
-  namespace: logging
+  namespace: monitoring
 data:
   fluent.conf: |
     <source>
