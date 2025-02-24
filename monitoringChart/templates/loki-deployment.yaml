@@ -20,7 +20,6 @@ spec:
           image: grafana/loki:2.8.0
           args:
             - "-config.file=/etc/loki/loki.yaml"
-            - "-validation.allow-structured-metadata=false"
           ports:
             - containerPort: 3100
           volumeMounts:
