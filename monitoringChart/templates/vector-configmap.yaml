@@ -40,13 +40,13 @@ data:
     }
     '''
 
-    # TRANSFORM: Parse regex logs
+    # TRANSFORM: Parse regex logs (updated regex pattern)
     [transforms.parse_regex_logs]
     type = "remap"
     inputs = ["parse_json_logs"]
     source = '''
     if is_string(.message) {
-      parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) \w+ F \[(?P<level>\w+)\] (?P<message>.+)$')
+      parsed = parse_regex!(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?P<level>\w+) (?P<message>.+)$')
       if !is_null(parsed) {
         . = merge(., parsed)
         .timestamp = parsed.timestamp
@@ -74,20 +74,10 @@ data:
     )
     '''
 
-    # OUTPUT: Send logs to Elasticsearch
-    [sinks.elasticsearch]
-    type = "elasticsearch"
+    # OUTPUT: Send logs to Loki
+    [sinks.loki]
+    type = "loki"
     inputs = ["format_logs"]
-    endpoints = ["http://elasticsearch-service.monitoring.svc.cluster.local:9200"]
-    mode = "bulk"
-    compression = "gzip"
-    api_version = "v8"
-
-    [sinks.elasticsearch.data_stream]
-    type = "logs"
-    dataset = "vector"
-    namespace = "default"
-
-    [sinks.elasticsearch.batch]
-    max_events = 1000  # Reduced batch size for Raspberry Pi
-    timeout_secs = 10  # Increased timeout
+    endpoint = "http://loki.monitoring.svc.cluster.local:3100"
+    labels = {"pod" = ".pod", "namespace" = ".namespace", "container" = ".container", "level" = ".level"}
+    encoding = "json"
