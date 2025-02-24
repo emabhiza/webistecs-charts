@@ -16,18 +16,18 @@ spec:
     spec:
       containers:
         - name: fluentbit
-          image: fluent/fluent-bit:1.9.10
+          image: fluent/fluent-bit:latest  # Use the latest version
           imagePullPolicy: IfNotPresent
           env:
             - name: FLB_DISABLE_JEMALLOC
-              value: "true"
+              value: "true"  # Disable jemalloc
           resources:
             limits:
-              memory: 500Mi  # Increased memory limit
-              cpu: 100m
+              memory: "500Mi"  # Increased memory limit
+              cpu: "100m"
             requests:
-              memory: 200Mi  # Increased memory request
-              cpu: 50m
+              memory: "200Mi"  # Increased memory request
+              cpu: "50m"
           volumeMounts:
             - name: config
               mountPath: /fluent-bit/etc/
