@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: FLB_DISABLE_JEMALLOC
-              value: "true"
+              value: "1"
           resources:
             limits:
               memory: 200Mi
