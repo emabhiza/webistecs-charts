@@ -1,4 +1,3 @@
-# loki-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -41,3 +40,6 @@ data:
       reject_old_samples_max_age: 168h
       ingestion_rate_mb: 16
       ingestion_burst_size_mb: 32
+      allow_structured_metadata: false  # Disable structured metadata
+    compactor:
+      working_directory: /var/loki/compactor  # Set a valid working directory
