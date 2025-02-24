@@ -1,3 +1,5 @@
+---
+# Loki ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -91,7 +93,9 @@ data:
 
     analytics:
       reporting_enabled: false
+
 ---
+# Loki Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -127,7 +131,9 @@ spec:
             name: loki-config
         - name: loki-storage
           emptyDir: {}
+
 ---
+# Loki Service
 apiVersion: v1
 kind: Service
 metadata:
