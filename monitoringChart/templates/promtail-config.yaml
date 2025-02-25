@@ -15,26 +15,25 @@ data:
     scrape_configs:
       - job_name: kubernetes-logs
         static_configs:
-          - targets:
-              - localhost
+          - targets: ['localhost']
             labels:
               job: kubernetes-logs
               __path__: /var/log/containers/webistecs*.log
         pipeline_stages:
-          # Extract pod, namespace, container, and uid from the filename.
+          # Extract pod, namespace, and container from the filename.
           - regex:
               expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)(?:-[a-f0-9]+)?\\.log$"
               source: __path__
               target: filename_data
-          # Debug: Print extracted data
+          # Debug: output the extracted data as JSON.
           - template:
-              source: 'Extracted data: {{ toJson .filename_data }}'
+              source: 'Extracted data: {{"{{"}} toJson .filename_data {{"}}"}}'
               target: debug_output
-          # Propagate extracted values as labels.
+          # Propagate extracted values as labels, defaulting to "unknown" if extraction failed.
           - labels:
-              pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              pod: '{{"{{"}} if .filename_data }}{{"{{"}} if .filename_data.pod }}{{"{{"}} .filename_data.pod {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}{{"{{"}} end {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}'
+              namespace: '{{"{{"}} if .filename_data }}{{"{{"}} if .filename_data.namespace }}{{"{{"}} .filename_data.namespace {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}{{"{{"}} end {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}'
+              container: '{{"{{"}} if .filename_data }}{{"{{"}} if .filename_data.container }}{{"{{"}} .filename_data.container {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}{{"{{"}} end {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}'
           # Combine multi-line logs (assumes each new log starts with “[”).
           - multiline:
               firstline: '^\['
@@ -48,14 +47,14 @@ data:
               expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
               source: msg
           - labels:
-              http_status: '{{ .http_status }}'
+              http_status: '{{"{{"}} if .http_status }}{{"{{"}} .http_status {{"}}"}}{{"{{"}} else }}unknown{{"}}"}}{{"{{"}} end {{"}}"}}'
           # Detect if the message contains an exception or error.
           - regex:
               expression: '^(?P<exception>.*(Exception|Error).*)$'
               source: msg
               target: exception_info
           - labels:
-              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+              exception: '{{"{{"}} if .exception_info }}{{"{{"}} if .exception_info.exception }}true{{"{{"}} else }}false{{"}}"}}{{"{{"}} end {{"}}"}}{{"{{"}} else }}false{{"}}"}}'
           # Set the log timestamp using only the time portion.
           - timestamp:
               source: time
@@ -63,4 +62,4 @@ data:
               target: __timestamp__
           # Reformat the log output into a cleaner, readable message.
           - output:
-              source: "[{{ .time }} {{ .level }}] [{{ .category }}]{{ if .app }} [{{ .app }}]{{ end }} {{ .msg }}"
+              source: "[{{\"{{\"}} .time {{\"}}\"}} {{\"{{\"}} .level {{\"}}\"}}] [{{\"{{\"}} .category {{\"}}\"}}]{{\"{{\"}} if .app {{\"}}\"}} [{{\"{{\"}} .app {{\"}}\"}}]{{\"{{\"}} end {{\"}}\"}} {{\"{{\"}} .msg {{\"}}\"}}"
