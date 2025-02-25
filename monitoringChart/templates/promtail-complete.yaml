@@ -60,6 +60,7 @@ data:
           # Reformat the log output into a cleaner, readable message.
           - output:
               source: "[{{ .time }} {{ .level }}] [{{ .category }}]{{ if .app }} [{{ .app }}]{{ end }} {{ .msg }}"
+
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -95,6 +96,7 @@ spec:
         - name: varlog
           hostPath:
             path: /var/log
+
 ---
 apiVersion: v1
 kind: ServiceAccount
