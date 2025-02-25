@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  namespace: monitoring
+data:
+  promtail.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+      - job_name: kubernetes-logs
+        static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: kubernetes-logs
+              __path__: /var/log/containers/webistecs*.log
+        pipeline_stages:
+          # Extract pod, namespace, container, and uid from the filename.
+          - regex:
+              expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-(?P<uid>[a-f0-9]+)\\.log$"
+              source: __path__
+              target: filename_data
+          # Propagate extracted values as labels.
+          - labels:
+              pod: '{{ .filename_data.pod }}'
+              namespace: '{{ .filename_data.namespace }}'
+              container: '{{ .filename_data.container }}'
+          # Combine multi-line logs (assumes each new log starts with “[”).
+          - multiline:
+              firstline: '^\['
+              max_wait_time: 3s
+          # Parse the log line into time, level, category, optional application, and message.
+          - regex:
+              expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}) (?P<level>\w{3})\] \[(?P<category>[^\]]+)\](?: \[(?P<app>[^\]]+)\])? (?P<msg>.+)$'
+              source: message
+          # Extract HTTP status codes from the message, if present.
+          - regex:
+              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
+              source: msg
+          - labels:
+              http_status: '{{ .http_status }}'
+          # Detect if the message contains an exception or error.
+          - regex:
+              expression: '^(?P<exception>.*(Exception|Error).*)$'
+              source: msg
+              target: exception_info
+          - labels:
+              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+          # Set the log timestamp using only the time portion.
+          - timestamp:
+              source: time
+              format: "15:04:05"
+              target: __timestamp__
+          # Reformat the log output into a cleaner, readable message.
+          - output:
+              source: "[{{ .time }} {{ .level }}] [{{ .category }}]{{ if .app }} [{{ .app }}]{{ end }} {{ .msg }}"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: monitoring
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail
+      containers:
+        - name: promtail
+          image: grafana/promtail:2.9.0
+          args:
+            - "-config.file=/etc/promtail/promtail.yaml"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/promtail
+            - name: varlog
+              mountPath: /var/log
+      volumes:
+        - name: config-volume
+          configMap:
+            name: promtail-config
+        - name: varlog
+          hostPath:
+            path: /var/log
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promtail
+  namespace: monitoring
