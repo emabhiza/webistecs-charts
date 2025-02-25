@@ -24,7 +24,7 @@ data:
         pipeline_stages:
           # Extract pod, namespace, container, and uid from the filename.
           - regex:
-              expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-(?P<uid>[a-f0-9]+)\\.log$"
+              expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)(?:-[a-f0-9]+)?\\.log$"
               source: __path__
               target: filename_data
           # Propagate extracted values as labels.
