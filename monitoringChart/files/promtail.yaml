@@ -1,0 +1,58 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+clients:
+  - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: kubernetes-logs
+    static_configs:
+      - targets: ['localhost']
+        labels:
+          job: kubernetes-logs
+          __path__: /var/log/containers/webistecs*.log
+    pipeline_stages:
+      # Extract pod, namespace, and container from the filename.
+      - regex:
+          expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)(?:-[a-f0-9]+)?\\.log$"
+          source: __path__
+          target: filename_data
+      # Debug: output the extracted data as JSON.
+      - template:
+          source: 'Extracted data: {{ toJson .filename_data }}'
+          target: debug_output
+      # Propagate extracted values as labels, defaulting to "unknown" if extraction failed.
+      - labels:
+          pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
+          namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
+          container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+      # Combine multi-line logs (assumes each new log starts with “[”).
+      - multiline:
+          firstline: '^\['
+          max_wait_time: 3s
+      # Parse the log line into time, level, category, optional application, and message.
+      - regex:
+          expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}) (?P<level>\w{3})\] \[(?P<category>[^\]]+)\](?: \[(?P<app>[^\]]+)\])? (?P<msg>.+)$'
+          source: message
+      # Extract HTTP status codes from the message, if present.
+      - regex:
+          expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
+          source: msg
+      - labels:
+          http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
+      # Detect if the message contains an exception or error.
+      - regex:
+          expression: '^(?P<exception>.*(Exception|Error).*)$'
+          source: msg
+          target: exception_info
+      - labels:
+          exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+      # Set the log timestamp using only the time portion.
+      - timestamp:
+          source: time
+          format: "15:04:05"
+          target: __timestamp__
+      # Reformat the log output into a cleaner, readable message.
+      - output:
+          source: "[{{ .time }} {{ .level }}] [{{ .category }}]{{ if .app }} [{{ .app }}]{{ end }} {{ .msg }}"
