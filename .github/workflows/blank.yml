@@ -1,0 +1,28 @@
+name: Update Chart Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      newTag:
+        description: 'New Docker image tag'
+        required: true
+        type: string
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update values.yaml
+        run: |
+          sed -i "s/tag: .*/tag: ${{ github.event.inputs.newTag }}/" eugeneHelmChart/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "your-bot@example.com"
+          git config --global user.name "Chart Update Bot"
+          git add eugeneHelmChart/values.yaml
+          git commit -m "Update Docker image tag to ${{ github.event.inputs.newTag }}"
+          git push
