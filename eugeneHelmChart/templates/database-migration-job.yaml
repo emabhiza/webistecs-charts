@@ -6,19 +6,22 @@ metadata:
     argocd.argoproj.io/hook: "{{ .Values.dbMigrationJob.annotations.argocd.hook }}"
     argocd.argoproj.io/hook-weight: "{{ .Values.dbMigrationJob.annotations.argocd.hookWeight }}"
     argocd.argoproj.io/hook-delete-policy: "{{ .Values.dbMigrationJob.annotations.argocd.hookDeletePolicy }}"
-    image-tag: "{{ .Values.webistecs.image.tag }}"
-    image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
-    checksum/config: {{ .Values.webistecs.image.tag | quote | sha256sum }}
+    image-tag: "{{ .Values.dbMigrationJob.image.tag | quote }}"
+    image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag | quote }}"
+    checksum/config: "{{ .Values.dbMigrationJob.image.tag | sha256sum }}"
     rollme: "{{ randAlphaNum 5 | quote }}"
 
 spec:
   template:
+    metadata:
+      labels:
+        job: "db-migration"
     spec:
       securityContext:
         fsGroup: 1000
       containers:
         - name: migration
-          image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
+          image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag | quote }}"
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE__ENVIRONMENT
@@ -38,5 +41,5 @@ spec:
       volumes:
         - name: db-storage
           persistentVolumeClaim:
-            claimName: webistecs-db-pvc
+            claimName: "{{ .Values.dbMigrationJob.volumes.0.persistentVolumeClaim.claimName }}"
       restartPolicy: Never
