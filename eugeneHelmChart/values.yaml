@@ -24,6 +24,8 @@ webistecs:
     krakenPublicKey: "kraken_publicKey"
     krakenPrivateKey: "kraken_privateKey"
     telegramBotToken: "telegram_botToken"
+    telegram_chatId: "telegram_botToken"
+    telegramBotToken: "telegram_botToken"
     telegramChatId: "telegram_chatId"
     webistecsSecret: "webistecs-secret"
   databasePath: "/db/webistecs.db"

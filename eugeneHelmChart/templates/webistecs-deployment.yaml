@@ -65,7 +65,22 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.telegramChatId }}
-            - name: TELEGRAM_BOT_TOKEN
+            - name: TELEGRAM__TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: {{ .Values.webistecs.secrets.telegramBotToken }}
+            - name: TELEGRAM__CHANNELS__NOTIFICATIONS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: {{ .Values.webistecs.secrets.telegramBotToken }}
+            - name: TELEGRAM__CHANNELS__ERRORS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: {{ .Values.webistecs.secrets.telegramBotToken }}
+            - name: TELEGRAM__CHANNELS__FUNCTIONS
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
