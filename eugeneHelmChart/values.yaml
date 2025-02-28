@@ -5,7 +5,7 @@ webistecs:
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: 4
+    tag: "4"
   environment:
     aspNetCoreEnvironment: Production
     # Updated connection string:
