@@ -5,7 +5,7 @@ webistecs:
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: 5
+    tag: 30
   environment:
     aspNetCoreEnvironment: Production
     # Updated connection string:
@@ -24,9 +24,9 @@ webistecs:
     krakenPublicKey: "kraken_publicKey"
     krakenPrivateKey: "kraken_privateKey"
     telegramBotToken: "telegram_botToken"
-    telegram_chatId: "telegram_botToken"
-    telegramBotToken: "telegram_botToken"
-    telegramChatId: "telegram_chatId"
+    telegram_NotificationChannel: "telegram_channelsNotifications"
+    telegram_ErrorsChannel: "telegram_channelsErrors"
+    telegram_FunctionsChannel: "telegram_channelsFunctions"
     webistecsSecret: "webistecs-secret"
   databasePath: "/db/webistecs.db"
   volumeMountPath: "/db"
@@ -59,7 +59,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 5
+    tag: 30
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
