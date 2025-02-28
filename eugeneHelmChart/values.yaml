@@ -5,7 +5,7 @@ webistecs:
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: 5
+    tag: 6
   environment:
     aspNetCoreEnvironment: Production
     # Updated connection string:
@@ -57,7 +57,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: 5
+    tag: 6
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
