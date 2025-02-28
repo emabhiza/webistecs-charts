@@ -41,5 +41,5 @@ spec:
       volumes:
         - name: db-storage
           persistentVolumeClaim:
-            claimName: "{{ .Values.dbMigrationJob.volumes.0.persistentVolumeClaim.claimName }}"
+            claimName: webistecs-db-pvc
       restartPolicy: Never
