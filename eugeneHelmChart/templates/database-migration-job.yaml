@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/hook-delete-policy: "{{ .Values.dbMigrationJob.annotations.argocd.hookDeletePolicy }}"
     image-tag: "{{ .Values.dbMigrationJob.image.tag | quote }}"
     image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag | quote }}"
-    checksum/config: "{{ .Values.dbMigrationJob.image.tag | sha256sum }}"
+    checksum-config: "{{ .Values.dbMigrationJob.image.tag | sha256sum }}" # Corrected line
     rollme: "{{ randAlphaNum 5 | quote }}"
 
 spec:
