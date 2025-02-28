@@ -6,11 +6,12 @@ metadata:
     {{- include "webistecs.labels" . | nindent 4 }}
   annotations:
     docker-image: {{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}
-    image-tag: {{ .Values.webistecs.image.tag }}
+    image-tag: "{{ .Values.webistecs.image.tag }}"
     co.elastic.logs/enabled: {{ .Values.webistecs.logging.enabled | quote }}
     co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
     co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
     co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
+
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
   selector:
