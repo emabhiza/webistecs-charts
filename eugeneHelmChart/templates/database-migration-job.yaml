@@ -9,6 +9,7 @@ metadata:
     image-tag: "{{ .Values.webistecs.image.tag }}"
     image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
     checksum/config: {{ .Values.webistecs.image.tag | toString | sha256sum }}
+    rollme: "{{ randAlphaNum 5 | quote }}"
 
 spec:
   template:

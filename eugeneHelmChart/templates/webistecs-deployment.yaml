@@ -12,6 +12,7 @@ metadata:
     co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
     co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
     checksum/config: {{ .Values.webistecs.image.tag | toString | sha256sum }}
+    rollme: "{{ randAlphaNum 5 | quote }}"
 
 
 spec:
