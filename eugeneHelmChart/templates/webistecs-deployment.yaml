@@ -6,14 +6,11 @@ metadata:
     {{- include "webistecs.labels" . | nindent 4 }}
   annotations:
     docker-image: {{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}
-    image-tag: "{{ .Values.webistecs.image.tag }}"
     co.elastic.logs/enabled: {{ .Values.webistecs.logging.enabled | quote }}
     co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
     co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
     co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
-    checksum/config: {{ .Values.webistecs.image.tag | quote | sha256sum }}
-    rollme: "{{ randAlphaNum 5 | quote }}"
-
+    checksum/config: "{{ .Values.dbMigrationJob.image.tag | sha256sum }}"
 
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
