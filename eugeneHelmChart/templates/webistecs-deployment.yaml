@@ -11,6 +11,7 @@ metadata:
     co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
     co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
     co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
+    checksum/config: {{ include (print $.Template.BasePath "/values.yaml") . | sha256sum }}
 
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
