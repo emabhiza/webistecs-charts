@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/hook-delete-policy: "{{ .Values.dbMigrationJob.annotations.argocd.hookDeletePolicy }}"
     image-tag: "{{ .Values.webistecs.image.tag }}"
     image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
-    checksum/config: {{ .Values.webistecs.image.tag | sha256sum }}
+    checksum/config: {{ .Values.webistecs.image.tag | toString | sha256sum }}
 
 spec:
   template:
