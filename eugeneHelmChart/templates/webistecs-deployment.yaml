@@ -30,9 +30,6 @@ spec:
       containers:
         - name: {{ .Values.webistecs.containerName }}
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: [ "/bin/sh", "-c" ]
-          args:
-            - "env | grep COINBASE > /tmp/env.log; cat /tmp/env.log; sleep 120; ./your-app"
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}
