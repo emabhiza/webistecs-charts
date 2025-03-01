@@ -28,29 +28,30 @@ data:
 
           # Extract pod, namespace, and container from filename
           - regex:
-              expression: "^(?P<pod>[a-zA-Z0-9-]+)_(?P<namespace>[a-zA-Z0-9-]+)_(?P<container>[a-zA-Z0-9-]+)-[a-f0-9]+\.log$"
+              expression: "^(?P<pod>[a-zA-Z0-9-]+)_(?P<namespace>[a-zA-Z0-9-]+)_(?P<container>[a-zA-Z0-9-]+)-[a-f0-9]+\\.log$"
               source: __path__
               target: filename_data
 
           # Debug extracted fields
           - template:
-              source: 'Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}'
+              source: |
+                Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}
               target: debug_output
 
           - labels:
-              pod: '{{ .pod }}'
-              namespace: '{{ .namespace }}'
-              container: '{{ .container }}'
+              pod: '{{ if .pod }}{{ .pod }}{{ else }}unknown{{ end }}'
+              namespace: '{{ if .namespace }}{{ .namespace }}{{ else }}default{{ end }}'
+              container: '{{ if .container }}{{ .container }}{{ else }}unknown{{ end }}'
 
           # Support for multi-line logs
           - multiline:
-              firstline: '^\['
+              firstline: '^\\['
               max_wait_time: 5s
-              continue_through: '^(?!\[)'
+              continue_through: '^(?!\\[)'
 
           # Extract structured log details (Time, Level, Component, Message)
           - regex:
-              expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
+              expression: '^\\[(?P<time>\\d{2}:\\d{2}:\\d{2}\\.\\d{3}) (?P<level>\\w{3})\\] \\[(?P<component>[^\\]]+)\\] (?P<msg>.+)$'
               source: message
 
           - labels:
@@ -66,7 +67,7 @@ data:
 
           # Extract HTTP status codes from logs
           - regex:
-              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
+              expression: '.*http request (?:success|failure) (?P<http_status>\\d{3}).*'
               source: msg
 
           - labels:
