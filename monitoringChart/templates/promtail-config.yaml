@@ -77,7 +77,7 @@ data:
               target: exception_info
 
           - labels:
-              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+              exception: '{{ if .exception_info }}{{ if .exception_info.exception }}true{{ else }}false{{ end }}{{ else }}false{{ end }}'
 
           # Format output logs for cleaner display
           - output:
