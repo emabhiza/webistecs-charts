@@ -21,32 +21,32 @@ data:
               __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
 
         pipeline_stages:
-          # 🛑 Drop DEBUG logs before processing
+          # Drop DEBUG logs before processing
           - drop:
               expression: ".*DEBUG.*"
               source: message
 
-          # 🎯 Extract pod, namespace, and container names
+          # Extract pod, namespace, and container from filename
           - regex:
-              expression: "^(?P<container>[^-]+)-(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
+              expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^-]+)-[a-f0-9]+\\.log$"
               source: __path__
-              target: filename_data
 
+          # Debug extracted fields
           - template:
-              source: 'Extracted data: {{ toJson .filename_data }}'
+              source: 'Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}'
               target: debug_output
 
           - labels:
-              pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              pod: '{{ .pod }}'
+              namespace: '{{ .namespace }}'
+              container: '{{ .container }}'
 
-          # 📌 Support for multi-line logs
+          # Support for multi-line logs
           - multiline:
               firstline: '^\['
               max_wait_time: 3s
 
-          # 🔍 Extract structured log fields (Time, Level, Component, Message)
+          # Extract structured log details (Time, Level, Component, Message)
           - regex:
               expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
               source: message
@@ -55,7 +55,14 @@ data:
               level: '{{ .level }}'
               component: '{{ .component }}'
 
-          # 🏷 Extract HTTP status codes from logs
+          # Ensure timestamps include milliseconds
+          - timestamp:
+              source: time
+              format: "15:04:05.000"
+              location: Europe/London
+              action: replace
+
+          # Extract HTTP status codes from logs
           - regex:
               expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
               source: msg
@@ -63,7 +70,7 @@ data:
           - labels:
               http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
 
-          # 🚨 Capture exceptions/errors for better alerting
+          # Capture exceptions/errors for better alerting
           - regex:
               expression: '^(?P<exception>.*(Exception|Error).*)$'
               source: msg
@@ -72,6 +79,6 @@ data:
           - labels:
               exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
 
-          # 📢 Format output logs for cleaner display
+          # Format output logs for cleaner display
           - output:
               source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
