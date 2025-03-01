@@ -1,84 +1,71 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: promtail-config
-  namespace: monitoring
-data:
-  promtail.yaml: |
-    server:
-      http_listen_port: 9080
-      grpc_listen_port: 0
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
 
-    clients:
-      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+clients:
+  - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
-    scrape_configs:
-      - job_name: kubernetes-logs
-        static_configs:
-          - targets: ['localhost']
-            labels:
-              job: kubernetes-logs
-              __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
+scrape_configs:
+  - job_name: kubernetes-logs
+    static_configs:
+      - targets: ['localhost']
+        labels:
+          job: kubernetes-logs
+          __path__: /var/log/containers/*.log
 
-        pipeline_stages:
-          # Drop DEBUG logs before processing
-          - drop:
-              expression: ".*DEBUG.*"
-              source: message
+    pipeline_stages:
+      - drop:
+          expression: ".*DEBUG.*"
+          source: message
 
-          # Extract pod, namespace, and container from filename
-          - regex:
-              expression: "^(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^-]+)-[a-f0-9]+\\.log$"
-              source: __path__
+      # Extract pod, namespace, and container from filename
+      - regex:
+          expression: "^(?P<pod>[a-zA-Z0-9-]+)_(?P<namespace>[a-zA-Z0-9-]+)_(?P<container>[a-zA-Z0-9-]+)(?:-[a-f0-9]+)?\\.log$"
+          source: __path__
 
-          # Debug extracted fields
-          - template:
-              source: 'Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}'
-              target: debug_output
+      - labels:
+          pod: '{{ if .pod }}{{ .pod }}{{ else }}unknown{{ end }}'
+          namespace: '{{ if .namespace }}{{ .namespace }}{{ else }}default{{ end }}'
+          container: '{{ if .container }}{{ .container }}{{ else }}unknown{{ end }}'
 
-          - labels:
-              pod: '{{ .pod }}'
-              namespace: '{{ .namespace }}'
-              container: '{{ .container }}'
+      # Multi-line handling for logs with stack traces
+      - multiline:
+          firstline: '^\['
+          max_wait_time: 5s
+          continue_through: '^(?!\[)'  # Capture stack traces properly
 
-          # Support for multi-line logs
-          - multiline:
-              firstline: '^\['
-              max_wait_time: 3s
+      # Extract time, level, and message
+      - regex:
+          expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
+          source: message
 
-          # Extract structured log details (Time, Level, Component, Message)
-          - regex:
-              expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
-              source: message
+      - labels:
+          level: '{{ .level }}'
+          component: '{{ .component }}'
 
-          - labels:
-              level: '{{ .level }}'
-              component: '{{ .component }}'
+      - timestamp:
+          source: time
+          format: "15:04:05.000"
+          location: UTC
+          action: replace
 
-          # Ensure timestamps include milliseconds
-          - timestamp:
-              source: time
-              format: "15:04:05.000"
-              location: Europe/London
-              action: replace
+      # Extract HTTP status codes
+      - regex:
+          expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
+          source: msg
 
-          # Extract HTTP status codes from logs
-          - regex:
-              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
-              source: msg
+      - labels:
+          http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
 
-          - labels:
-              http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
+      # Capture exceptions/errors
+      - regex:
+          expression: '^(?P<exception>.*(Exception|Error).*)$'
+          source: msg
+          target: exception_info
 
-          # Capture exceptions/errors for better alerting
-          - regex:
-              expression: '^(?P<exception>.*(Exception|Error).*)$'
-              source: msg
-              target: exception_info
+      - labels:
+          exception: '{{ if .exception_info }}{{ if .exception_info.exception }}true{{ else }}false{{ end }}{{ else }}false{{ end }}'
 
-          - labels:
-              exception: '{{ if .exception_info }}{{ if .exception_info.exception }}true{{ else }}false{{ end }}{{ else }}false{{ end }}'
-
-          # Format output logs for cleaner display
-          - output:
-              source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
+      # Improve output formatting
+      - output:
+          source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
