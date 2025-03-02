@@ -18,7 +18,7 @@ data:
           - targets: ['localhost']
             labels:
               job: kubernetes-logs
-              __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
+              __path__: /var/log/containers/webistecs-6bb7bb9f57-ss5mv_default_my-container-*.log
 
         pipeline_stages:
           # Debug: Log the raw log entry
@@ -26,6 +26,11 @@ data:
               source: |
                 Raw log entry: {{ .__line__ }}
               target: debug_raw_log
+
+          # Drop logs from unwanted containers (e.g., util, monitor, prometheus, node)
+          - drop:
+              expression: "webistecs-(util|monitor|prometheus|node)"
+              source: __path__
 
           # Drop DEBUG logs before processing
           - drop:
