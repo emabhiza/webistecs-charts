@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: promtail
-  namespace: monitoring
+  namespace: logging
   labels:
     app: promtail
 spec:
