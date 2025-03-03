@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: promtail-config
-  namespace: logging
+  namespace: monitoring
 data:
   promtail.yaml: |
     server:
@@ -45,28 +45,16 @@ data:
           - multiline:
               firstline: '^\S.*Exception:|\S.*Error:|\S.*Trace:|\S.*INF\] \[.*\]'
               max_wait_time: 10s
-              continue_through: '^(?!\[\d{2}:\d{2}:\d{2}\.\d{3} \w{3}\])'
-
-          - drop:
-              expression: "^(Caused by:|Traceback)"
-              source: message
-
-          - multiline:
-              firstline: '^\S.*'
               max_lines: 500
               continue_through: '^\s+at\s|\s+---\s|^\S.*INF\] \[.*\]'
-          - output:
-              source: "multiline stage output: {{.message}}"
 
-          # 🛠️ Strip timestamp and metadata from all lines
+          # 🛠️ Strip timestamp and metadata from all lines except the first one
           - regex:
-              expression: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+stdout\s+F\s+(?P<message>.*)$'
+              expression: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+(?P<message>.+)$'
               source: message
               replace: '{{ .message }}'
-          - output:
-              source: "Regex stage output: {{.message}}"
 
-          # Extract structured log details (Time, Level, Component, Message)
+          # 🔍 Extract structured log fields (Time, Level, Component, Message)
           - regex:
               expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
               source: message
