@@ -1,4 +1,3 @@
-# promtail ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,7 +10,7 @@ data:
       grpc_listen_port: 0
 
     clients:
-      - url: http://loki.logging.svc.cluster.local:3100/loki/api/v1/push
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
     scrape_configs:
       - job_name: kubernetes-logs
@@ -19,44 +18,63 @@ data:
           - targets: ['localhost']
             labels:
               job: kubernetes-logs
-              __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
+              __path__: /var/log/containers/webistecs-6bb7bb9f57-ss5mv_default_my-container-*.log
 
         pipeline_stages:
-          # 🛑 Drop DEBUG logs before processing
+          # Debug: Log the raw log entry
+          - template:
+              source: |
+                Raw log entry: {{ .__line__ }}
+              target: debug_raw_log
+
+          # Drop logs from unwanted containers (e.g., util, monitor, prometheus, node)
+          - drop:
+              expression: "webistecs-(util|monitor|prometheus|node)"
+              source: __path__
+
+          # Drop DEBUG logs before processing
           - drop:
               expression: ".*DEBUG.*"
               source: message
 
-          # 🎯 Extract pod, namespace, and container names
+          # Extract pod, namespace, and container from filename
           - regex:
-              expression: "^(?P<container>[^-]+)-(?P<container_id>[^_]+)_(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
+              expression: "^(?P<pod>[a-zA-Z0-9-]+)_(?P<namespace>[a-zA-Z0-9-]+)_(?P<container>[a-zA-Z0-9-]+)-[a-f0-9]+\\.log$"
               source: __path__
               target: filename_data
 
-          # Safely extract labels by checking if filename_data exists
+          # Debug extracted fields
+          - template:
+              source: |
+                Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}
+              target: debug_extracted_fields
+
           - labels:
-              pod: '{{ if and .filename_data .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if and .filename_data .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if and .filename_data .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              pod: '{{ if .pod }}{{ .pod }}{{ else }}unknown{{ end }}'
+              namespace: '{{ if .namespace }}{{ .namespace }}{{ else }}default{{ end }}'
+              container: '{{ if .container }}{{ .container }}{{ else }}unknown{{ end }}'
 
-          # 📌 Support for multi-line logs (stack traces, exceptions, etc.)
+          # Support for multi-line logs
           - multiline:
-              firstline: '^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)'
+              firstline: '^\[\d{2}:\d{2}:\d{2}\.\d{3} \w{3}\]'
               max_wait_time: 10s
+              continue_through: '^(?!\[\d{2}:\d{2}:\d{2}\.\d{3} \w{3}\])'
+
+          - drop:
+              expression: "^(Caused by:|Traceback)"
+              source: message
+
+          - multiline:
+              firstline: '^\S.*'
               max_lines: 500
-              continue_through: '^\s+at\s|\s+---\s'
+              max_wait_time: 3s
 
-          # 🛠️ Strip timestamp, stream metadata (stdout F), and other prefixes
-          - regex:
-              expression: '(?m)^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+'
-              replace: ''
+          - template:
+              source: |
+                Multiline output: {{ .message }}
+              target: debug_multiline_output
 
-          # Indent exception stack traces with extra indentation
-          - regex:
-              expression: '(?m)^(\s*at\s|.*Exception:|--- End of stack trace)'
-              replace: '        $1'  # 8 spaces for extra indentation
-
-          # 🔍 Extract structured log fields (Time, Level, Component, Message)
+          # Extract structured log details (Time, Level, Component, Message)
           - regex:
               expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
               source: message
@@ -65,23 +83,15 @@ data:
               level: '{{ .level }}'
               component: '{{ .component }}'
 
-          # 🏷 Extract HTTP status codes from logs
-          - regex:
-              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
-              source: msg
+          # Ensure timestamps include milliseconds
+          - timestamp:
+              source: time
+              format: "15:04:05.000"
+              location: Europe/London
+              action: replace
 
-          - labels:
-              http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
-
-          # 🚨 Capture exceptions/errors for better alerting
-          - regex:
-              expression: '^(?P<exception>.*(Exception|Error).*)$'
-              source: msg
-              target: exception_info
-
-          - labels:
-              exception: '{{ if and .exception_info .exception_info.exception }}true{{ else }}false{{ end }}'
-
-          # 📢 Format output logs for cleaner display
-          - output:
-              source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
+          # Debug final log entry
+          - template:
+              source: |
+                Final log entry: time={{ .time }}, level={{ .level }}, component={{ .component }}, msg={{ .msg }}
+              target: debug_final_log
