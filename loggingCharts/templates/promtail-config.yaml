@@ -18,45 +18,32 @@ data:
           - targets: ['localhost']
             labels:
               job: kubernetes-logs
-              __path__: /var/log/containers/webistecs-6bb7bb9f57-ss5mv_default_my-container-*.log
+              __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
 
         pipeline_stages:
-          # Debug: Log the raw log entry
-          - template:
-              source: |
-                Raw log entry: {{ .__line__ }}
-              target: debug_raw_log
-
-          # Drop logs from unwanted containers (e.g., util, monitor, prometheus, node)
-          - drop:
-              expression: "webistecs-(util|monitor|prometheus|node)"
-              source: __path__
-
-          # Drop DEBUG logs before processing
+          # 🛑 Drop DEBUG logs before processing
           - drop:
               expression: ".*DEBUG.*"
               source: message
 
-          # Extract pod, namespace, and container from filename
+          # 🎯 Extract pod, namespace, and container names
           - regex:
-              expression: "^(?P<pod>[a-zA-Z0-9-]+)_(?P<namespace>[a-zA-Z0-9-]+)_(?P<container>[a-zA-Z0-9-]+)-[a-f0-9]+\\.log$"
+              expression: "^(?P<container>[^-]+)-(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
               source: __path__
               target: filename_data
 
-          # Debug extracted fields
           - template:
-              source: |
-                Extracted fields: pod={{ .pod }}, namespace={{ .namespace }}, container={{ .container }}
-              target: debug_extracted_fields
+              source: 'Extracted data: {{ toJson .filename_data }}'
+              target: debug_output
 
           - labels:
-              pod: '{{ if .pod }}{{ .pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if .namespace }}{{ .namespace }}{{ else }}default{{ end }}'
-              container: '{{ if .container }}{{ .container }}{{ else }}unknown{{ end }}'
+              pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
+              namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
+              container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
 
-          # Support for multi-line logs
+          # 📌 Support for multi-line logs (stack traces, exceptions, etc.)
           - multiline:
-              firstline: '^\[\d{2}:\d{2}:\d{2}\.\d{3} \w{3}\]'
+              firstline: '^\S.*Exception:|\S.*Error:|\S.*Trace:|\S.*INF\] \[.*\]'
               max_wait_time: 10s
               continue_through: '^(?!\[\d{2}:\d{2}:\d{2}\.\d{3} \w{3}\])'
 
@@ -67,12 +54,17 @@ data:
           - multiline:
               firstline: '^\S.*'
               max_lines: 500
-              max_wait_time: 3s
+              continue_through: '^\s+at\s|\s+---\s|^\S.*INF\] \[.*\]'
+          - output:
+              source: "multiline stage output: {{.message}}"
 
-          - template:
-              source: |
-                Multiline output: {{ .message }}
-              target: debug_multiline_output
+          # 🛠️ Strip timestamp and metadata from all lines
+          - regex:
+              expression: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+stdout\s+F\s+(?P<message>.*)$'
+              source: message
+              replace: '{{ .message }}'
+          - output:
+              source: "Regex stage output: {{.message}}"
 
           # Extract structured log details (Time, Level, Component, Message)
           - regex:
@@ -83,15 +75,23 @@ data:
               level: '{{ .level }}'
               component: '{{ .component }}'
 
-          # Ensure timestamps include milliseconds
-          - timestamp:
-              source: time
-              format: "15:04:05.000"
-              location: Europe/London
-              action: replace
+          # 🏷 Extract HTTP status codes from logs
+          - regex:
+              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
+              source: msg
 
-          # Debug final log entry
-          - template:
-              source: |
-                Final log entry: time={{ .time }}, level={{ .level }}, component={{ .component }}, msg={{ .msg }}
-              target: debug_final_log
+          - labels:
+              http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
+
+          # 🚨 Capture exceptions/errors for better alerting
+          - regex:
+              expression: '^(?P<exception>.*(Exception|Error).*)$'
+              source: msg
+              target: exception_info
+
+          - labels:
+              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+
+          # 📢 Format output logs for cleaner display
+          - output:
+              source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
