@@ -1,4 +1,3 @@
----
 # promtail ConfigMap
 apiVersion: v1
 kind: ConfigMap
@@ -34,11 +33,6 @@ data:
               source: __path__
               target: filename_data
 
-          # Debug stage to output extracted data
-          - template:
-              source: 'Extracted data: {{ toJson .filename_data }}'
-              target: debug_output
-
           # Safely extract labels by checking if filename_data exists
           - labels:
               pod: '{{ if and .filename_data .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
@@ -47,16 +41,20 @@ data:
 
           # 📌 Support for multi-line logs (stack traces, exceptions, etc.)
           - multiline:
-              firstline: '^\S.*Exception:|\S.*Error:|\S.*Trace:|\S.*INF\] \[.*\]'
+              firstline: '^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)'
               max_wait_time: 10s
               max_lines: 500
-              continue_through: '^\s+at\s|\s+---\s|^\S.*INF\] \[.*\]'
+              continue_through: '^\s+at\s|\s+---\s'
 
-          # 🛠️ Strip timestamp and metadata from all lines except the first one
+          # 🛠️ Strip timestamp, stream metadata (stdout F), and other prefixes
           - regex:
-              expression: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+(?P<message>.+)$'
-              source: message
-              replace: '{{ .message }}'
+              expression: '(?m)^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+'
+              replace: ''
+
+          # Indent exception stack traces with extra indentation
+          - regex:
+              expression: '(?m)^(\s*at\s|.*Exception:|--- End of stack trace)'
+              replace: '        $1'  # 8 spaces for extra indentation
 
           # 🔍 Extract structured log fields (Time, Level, Component, Message)
           - regex:
