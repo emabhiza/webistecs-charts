@@ -32,14 +32,16 @@ data:
               source: __path__
               target: filename_data
 
+          # Debug stage to output extracted data
           - template:
               source: 'Extracted data: {{ toJson .filename_data }}'
               target: debug_output
 
+          # Safely extract labels by checking if filename_data exists
           - labels:
-              pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              pod: '{{ if and .filename_data .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
+              namespace: '{{ if and .filename_data .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
+              container: '{{ if and .filename_data .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
 
           # 📌 Support for multi-line logs (stack traces, exceptions, etc.)
           - multiline:
