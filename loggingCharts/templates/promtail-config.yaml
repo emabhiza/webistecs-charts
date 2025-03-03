@@ -1,8 +1,9 @@
+# promtail ConfigMap
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: promtail-config
-  namespace: monitoring
+  namespace: logging
 data:
   promtail.yaml: |
     server:
@@ -10,7 +11,7 @@ data:
       grpc_listen_port: 0
 
     clients:
-      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+      - url: http://loki.logging.svc.cluster.local:3100/loki/api/v1/push
 
     scrape_configs:
       - job_name: kubernetes-logs
@@ -28,35 +29,32 @@ data:
 
           # 🎯 Extract pod, namespace, and container names
           - regex:
-              expression: "^(?P<container>[^-]+)-(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
+              expression: "^(?P<container>[^-]+)-(?P<container_id>[^_]+)_(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
               source: __path__
               target: filename_data
 
-          - template:
-              source: 'Extracted data: {{ toJson .filename_data }}'
-              target: debug_output
-
+          # Safely extract labels by checking if filename_data exists
           - labels:
-              pod: '{{ if .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              pod: '{{ if and .filename_data .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
+              namespace: '{{ if and .filename_data .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
+              container: '{{ if and .filename_data .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
 
           # 📌 Support for multi-line logs (stack traces, exceptions, etc.)
           - multiline:
-              firstline: '^\S.*Exception:|\S.*Error:|\S.*Trace:|\S.*INF\] \[.*\]'
+              firstline: '^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)'
               max_wait_time: 10s
               max_lines: 500
-              continue_through: '^\s+at\s|\s+---\s|^\S.*INF\] \[.*\]'
-          - output:
-              source: "multiline stage output: {{.message}}"
+              continue_through: '^\s+at\s|\s+---\s'
 
-          # 🛠️ Strip timestamp and metadata from all lines
+          # 🛠️ Strip timestamp, stream metadata (stdout F), and other prefixes
           - regex:
-              expression: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+stdout\s+F\s+(?P<message>.*)$'
-              source: message
-              replace: '{{ .message }}'
-          - output:
-              source: "Regex stage output: {{.message}}"
+              expression: '(?m)^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+'
+              replace: ''
+
+          # Indent exception stack traces with extra indentation
+          - regex:
+              expression: '(?m)^(\s*at\s|.*Exception:|--- End of stack trace)'
+              replace: '        $1'  # 8 spaces for extra indentation
 
           # 🔍 Extract structured log fields (Time, Level, Component, Message)
           - regex:
@@ -82,7 +80,7 @@ data:
               target: exception_info
 
           - labels:
-              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+              exception: '{{ if and .exception_info .exception_info.exception }}true{{ else }}false{{ end }}'
 
           # 📢 Format output logs for cleaner display
           - output:

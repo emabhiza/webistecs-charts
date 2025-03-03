@@ -4,7 +4,7 @@ global:
 
 coinmarketcapExporter:
   name: "coinmarketcap-exporter"
-  replicas: 1
+  replicas: 0 # turned off
   image:
     repository: emabhiza/coinmarketcap-exporter
     tag: beta-16
@@ -23,39 +23,6 @@ coinmarketcapExporter:
     limits:
       memory: "512Mi"
       cpu: "200m"
-
-elasticsearch:
-  name: "elasticsearch"
-  replicas: 1
-  image:
-    repository: "docker.elastic.co/elasticsearch/elasticsearch"
-    tag: "8.3.2"
-  env:
-    discoveryType: "single-node"
-    securityEnabled: "false"
-    javaOpts: "-Xms512m -Xmx512m"
-  ports:
-    http:
-      containerPort: 9200
-      nodePort: 32000
-    transport:
-      containerPort: 9300
-      nodePort: 32001
-  volumeMount:
-    name: "elasticsearch-data"
-    mountPath: "/usr/share/elasticsearch/data"
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "250m"
-    limits:
-      memory: "1Gi"
-      cpu: "500m"
-  pvc:
-    name: "elastic-local-pvc"
-    storage: "50Gi"
-  service:
-    type: NodePort
 
 
 grafana:
@@ -103,22 +70,6 @@ grafana:
   service:
     type: NodePort
 
-
-kibana:
-  name: "kibana"
-  labels:
-    app: "kibana"
-  replicas: 1
-  image:
-    repository: "docker.elastic.co/kibana/kibana"
-    tag: "8.3.2"
-  env:
-    elasticsearchHosts: "http://elasticsearch-service:9200"
-  ports:
-    containerPort: 5601
-    nodePort: 32002
-  service:
-    type: NodePort
 
 
 prometheus:
