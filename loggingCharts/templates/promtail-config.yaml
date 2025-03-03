@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -80,7 +81,7 @@ data:
               target: exception_info
 
           - labels:
-              exception: '{{ if .exception_info.exception }}true{{ else }}false{{ end }}'
+              exception: '{{ if and .exception_info .exception_info.exception }}true{{ else }}false{{ end }}'
 
           # 📢 Format output logs for cleaner display
           - output:
