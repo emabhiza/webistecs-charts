@@ -1,4 +1,3 @@
-# values.yaml
 webistecs:
   nameOverride: "webistecs"
   replicaCount: 1
@@ -12,7 +11,7 @@ webistecs:
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
-    path: "/healthz"  # Path to the health check endpoint
+    path: "/healthz/ready"  # Path to the health check endpoint
     port: 8080        # Port for the health check
     initialDelaySeconds: 5  # Wait 5 seconds before starting the probe
     periodSeconds: 10       # Check every 10 seconds
