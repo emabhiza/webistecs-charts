@@ -25,7 +25,7 @@ data:
       chunk_idle_period: 1h
       max_chunk_age: 1h
       chunk_target_size: 1048576  # 1MB
-      chunk_retain_period: 30s
+      chunk_retain_period: 5m
 
     schema_config:
       configs:

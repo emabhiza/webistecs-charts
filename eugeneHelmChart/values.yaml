@@ -8,19 +8,26 @@ webistecs:
     tag: 30
   environment:
     aspNetCoreEnvironment: Production
-    # Updated connection string:
     webistecsContext: "Data Source=/db/webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
-    path: "/healthz"
-    port: 8080
-    initialDelaySeconds: 5
-    periodSeconds: 10
+    path: "/healthz"  # Path to the health check endpoint
+    port: 8080        # Port for the health check
+    initialDelaySeconds: 5  # Wait 5 seconds before starting the probe
+    periodSeconds: 10       # Check every 10 seconds
+    failureThreshold: 3     # Mark as not ready after 3 failures
+    successThreshold: 1     # Mark as ready after 1 success
+  livenessProbe:
+    path: "/healthz/live"  # Path to the health check endpoint
+    port: 8080        # Port for the health check
+    initialDelaySeconds: 15  # Wait 15 seconds before starting the probe
+    periodSeconds: 10        # Check every 10 seconds
+    failureThreshold: 3      # Restart the pod after 3 failures
   secrets:
     coingeckoApiKey: "coingecko_apiKey"
-    coinbaseApiKey: "cb_apiKey"
-    coinbaseApiSecret: "cb_apiSecret"
+    coinbase__privateKey: "coinbase__privateKey"
+    coinbase__privateName: "coinbase__privateName"
     krakenPublicKey: "kraken_publicKey"
     krakenPrivateKey: "kraken_privateKey"
     telegramBotToken: "telegram_botToken"
