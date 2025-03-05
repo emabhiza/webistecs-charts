@@ -6,7 +6,7 @@ metadata:
     argocd.argoproj.io/hook: "{{ .Values.dbMigrationJob.annotations.argocd.hook }}"
     argocd.argoproj.io/hook-weight: "{{ .Values.dbMigrationJob.annotations.argocd.hookWeight }}"
     argocd.argoproj.io/hook-delete-policy: "{{ .Values.dbMigrationJob.annotations.argocd.hookDeletePolicy }}"
-    checksum/config: "{{ .Values.webistecs.image.tag | toString | sha256sum }}" # Using integer tag checksum
+    checksum/config: "{{ printf "%s:%s" .Values.dbMigrationJob.image.repository .Values.dbMigrationJob.image.tag | sha256sum }}"
 
 spec:
   template:
