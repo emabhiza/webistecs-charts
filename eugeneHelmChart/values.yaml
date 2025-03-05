@@ -1,6 +1,6 @@
 webistecs:
   nameOverride: "webistecs"
-  replicaCount: 5
+  replicaCount: 1
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
