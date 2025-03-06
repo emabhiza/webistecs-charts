@@ -14,8 +14,9 @@ spec:
       securityContext:
         fsGroup: 1000
       containers:
-        - name: migration
-          image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
+        - name: db-migration
+          image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
+          command: [ "./run.migration.sh" ]
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT

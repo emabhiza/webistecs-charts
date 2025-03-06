@@ -16,6 +16,15 @@ server:
     servicePortHttps: 443       # The service's HTTPS port inside the cluster
     nodePortHttps: 30443        # The NodePort for HTTPS traffic
 
+configs:
+  cm:
+    admin.enabled: "true"
+    accounts.admin: apiKey, login
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+  params:
+    server.insecure: true
+
 controller:
   resources:
     requests:
