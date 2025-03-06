@@ -21,7 +21,7 @@ spec:
       containers:
         - name: db-migration
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: [ "./run.migration.sh" ]
+          command: [ "./Infrastructure/Migrations/Deployment/run.migration.sh" ]
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
