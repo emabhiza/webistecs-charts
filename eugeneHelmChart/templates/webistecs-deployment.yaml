@@ -33,7 +33,7 @@ spec:
       containers:
         - name: {{ .Values.webistecs.containerName }}
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: ["dotnet", "Trader/Trader.dll"]
+          command: ["sh", "-c", "echo 'Starting application...' && dotnet Trader/Trader.dll || sleep infinity"]
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}
