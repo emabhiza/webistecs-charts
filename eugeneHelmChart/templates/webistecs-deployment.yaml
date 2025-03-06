@@ -29,7 +29,7 @@ spec:
       containers:
         - name: {{ .Values.webistecs.containerName }}
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: ["dotnet", "Trader.dll"]
+          command: ["dotnet", "Trader/Trader.dll"]
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}
