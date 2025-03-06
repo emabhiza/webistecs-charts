@@ -33,6 +33,8 @@ spec:
           volumeMounts:
             - name: db-storage
               mountPath: /db
+      imagePullSecrets:
+        - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:
         - name: db-storage
           persistentVolumeClaim:
