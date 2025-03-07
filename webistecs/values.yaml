@@ -86,17 +86,3 @@ dbMigrationJob:
       memory: "1Gi"
       cpu: "1000m"
 
-alertmanager:
-  enabled: false
-
-prometheus:
-  pushgateway:
-    enabled: false
-  server:
-    enabled: true
-
-  nodeExporter:
-    enabled: true
-
-kubeStateMetrics:
-  enabled: false

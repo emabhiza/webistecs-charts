@@ -1,5 +1,5 @@
 apiVersion: v2
-name: eugeneHelmChart
+name: webistecs
 description: A Helm chart for Webistecs Kubernetes
 
 type: application
