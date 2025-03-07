@@ -4,7 +4,7 @@ webistecs:
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: beta-0.31
+    tag: deployment-test-1-dunia
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
@@ -63,10 +63,12 @@ nodeExporter:
 
 
 dbMigrationJob:
+  image:
+    repository: emabhiza/webistecs-migrations
+    tag: deployment-test-1-bozo
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
-  imagePullSecret: "myregistrykey"
   volumes:
     - name: db-storage
       persistentVolumeClaim:
