@@ -1,16 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.webistecs.nameOverride | default .Chart.Name }}
-  labels:
-    {{- include "webistecs.labels" . | nindent 4 }}
   annotations:
-    docker-image: {{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}
-    co.elastic.logs/enabled: {{ .Values.webistecs.logging.enabled | quote }}
-    co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
-    co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
-    co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
+    argocd-image-updater.argoproj.io/image-list: myrepo/migration, myrepo/websitecs
+    argocd-image-updater.argoproj.io/myrepo.migration.update-strategy: latest
+    argocd-image-updater.argoproj.io/myrepo.websitecs.update-strategy: latest
+    argocd-image-updater.argoproj.io/myrepo.migration.allow-tags: regexp:^beta-[0-9]+\.[0-9]+$
+    argocd-image-updater.argoproj.io/myrepo.websitecs.allow-tags: regexp:^beta-[0-9]+\.[0-9]+$
     checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
+
 
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
