@@ -26,14 +26,9 @@ spec:
         co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
         checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
     spec:
-      initContainers:
-        - name: debug-trader
-          image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: [ "sh", "-c", "ls -la /app/Trader" ]
       containers:
         - name: {{ .Values.webistecs.containerName }}
           image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: ["sh", "-c", "echo 'Starting application...' && dotnet Trader/Trader.dll || sleep infinity"]
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}

@@ -19,9 +19,8 @@ spec:
       securityContext:
         fsGroup: 1000
       containers:
-        - name: db-migration
-          image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
-          command: ["./run.migration.sh"]
+        - name: migration
+          image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
           imagePullPolicy: Always
           env:
             - name: ASPNETCORE_ENVIRONMENT
@@ -38,8 +37,6 @@ spec:
           volumeMounts:
             - name: db-storage
               mountPath: /db
-      imagePullSecrets:
-        - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:
         - name: db-storage
           persistentVolumeClaim:
