@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webistecs
+  namespace: argocd  # ✅ ArgoCD manages applications in this namespace
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: webistecs=emabhiza/webistecs
+    argocd-image-updater.argoproj.io/webistecs.update-strategy: semver
+    argocd-image-updater.argoproj.io/webistecs.allow-tags: 'regexp:^beta-\d+\.\d+$|^\d+\.\d+$'
+    argocd-image-updater.argoproj.io/write-back-method: git  # ✅ Ensure Git write-back
+spec:
+  destination:
+    namespace: default  # ✅ App is deployed to `default`
+    server: https://kubernetes.default.svc
+  project: default  # ✅ Uses default ArgoCD project unless changed
+  source:
+    repoURL: https://github.com/emabhiza/webistecs-charts.git  # ✅ Your Git repo
+    targetRevision: argocd-image-updater  # ✅ Change if using `main`
+    path: eugeneHelmChart  # ✅ Use correct path based on repo structure
+    helm:
+      parameters:
+        - name: webistecs.image.tag
+          value: beta-0.40  # ✅ Default starting tag
+  syncPolicy:
+    automated:
+      prune: true  # ✅ Removes old resources
+      selfHeal: true  # ✅ Auto-syncs if config drifts
+    syncOptions:
+      - CreateNamespace=true  # ✅ Ensures `default` namespace exists
+
+
+# TODO  1.) Deploy application via argocd gui
+# TODO  2.) kubectl apply -f webistecs-application.yaml
