@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ include "webistecs.fullname" . }}
   annotations:
     argocd-image-updater.argoproj.io/image-list: myrepo/migration, myrepo/websitecs
     argocd-image-updater.argoproj.io/myrepo.migration.update-strategy: latest

@@ -16,7 +16,7 @@ spec:
   source:
     repoURL: https://github.com/emabhiza/webistecs-charts.git  # ✅ Your Git repo
     targetRevision: argocd-image-updater  # ✅ Change if using `main`
-    path: eugeneHelmChart  # ✅ Use correct path based on repo structure
+    path: webistecs  # ✅ Use correct path based on repo structure
     helm:
       parameters:
         - name: webistecs.image.tag
@@ -29,5 +29,3 @@ spec:
       - CreateNamespace=true  # ✅ Ensures `default` namespace exists
 
 
-# TODO  1.) Deploy application via argocd gui
-# TODO  2.) kubectl apply -f webistecs-application.yaml
