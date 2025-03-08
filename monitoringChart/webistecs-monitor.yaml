@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: webistecs-monitor-cronjob
-  namespace: default
+  namespace: monitoring
 spec:
   schedule: "*/2 * * * *"
   jobTemplate:
@@ -11,8 +11,7 @@ spec:
         spec:
           containers:
             - name: webistecs-monitor
-              image: emabhiza/webistecs-monitor:refactor-10
-              imagePullPolicy: Always
+              image: emabhiza/webistecs-monitor:monitor-10
               env:
                 - name: ASPNETCORE_ENVIRONMENT
                   value: "Production"
@@ -38,8 +37,18 @@ spec:
                 - name: google-credentials
                   mountPath: /secrets
                   readOnly: true
+                - name: prometheus-data
+                  mountPath: /prometheus/data
+                - name: grafana-data
+                  mountPath: /var/lib/grafana
           restartPolicy: OnFailure
           volumes:
+            - name: prometheus-data
+              persistentVolumeClaim:
+                claimName: my-usb-pvc
+            - name: grafana-data
+              persistentVolumeClaim:
+                  claimName: grafana-local-pvc
             - name: source-storage
               hostPath:
                 path: /media/emabhiza/webistecsStorage/webistecs
