@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: webistecs-monitor
-              image: emabhiza/webistecs-monitor:monitor-10
+              image: emabhiza/webistecs-monitor:monitor-14
               env:
                 - name: ASPNETCORE_ENVIRONMENT
                   value: "Production"
