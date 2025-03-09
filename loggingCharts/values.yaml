@@ -1,0 +1,9 @@
+
+loki:
+  otel:
+    enabled: true
+    endpoint: "otel-collector.logging.svc.cluster.local:4317"
+    insecure: true
+
+promtail:
+  enabled: true
