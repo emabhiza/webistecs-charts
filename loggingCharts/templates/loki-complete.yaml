@@ -12,11 +12,6 @@ data:
       http_listen_port: 3100
       grpc_listen_port: 9095
 
-    otel:
-    enabled: true
-    endpoint: otel-collector.logging.svc.cluster.local:4317  # OTEL collector service
-    insecure: true  # Use TLS if required
-
     ingester:
       wal:
         dir: /var/loki/wal
