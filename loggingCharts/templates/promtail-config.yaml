@@ -22,11 +22,6 @@ data:
               __path__: /var/log/containers/webistecs-[a-zA-Z0-9]*.log
 
         pipeline_stages:
-          # 🛑 Drop DEBUG logs before processing
-          - drop:
-              expression: ".*DEBUG.*"
-              source: message
-
           # 🎯 Extract pod, namespace, and container names
           - regex:
               expression: "^(?P<container>[^-]+)-(?P<container_id>[^_]+)_(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
@@ -45,43 +40,3 @@ data:
               max_wait_time: 10s
               max_lines: 500
               continue_through: '^\s+at\s|\s+---\s'
-
-          # 🛠️ Strip timestamp, stream metadata (stdout F), and other prefixes
-          - regex:
-              expression: '(?m)^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+\S+\s+\S+\s+'
-              replace: ''
-
-          # Indent exception stack traces with extra indentation
-          - regex:
-              expression: '(?m)^(\s*at\s|.*Exception:|--- End of stack trace)'
-              replace: '        $1'  # 8 spaces for extra indentation
-
-          # 🔍 Extract structured log fields (Time, Level, Component, Message)
-          - regex:
-              expression: '^\[(?P<time>\d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w{3})\] \[(?P<component>[^\]]+)\] (?P<msg>.+)$'
-              source: message
-
-          - labels:
-              level: '{{ .level }}'
-              component: '{{ .component }}'
-
-          # 🏷 Extract HTTP status codes from logs
-          - regex:
-              expression: '.*http request (?:success|failure) (?P<http_status>\d{3}).*'
-              source: msg
-
-          - labels:
-              http_status: '{{ if .http_status }}{{ .http_status }}{{ else }}unknown{{ end }}'
-
-          # 🚨 Capture exceptions/errors for better alerting
-          - regex:
-              expression: '^(?P<exception>.*(Exception|Error).*)$'
-              source: msg
-              target: exception_info
-
-          - labels:
-              exception: '{{ if and .exception_info .exception_info.exception }}true{{ else }}false{{ end }}'
-
-          # 📢 Format output logs for cleaner display
-          - output:
-              source: "[{{ .time }} {{ .level }}] [{{ .component }}] {{ .msg }}"
