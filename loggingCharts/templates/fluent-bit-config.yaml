@@ -30,7 +30,7 @@ data:
     [FILTER]
         Name          modify
         Match         kube.*
-        Remove_Wildcard log # ✅ Fix: Use Remove_Wildcard to remove any field with "log"
+        Remove        log
 
     [FILTER]
         Name          nest
@@ -43,7 +43,7 @@ data:
         Name          parser
         Match         kube.*
         Key_Name      extracted_message
-        Parser       structured_log_parser
+        Parser        structured_log_parser
 
     [OUTPUT]
         Name          http
