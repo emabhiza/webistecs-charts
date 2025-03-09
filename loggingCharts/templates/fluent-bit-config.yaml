@@ -16,8 +16,34 @@ data:
     [INPUT]
         Name          tail
         Path          /var/log/containers/*.log
-        Parser        docker
+        Parser        custom_json_parser
         Tag           kube.*
+
+    [FILTER]
+        Name          kubernetes
+        Match         kube.*
+        Merge_Log     On
+        Keep_Log      Off
+        Kube_URL      https://kubernetes.default.svc
+        K8S-Logging.Parser  On
+
+    [FILTER]
+        Name          modify
+        Match         kube.*
+        Remove_Wildcard log # ✅ Fix: Use Remove_Wildcard to remove any field with "log"
+
+    [FILTER]
+        Name          nest
+        Match         kube.*
+        Operation     lift
+        Nested_under  log
+        Add_prefix    extracted_
+
+    [FILTER]
+        Name          parser
+        Match         kube.*
+        Key_Name      extracted_message
+        Parser       structured_log_parser
 
     [OUTPUT]
         Name          http
@@ -30,8 +56,16 @@ data:
         Header        Content-Type application/json
         Header        Authorization Bearer ${NEW_RELIC_API_KEY}
 
-
   parsers.conf: |
     [PARSER]
-        Name         docker
-        Format       json
+        Name        custom_json_parser
+        Format      regex
+        Regex       ^\[(?<timestamp>[^\]]+)\] \[(?<log_level>[A-Z]+)\] \[(?<source>[^\]]+)\] (?<message>.*)$
+        Time_Key    timestamp
+        Time_Format %H:%M:%S
+
+    [PARSER]
+        Name        structured_log_parser
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S
