@@ -20,7 +20,7 @@ spec:
         - name: argocd-image-updater
           image: quay.io/argoprojlabs/argocd-image-updater:v0.12.0
           args:
-            - "run"  # ✅ Use "run" instead of invalid flags
+            - "run"
             - "--loglevel=info"
           env:
             - name: ARGOCD_SERVER
@@ -44,7 +44,55 @@ metadata:
   name: argocd-image-updater-config
   namespace: argocd
 data:
-  git_write_back: "true"  #
+  git_write_back: "true"
   git_commit_user: "ArgoCD Image Updater"
   git_commit_email: "argocd@enumandco@gmail.com"
   git_branch: "main"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-image-updater-service
+  namespace: argocd
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: argocd-image-updater
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30085
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: argocd
+  name: argocd-image-updater-role
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications"]
+    verbs: ["get", "list", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: argocd
+  name: argocd-image-updater-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: argocd-image-updater
+    namespace: argocd
+roleRef:
+  kind: Role
+  name: argocd-image-updater-role
+  apiGroup: rbac.authorization.k8s.io
