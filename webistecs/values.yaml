@@ -4,7 +4,7 @@ webistecs:
   containerName: "my-container"
   image:
     repository: docker.io/emabhiza/webistecs
-    tag: beta-0.50
+    tag: 0.0.5-beta
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
@@ -65,7 +65,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: emabhiza/webistecs-migrations
-    tag: beta-0.50
+    tag: 0.0.5-beta
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
@@ -85,4 +85,3 @@ dbMigrationJob:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-
