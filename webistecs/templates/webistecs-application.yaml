@@ -20,7 +20,7 @@ spec:
     helm:
       parameters:
         - name: webistecs.image.tag
-          value: beta-0.40  # ✅ Default starting tag
+          value: 0.0.5-beta  # ✅ Default starting tag
   syncPolicy:
     automated:
       prune: true  # ✅ Removes old resources

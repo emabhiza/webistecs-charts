@@ -18,6 +18,11 @@ data:
         Path          /var/log/containers/*.log
         Parser        custom_json_parser
         Tag           kube.*
+        Multiline     On
+        Multiline.Parser  multiline_log_parser
+        Refresh_Interval  10
+        Buffer_Chunk_Size 32k
+        Buffer_Max_Size   64k
 
     [FILTER]
         Name          kubernetes
@@ -45,6 +50,11 @@ data:
         Key_Name      extracted_message
         Parser        structured_log_parser
 
+    [FILTER]
+        Name          grep
+        Match         kube.*
+        Regex        extracted_message  ^.*(Exception|Error|Trace|INF|ERR|WRN|FTL).*
+
     [OUTPUT]
         Name          http
         Match         *
@@ -69,3 +79,10 @@ data:
         Format      json
         Time_Key    timestamp
         Time_Format %Y-%m-%dT%H:%M:%S
+
+    [MULTILINE]
+        Name          multiline_log_parser
+        Type          regex
+        Flush_Timeout 10
+        Rule          "start_state"  "^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)"  "cont"
+        Rule          "cont"         "^\s+at\s|\s+---\s"  "cont"
