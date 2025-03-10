@@ -15,7 +15,7 @@ spec:
   project: default  # ✅ Uses default ArgoCD project unless changed
   source:
     repoURL: https://github.com/emabhiza/webistecs-charts.git  # ✅ Your Git repo
-    targetRevision: argocd-image-updater  # ✅ Change if using `main`
+    targetRevision: main  # ✅ Change if using `main`
     path: webistecs  # ✅ Use correct path based on repo structure
     helm:
       parameters:
