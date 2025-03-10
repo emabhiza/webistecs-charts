@@ -10,16 +10,15 @@ data:
     [SERVICE]
         Flush         5
         Daemon        Off
-        Log_Level     info
-        Parsers_File  parsers.conf
+        Log_Level     debug  # ✅ Set debug mode to troubleshoot issues
+        Parsers_File  /fluent-bit/etc/parsers.conf  # ✅ Ensure parsers.conf is loaded correctly
 
     [INPUT]
         Name          tail
         Path          /var/log/containers/*.log
-        Parser        custom_json_parser
         Tag           kube.*
         Multiline     On
-        Multiline.Parser  multiline_log_parser
+        Parser_Firstline  multiline_log_parser  # ✅ Corrected to `Parser_Firstline`
         Refresh_Interval  10
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
