@@ -41,11 +41,11 @@ data:
       tsdb_shipper:
         active_index_directory: /var/loki/tsdb-index
         cache_location: /var/loki/tsdb-cache
-        shared_store: filesystem
+
       boltdb_shipper:
         active_index_directory: /var/loki/index
         cache_location: /var/loki/index-cache
-        shared_store: filesystem
+
       filesystem:
         directory: /var/loki/chunks
 
@@ -118,6 +118,7 @@ spec:
           image: grafana/loki:3.4.2
           args:
             - "-config.file=/etc/loki/loki.yaml"
+            - "-log.level=debug"  # Enable debug logging
           ports:
             - containerPort: 3100
           volumeMounts:
