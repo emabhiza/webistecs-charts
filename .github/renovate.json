@@ -34,8 +34,8 @@
     {
       "hostType": "docker",
       "matchHost": "index.docker.io",
-      "usernameFromEnv": "MEND_DOCKER_USERNAME",
-      "passwordFromEnv": "MEND_DOCKER_PASSWORD"
+      "username": "MEND_DOCKER_USERNAME",
+      "password": "MEND_DOCKER_PASSWORD"
     }
   ]
 }
