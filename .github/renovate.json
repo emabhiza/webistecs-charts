@@ -25,8 +25,8 @@
     {
       "hostType": "docker",
       "matchHost": "index.docker.io",
-      "username": "${{ secrets.RENOVATE_DOCKER_USERNAME }}",
-      "password": "${{ secrets.RENOVATE_DOCKER_PASSWORD }}"
+      "username": "${{ secrets.RENOVATE__DOCKERUSERNAME }}",
+      "password": "${{ secrets.RENOVATE__DOCKERPASSWORD }}"
     }
   ]
 }
