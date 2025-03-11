@@ -52,3 +52,6 @@ spec:
         - name: parsers-volume
           configMap:
             name: fluent-bit-config
+            items:
+              - key: parsers.conf  
+                path: parsers.conf
