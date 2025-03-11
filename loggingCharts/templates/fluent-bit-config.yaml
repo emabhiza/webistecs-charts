@@ -28,11 +28,29 @@ data:
         Name          kubernetes
         Match         kube.*
         Merge_Log     On
-        Keep_Log      Off
+        Keep_Log      On  # ✅ Ensure log data is retained
         Kube_URL      https://kubernetes.default.svc
         K8S-Logging.Parser  On
-        Labels        app.kubernetes.io/instance=webistecs
-        Labels        app.kubernetes.io/name=webistecs
+        Labels        On
+        Annotations   Off
+
+    # ✅ METHOD 1: Use `Match_Regex` in Kubernetes filter (Uncomment to test)
+    # [FILTER]
+    #     Name          kubernetes
+    #     Match         kube.*
+    #     Merge_Log     On
+    #     Keep_Log      On
+    #     Kube_URL      https://kubernetes.default.svc
+    #     K8S-Logging.Parser  On
+    #     Labels        On
+    #     Annotations   Off
+    #     Match_Regex   labels.app.kubernetes.io/name webistecs  # ✅ Only process logs from webistecs
+
+    # ✅ METHOD 2: Use a `grep` filter to drop logs that don't match (Uncomment to test)
+    [FILTER]
+        Name          grep
+        Match         kube.*
+        Regex         labels.app.kubernetes.io/name webistecs  # ✅ Only keep logs from webistecs
 
     [FILTER]
         Name          nest
