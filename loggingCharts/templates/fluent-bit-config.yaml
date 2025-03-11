@@ -64,7 +64,7 @@ data:
         Format        json
         tls           off
         Header        Content-Type application/json
-        Header        Authorization Bearer $(cat /fluent-bit/secrets/apikey)
+        Header        Authorization Bearer eu01xx0cd849adffvdvdfvc4cafc3bFFFFNRAL
 
   parsers.conf: |
     [PARSER]
