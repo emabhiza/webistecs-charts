@@ -32,10 +32,10 @@ data:
         Kube_URL      https://kubernetes.default.svc
         K8S-Logging.Parser  On
 
-    [FILTER]
-        Name          modify
-        Match         kube.*
-        Remove        log
+{{/*    [FILTER]*/}}
+{{/*        Name          modify*/}}
+{{/*        Match         kube.**/}}
+{{/*        Remove        log*/}}
 
     [FILTER]
         Name          nest
