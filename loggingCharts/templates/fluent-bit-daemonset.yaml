@@ -40,7 +40,8 @@ spec:
               mountPath: /fluent-bit/etc/
             - name: parsers-volume
               mountPath: /fluent-bit/etc/parsers.conf
-              subPath: parsers.conf  # ✅ Fix: Mount parsers.conf as a file
+              subPath: parsers.conf  # ✅ Ensures only the file is mounted, NOT the whole ConfigMap
+
       volumes:
         - name: varlog
           hostPath:
