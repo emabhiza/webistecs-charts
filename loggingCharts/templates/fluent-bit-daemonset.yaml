@@ -21,7 +21,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: NEW_RELIC_API_KEY
-              value: "${{ secrets.NEW_RELIC_API_KEY }}"
+              value: "${{ secrets.NEWRELIC_APIKEY }}"
             - name: MALLOC_CONF  # Disabling jemalloc settings
               value: "abort_conf:true,background_thread:false"
           ports:
