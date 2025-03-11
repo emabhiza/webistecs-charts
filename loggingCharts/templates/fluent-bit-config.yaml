@@ -48,12 +48,6 @@ data:
     #     Match         kube.*
     #     Regex         kubernetes.namespace_name webistecs-namespace  # ✅ Only keep logs from this namespace
 
-    # ✅ Step 3: JSON Parsing for Structured Logs
-    [FILTER]
-        Name          parser
-        Match         kube.*
-        Key_Name      log
-        Parser        structured_log_parser
 
     # ✅ Step 4: HTTP Output to New Relic
     [OUTPUT]
@@ -66,6 +60,7 @@ data:
         tls           on
         Header        Content-Type application/json
         Header        Authorization Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL
+
 
     # ✅ Optional Regex Parser (Uncomment if needed)
     # [PARSER]
