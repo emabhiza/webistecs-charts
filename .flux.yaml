@@ -1,0 +1,11 @@
+version: 1
+commandUpdated:
+  generators:
+    - command: kustomize build .
+  updaters:
+    - containerImage:
+        command: kustomize edit set image
+      policy:
+        command: kustomize edit set annotation
+ignore:
+  - k8s/values-argocd.yaml
