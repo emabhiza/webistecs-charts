@@ -31,11 +31,9 @@ data:
         Keep_Log      Off
         Kube_URL      https://kubernetes.default.svc
         K8S-Logging.Parser  On
-
-{{/*    [FILTER]*/}}
-{{/*        Name          modify*/}}
-{{/*        Match         kube.**/}}
-{{/*        Remove        log*/}}
+        K8S-Logging.Exclude  On
+        K8S-Logging.Include  labels.app.kubernetes.io/instance:webistecs
+        K8S-Logging.Include  labels.app.kubernetes.io/name:webistecs
 
     [FILTER]
         Name          nest
