@@ -3,12 +3,14 @@ kind: ConfigMap
 metadata:
   name: fluent-bit-config
   namespace: logging
+  labels:
+    k8s-app: fluent-bit
 data:
   fluent-bit.conf: |
     [SERVICE]
         Flush         5
         Daemon        Off
-        Log_Level     debug
+        Log_Level     info
         HTTP_Server   On
         HTTP_Listen   0.0.0.0
         HTTP_Port     2020
@@ -31,14 +33,35 @@ data:
         Labels        On
         Annotations   Off
 
+    # ✅ METHOD 1: Use `Match_Regex` in Kubernetes filter (Uncomment to test)
+    # [FILTER]
+    #     Name          kubernetes
+    #     Match         kube.*
+    #     Merge_Log     On
+    #     Keep_Log      On
+    #     Kube_URL      https://kubernetes.default.svc
+    #     K8S-Logging.Parser  On
+    #     Labels        On
+    #     Annotations   Off
+    #     Match_Regex   $.kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Only process logs from webistecs
+
+
     [FILTER]
-        Name          grep
+        Name          nest
         Match         kube.*
-        Regex         kubernetes.pod_name ^webistecs.*
+        Operation     lift
+        Nested_under  log
+        Add_prefix    extracted_
+
+    [FILTER]
+        Name          parser
+        Match         kube.*
+        Key_Name      extracted_message
+        Parser        structured_log_parser
 
     [OUTPUT]
         Name          http
-        Match         kube.*
+        Match         *
         Host          log-api.eu.newrelic.com
         Port          443
         URI           /log/v1
@@ -46,3 +69,24 @@ data:
         tls           on
         Header        Content-Type application/json
         Header        Authorization Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL
+
+  parsers.conf: |
+    [PARSER]
+        Name        custom_json_parser
+        Format      regex
+        Regex       ^\[(?<timestamp>[^\]]+)\] \[(?<log_level>[A-Z]+)\] \[(?<source>[^\]]+)\] (?<message>.*)$
+        Time_Key    timestamp
+        Time_Format %H:%M:%S
+
+    [PARSER]
+        Name        structured_log_parser
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S
+
+    [MULTILINE]
+        Name          multiline_log_parser
+        Type          regex
+        Flush_Timeout 10
+        Rule          "start_state"  "^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)"  "cont"
+        Rule          "cont"         "^\s+at\s|\s+---\s"  "cont"
