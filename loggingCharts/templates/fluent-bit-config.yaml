@@ -34,6 +34,7 @@ data:
         Labels        On
         Annotations   Off
 
+    # ✅ METHOD 1: Use `Match_Regex` in Kubernetes filter (Uncomment to test)
     # [FILTER]
     #     Name          kubernetes
     #     Match         kube.*
@@ -43,12 +44,13 @@ data:
     #     K8S-Logging.Parser  On
     #     Labels        On
     #     Annotations   Off
-    #     Match_Regex   labels.app.kubernetes.io/name webistecs 
+    #     Match_Regex   $.kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Only process logs from webistecs
 
+    # ✅ METHOD 2: Use a `grep` filter to drop logs that don't match (Default Active)
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex         labels.app.kubernetes.io/name webistecs  
+        Regex         $.kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Only keep logs from webistecs
 
     [FILTER]
         Name          nest
