@@ -62,12 +62,12 @@ data:
       retention_enabled: true
       retention_delete_delay: 2h
       retention_delete_worker_count: 10
-      delete_request_store: filesystem  # Required when retention is enabled
+      delete_request_store: filesystem  
 
 
     table_manager:
       retention_deletes_enabled: true
-      retention_period: 168h  # 7 days
+      retention_period: 168h  
 
     query_range:
       align_queries_with_step: true
