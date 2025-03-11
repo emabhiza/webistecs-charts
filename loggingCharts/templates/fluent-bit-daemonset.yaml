@@ -22,7 +22,7 @@ spec:
           env:
             - name: NEW_RELIC_API_KEY
               value: "eu01xx0cd849adbef3fcaa64c4cafc3bFFFFNRAL"
-            - name: MALLOC_CONF  # Disabling jemalloc settings
+            - name: MALLOC_CONF
               value: "abort_conf:true,background_thread:false"
           ports:
             - containerPort: 2020
@@ -38,15 +38,19 @@ spec:
               mountPath: /var/log
             - name: config-volume
               mountPath: /fluent-bit/etc/
-            - name: parsers-volume  # Corrected this line
-              mountPath: /fluent-bit/etc/  # Mount it as a directory
+            - name: parsers-volume
+              mountPath: /fluent-bit/etc/parsers.conf
+              subPath: parsers.conf  # Fix: Mount parsers.conf as a file
             - name: api-secret
               mountPath: /fluent-bit/secrets
-              readOnly: true  # Ensures the secret file cannot be modified
+              readOnly: true
       volumes:
         - name: varlog
           hostPath:
             path: /var/log
         - name: config-volume
           configMap:
-            name: fluent-bit-config  # Fixed incorrect syntax
+            name: fluent-bit-config
+        - name: parsers-volume
+          configMap:
+            name: fluent-bit-config

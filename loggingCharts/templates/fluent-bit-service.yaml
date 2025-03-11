@@ -1,4 +1,3 @@
-# 1️⃣ Service to expose Fluent Bit on port 2020
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,10 +11,9 @@ spec:
     - protocol: TCP
       port: 2020
       targetPort: 2020
-      nodePort: 30005  # This allows external access on this port
+      nodePort: 30005
 
 ---
-# 2️⃣ ServiceAccount for Fluent Bit to access Kubernetes logs
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -23,7 +21,6 @@ metadata:
   namespace: logging
 
 ---
-# 3️⃣ ClusterRole to allow Fluent Bit to read logs from Kubernetes
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -39,7 +36,6 @@ rules:
       - watch
 
 ---
-# 4️⃣ ClusterRoleBinding to link Fluent Bit to ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
