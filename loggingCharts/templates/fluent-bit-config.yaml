@@ -44,14 +44,6 @@ data:
         Labels        On
         Annotations   Off
         Match_Regex   $.kubernetes.labels.app.kubernetes.io/name webistecs 
-  
-
-    [FILTER]
-        Name          nest
-        Match         kube.*
-        Operation     lift
-        Nested_under  log
-        Add_prefix    extracted_
 
     [FILTER]
         Name          parser
