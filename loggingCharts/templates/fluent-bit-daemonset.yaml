@@ -20,7 +20,7 @@ spec:
           image: fluent/fluent-bit:3.2.8-arm64
           imagePullPolicy: Always
           env:
-            - name: MALLOC_CONF  # Disabling jemalloc settings
+            - name: MALLOC_CONF
               value: "abort_conf:true,background_thread:false"
           ports:
             - containerPort: 2020
@@ -38,7 +38,7 @@ spec:
               mountPath: /fluent-bit/etc/
             - name: api-secret
               mountPath: /fluent-bit/secrets
-              readOnly: true  # Ensures the secret file cannot be modified
+              readOnly: true
       volumes:
         - name: varlog
           hostPath:
@@ -48,4 +48,4 @@ spec:
             name: fluent-bit-config
         - name: api-secret
           secret:
-            secretName: fluent-bit-secret  # Mounts the Secret as a volume
+            secretName: fluent-bit-secret
