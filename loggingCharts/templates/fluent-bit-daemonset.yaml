@@ -23,8 +23,8 @@ spec:
             - name: NEW_RELIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: logging-secrets
-                  key: newrelic-api
+                  name: newrelic-api-key
+                  key: NEW_RELIC_API_KEY
             - name: MALLOC_CONF  # Disabling jemalloc settings
               value: "abort_conf:true,background_thread:false"
           ports:
