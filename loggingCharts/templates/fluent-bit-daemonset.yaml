@@ -20,7 +20,9 @@ spec:
           image: fluent/fluent-bit:3.2.8-arm64
           imagePullPolicy: Always
           env:
-            - name: MALLOC_CONF
+            - name: NEW_RELIC_API_KEY
+              value: "eu01xx0cd849adbef3fcaa64c4cafc3bFFFFNRAL"
+            - name: MALLOC_CONF  # Disabling jemalloc settings
               value: "abort_conf:true,background_thread:false"
           ports:
             - containerPort: 2020
@@ -40,17 +42,11 @@ spec:
               mountPath: /fluent-bit/etc/  # Mount it as a directory
             - name: api-secret
               mountPath: /fluent-bit/secrets
-              readOnly: true
+              readOnly: true  # Ensures the secret file cannot be modified
       volumes:
         - name: varlog
           hostPath:
             path: /var/log
         - name: config-volume
           configMap:
-            name: fluent-bit-config
-        - name: parsers-volume  # Corrected this line
-          configMap:
-            name: fluent-bit-parsers  # The parsers.conf file should be in this ConfigMap
-        - name: api-secret
-          secret:
-            secretName: fluent-bit-secret
+            name: fluent-bit-config  # Fixed incorrect syntax
