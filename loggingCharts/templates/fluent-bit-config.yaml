@@ -33,25 +33,11 @@ data:
         Labels        On
         Annotations   Off
 
-    # ✅ METHOD 1: Use `Match_Regex` in Kubernetes filter (Uncomment to test)
-    # [FILTER]
-    #     Name          kubernetes
-    #     Match         kube.*
-    #     Merge_Log     On
-    #     Keep_Log      On
-    #     Kube_URL      https://kubernetes.default.svc
-    #     K8S-Logging.Parser  On
-    #     Labels        On
-    #     Annotations   Off
-    #     Match_Regex   $.kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Only process logs from webistecs
-
-
     [FILTER]
-        Name          nest
+        Name          parser
         Match         kube.*
-        Operation     lift
-        Nested_under  log
-        Add_prefix    extracted_
+        Key_Name      log
+        Parser        plain_text_parser
 
     [OUTPUT]
         Name          http
@@ -63,3 +49,18 @@ data:
         tls           on
         Header        Content-Type application/json
         Header        Authorization Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL
+
+  parsers.conf: |
+    [PARSER]
+        Name        plain_text_parser
+        Format      regex
+        Regex       ^(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s+(?<log_level>\w+)\s+(?<message>.*)$
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S
+
+    [MULTILINE]
+        Name          multiline_log_parser
+        Type          regex
+        Flush_Timeout 10
+        Rule          "start_state"  "^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)"  "cont"
+        Rule          "cont"         "^\s+at\s|\s+---\s"  "cont"
