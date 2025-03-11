@@ -57,7 +57,6 @@ data:
         Name          parser
         Match         kube.*
         Key_Name      extracted_message
-        Parser        structured_log_parser
 
     [OUTPUT]
         Name          http
