@@ -4,7 +4,7 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["my-registry/my-app"],
+      "matchPackageNames": ["docker.io/emabhiza/webistecs"],
       "versioning": "semver",
       "automerge": true,
       "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
@@ -17,8 +17,16 @@
   "regexManagers": [
     {
       "fileMatch": ["values\\.yaml$"],
-      "matchStrings": ["repository:\\s+(?<depName>.*?)\\s*\\ntag:\\s+(?<currentValue>.*?)\\s"],
+      "matchStrings": ["repository:\\s+(?<depName>docker\\.io\\/.*?)\\s*\\ntag:\\s+(?<currentValue>.*?)\\s"],
       "datasourceTemplate": "docker"
+    }
+  ],
+  "hostRules": [
+    {
+      "hostType": "docker",
+      "matchHost": "index.docker.io",
+      "username": "${{ secrets.RENOVATE_DOCKER_USERNAME }}",
+      "password": "${{ secrets.RENOVATE_DOCKER_PASSWORD }}"
     }
   ]
 }
