@@ -62,7 +62,7 @@ data:
         Port          443
         URI           /log/v1
         Format        json
-        tls           On
+        tls           off
         Header        Content-Type application/json
         Header        Authorization Bearer ${NEW_RELIC_API_KEY}
 
