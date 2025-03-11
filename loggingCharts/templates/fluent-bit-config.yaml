@@ -59,7 +59,7 @@ data:
         Format        json
         tls           on
         Header        Content-Type application/json
-        Header        Authorization Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL
+        Header        Authorization "Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL"
                                           
 
   parsers.conf: |
