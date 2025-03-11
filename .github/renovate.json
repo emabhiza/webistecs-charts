@@ -8,9 +8,15 @@
       "automerge": true
     }
   ],
-  "enabledManagers": ["dockerfile", "helm", "kubernetes"],
+  "enabledManagers": ["dockerfile", "kubernetes"],
   "kubernetes": {
     "fileMatch": ["\\.yaml$"]
-  }
+  },
+  "regexManagers": [
+    {
+      "fileMatch": ["values\\.yaml$"],
+      "matchStrings": ["repository:\\s+(?<depName>.*?)\\s*\\ntag:\\s+(?<currentValue>.*?)\\s"],
+      "datasourceTemplate": "docker"
+    }
+  ]
 }
-
