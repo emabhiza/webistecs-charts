@@ -57,7 +57,7 @@ data:
         Port          443
         URI           /log/v1
         Format        json
-        tls           off
+        tls           on
         Header        Content-Type application/json
         Header        Authorization Bearer eu01xx0cd849adffvdvdfvc4cafc3bFFFFNRAL
 
