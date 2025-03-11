@@ -53,11 +53,6 @@ data:
         Nested_under  log
         Add_prefix    extracted_
 
-    [FILTER]
-        Name          parser
-        Match         kube.*
-        Key_Name      extracted_message
-
     [OUTPUT]
         Name          http
         Match         *
