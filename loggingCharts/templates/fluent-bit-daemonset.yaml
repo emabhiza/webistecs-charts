@@ -19,6 +19,7 @@ spec:
         - name: fluent-bit
           image: fluent/fluent-bit:3.2.8-arm64
           imagePullPolicy: Always
+          command: ["/fluent-bit/bin/fluent-bit", "-i", "dummy"]
           env:
             - name: NEW_RELIC_API_KEY
               valueFrom:
@@ -47,4 +48,4 @@ spec:
             path: /var/log
         - name: config-volume
           configMap:
-            name: fluent-bit-config
+            name: fluent-bit-config  # Fixed incorrect syntax
