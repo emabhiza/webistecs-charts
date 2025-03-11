@@ -17,7 +17,7 @@ spec:
       serviceAccountName: promtail
       containers:
         - name: promtail
-          image: grafana/promtail:2.9.0
+          image: grafana/promtail:2.9.12
           args:
             - "-config.file=/etc/promtail/promtail.yaml"
           volumeMounts:
