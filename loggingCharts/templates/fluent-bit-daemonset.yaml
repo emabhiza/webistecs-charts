@@ -38,6 +38,9 @@ spec:
               mountPath: /var/log
             - name: config-volume
               mountPath: /fluent-bit/etc/
+            - name: parsers-volume
+              mountPath: /fluent-bit/etc/parsers.conf
+              subPath: parsers.conf  # ✅ Fix: Mount parsers.conf as a file
       volumes:
         - name: varlog
           hostPath:
