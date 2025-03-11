@@ -17,8 +17,6 @@ data:
         Name          tail
         Path          /var/log/containers/*.log
         Tag           kube.*
-        Multiline     On
-        Parser_Firstline  multiline_log_parser
         Refresh_Interval  10
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
