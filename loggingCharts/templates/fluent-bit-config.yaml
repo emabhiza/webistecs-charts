@@ -24,6 +24,7 @@ data:
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
 
+    # Ensure logs are enriched with Kubernetes labels
     [FILTER]
         Name          kubernetes
         Match         kube.*
@@ -34,26 +35,21 @@ data:
         Labels        On
         Annotations   Off
 
+    # ✅ STRICT FILTER: Only keep logs from webistecs
     [FILTER]
-        Name          kubernetes
+        Name          grep
         Match         kube.*
-        Merge_Log     On
-        Keep_Log      On
-        Kube_URL      https://kubernetes.default.svc
-        K8S-Logging.Parser  On
-        Labels        On
-        Annotations   Off
-        Match_Regex   $.kubernetes.labels.app.kubernetes.io/name webistecs 
+        Regex         kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Correct format
 
-    [FILTER]
-        Name          parser
-        Match         kube.*
-        Key_Name      extracted_message
-        Parser        structured_log_parser
+    # If filtering still doesn't work, try filtering by pod name (Alternative)
+    # [FILTER]
+    #     Name          grep
+    #     Match         kube.*
+    #     Regex         kubernetes.pod_name webistecs-.*
 
     [OUTPUT]
         Name          http
-        Match         *
+        Match         kube.*
         Host          log-api.eu.newrelic.com
         Port          443
         URI           /log/v1
