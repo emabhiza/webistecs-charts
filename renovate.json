@@ -1,7 +1,6 @@
 {
   "extends": ["config:base"],
   "branchPrefix": "renovate/main/",
-  "enabledManagers": ["dockerfile", "kubernetes"],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
@@ -9,15 +8,34 @@
       "versioning": "semver",
       "automerge": true,
       "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["docker.io/emabhiza/webistecs-migrations"],
+      "versioning": "semver",
+      "automerge": true,
+      "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
     }
   ],
+  "enabledManagers": ["dockerfile", "kubernetes"],
+  "kubernetes": {
+    "fileMatch": ["\\.yaml$"]
+  },
   "regexManagers": [
     {
-      "fileMatch": ["^values\\.yaml$"],
+      "fileMatch": ["values\\.yaml$"],
       "matchStrings": [
-        "repository:\\s+(?<depName>docker\\.io\\/.*?)\\s*\\ntag:\\s+(?<currentValue>[0-9a-zA-Z\\.\\-_]+)"
+        "repository:\\s+(?<depName>docker\\.io\\/.*?)\\s*\\ntag:\\s+(?<currentValue>[\\d\\.\\-a-zA-Z]+)"
       ],
       "datasourceTemplate": "docker"
+    }
+  ],
+  "hostRules": [
+    {
+      "hostType": "docker",
+      "matchHost": "index.docker.io",
+      "username": "MEND_DOCKER_USERNAME",
+      "password": "MEND_DOCKER_PASSWORD"
     }
   ]
 }
