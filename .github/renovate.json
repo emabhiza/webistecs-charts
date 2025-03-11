@@ -8,6 +8,13 @@
       "versioning": "semver",
       "automerge": true,
       "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["docker.io/emabhiza/webistecs-migrations"],
+      "versioning": "semver",
+      "automerge": true,
+      "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
     }
   ],
   "enabledManagers": ["dockerfile", "kubernetes"],
@@ -17,7 +24,9 @@
   "regexManagers": [
     {
       "fileMatch": ["values\\.yaml$"],
-      "matchStrings": ["repository:\\s+(?<depName>docker\\.io\\/.*?)\\s*\\ntag:\\s+(?<currentValue>.*?)\\s"],
+      "matchStrings": [
+        "repository:\\s+(?<depName>docker\\.io\\/.*?)\\s*\\ntag:\\s+(?<currentValue>[\\d\\.\\-a-zA-Z]+)"
+      ],
       "datasourceTemplate": "docker"
     }
   ],
@@ -25,8 +34,8 @@
     {
       "hostType": "docker",
       "matchHost": "index.docker.io",
-      "username": "${MEND_DOCKER_USERNAME}",
-      "password": "${MEND_DOCKER_PASSWORD}"
+      "usernameFromEnv": "MEND_DOCKER_USERNAME",
+      "passwordFromEnv": "MEND_DOCKER_PASSWORD"
     }
   ]
 }
