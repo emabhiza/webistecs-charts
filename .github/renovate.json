@@ -6,7 +6,8 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["my-registry/my-app"],
       "versioning": "semver",
-      "automerge": true
+      "automerge": true,
+      "allowedVersions": ">=0.0.6-beta <1.0.0-beta"
     }
   ],
   "enabledManagers": ["dockerfile", "kubernetes"],

@@ -10,15 +10,15 @@ data:
     [SERVICE]
         Flush         5
         Daemon        Off
-        Log_Level     debug  # ✅ Set debug mode to troubleshoot issues
-        Parsers_File  /fluent-bit/etc/parsers.conf  # ✅ Ensure parsers.conf is loaded correctly
+        Log_Level     debug
+        Parsers_File  /fluent-bit/etc/parsers.conf
 
     [INPUT]
         Name          tail
         Path          /var/log/containers/*.log
         Tag           kube.*
         Multiline     On
-        Parser_Firstline  multiline_log_parser  # ✅ Corrected to `Parser_Firstline`
+        Parser_Firstline  multiline_log_parser
         Refresh_Interval  10
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
@@ -52,7 +52,7 @@ data:
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex        extracted_message  ^.*(Exception|Error|Trace|INF|ERR|WRN|FTL).*
+        Regex         extracted_message  ^.*(Exception|Error|Trace|INF|ERR|WRN|FTL).*
 
     [OUTPUT]
         Name          http

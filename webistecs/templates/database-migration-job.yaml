@@ -6,12 +6,6 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-weight: "5"  # Ensures this runs first
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
-    argocd-image-updater.argoproj.io/image-list: myrepo/migration, myrepo/websitecs
-    argocd-image-updater.argoproj.io/myrepo.migration.update-strategy: latest
-    argocd-image-updater.argoproj.io/myrepo.websitecs.update-strategy: latest
-    argocd-image-updater.argoproj.io/myrepo.migration.allow-tags: regexp:^beta-[0-9]+\.[0-9]+$
-    argocd-image-updater.argoproj.io/myrepo.websitecs.allow-tags: regexp:^beta-[0-9]+\.[0-9]+$
-
 
 spec:
   template:
