@@ -4,14 +4,14 @@ metadata:
   name: webistecs-monitor-cronjob
   namespace: monitoring
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "* * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
             - name: webistecs-monitor
-              image: emabhiza/webistecs-monitor:monitor-14
+              image: emabhiza/webistecs-monitor:monitor-10
               env:
                 - name: ASPNETCORE_ENVIRONMENT
                   value: "Production"
