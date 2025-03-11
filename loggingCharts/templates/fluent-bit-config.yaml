@@ -50,11 +50,6 @@ data:
         Key_Name      extracted_message
         Parser        structured_log_parser
 
-    [FILTER]
-        Name          grep
-        Match         kube.*
-        Regex         extracted_message  ^.*(Exception|Error|Trace|INF|ERR|WRN|FTL).*
-
     [OUTPUT]
         Name          http
         Match         *
