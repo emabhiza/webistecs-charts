@@ -24,7 +24,7 @@ data:
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
 
-    # Ensure logs are enriched with Kubernetes labels
+    # Kubernetes Metadata Enrichment
     [FILTER]
         Name          kubernetes
         Match         kube.*
@@ -39,13 +39,21 @@ data:
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex         kubernetes.labels.app.kubernetes.io/name webistecs  # ✅ Correct format
+        Regex         kubernetes.container_name ^webistecs.*  # ✅ Keep only webistecs logs
 
-    # If filtering still doesn't work, try filtering by pod name (Alternative)
+    # ✅ Alternative: Use Namespace Filtering
     # [FILTER]
     #     Name          grep
     #     Match         kube.*
-    #     Regex         kubernetes.pod_name webistecs-.*
+    #     Regex         kubernetes.namespace_name webistecs-namespace  # ✅ Only keep logs from this namespace
+
+    # ✅ Exclude Unwanted Services (Alternative)
+    # [FILTER]
+    #     Name          grep
+    #     Match         kube.*
+    #     Exclude       kubernetes.labels.app.kubernetes.io/name argocd.*
+    #     Exclude       kubernetes.labels.app.kubernetes.io/name loki.*
+    #     Exclude       kubernetes.labels.app.kubernetes.io/name traefik.*
 
     [OUTPUT]
         Name          http
@@ -57,24 +65,3 @@ data:
         tls           on
         Header        Content-Type application/json
         Header        Authorization Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL
-
-  parsers.conf: |
-    [PARSER]
-        Name        custom_json_parser
-        Format      regex
-        Regex       ^\[(?<timestamp>[^\]]+)\] \[(?<log_level>[A-Z]+)\] \[(?<source>[^\]]+)\] (?<message>.*)$
-        Time_Key    timestamp
-        Time_Format %H:%M:%S
-
-    [PARSER]
-        Name        structured_log_parser
-        Format      json
-        Time_Key    timestamp
-        Time_Format %Y-%m-%dT%H:%M:%S
-
-    [MULTILINE]
-        Name          multiline_log_parser
-        Type          regex
-        Flush_Timeout 10
-        Rule          "start_state"  "^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)"  "cont"
-        Rule          "cont"         "^\s+at\s|\s+---\s"  "cont"
