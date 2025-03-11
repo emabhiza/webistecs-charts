@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-parsers
+  namespace: logging
+data:
+  parsers.conf: |
+    [PARSER]
+        Name         plain_text_parser
+        Format       regex
+        Regex        ^(?<log>.*)$

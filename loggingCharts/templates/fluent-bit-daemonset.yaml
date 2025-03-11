@@ -36,6 +36,9 @@ spec:
               mountPath: /var/log
             - name: config-volume
               mountPath: /fluent-bit/etc/
+            - name: parsers-volume
+              mountPath: /fluent-bit/etc/parsers.conf
+              subPath: parsers.conf
             - name: api-secret
               mountPath: /fluent-bit/secrets
               readOnly: true
@@ -46,6 +49,9 @@ spec:
         - name: config-volume
           configMap:
             name: fluent-bit-config
+        - name: parsers-volume
+          configMap:
+            name: fluent-bit-parsers
         - name: api-secret
           secret:
             secretName: fluent-bit-secret
