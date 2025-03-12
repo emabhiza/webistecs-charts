@@ -6,6 +6,8 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-weight: "5"
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd-image-updater.argoproj.io/image.pull-secret: myregistrykey
+
 
 
 spec:
