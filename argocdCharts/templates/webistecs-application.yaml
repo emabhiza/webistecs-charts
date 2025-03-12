@@ -4,10 +4,12 @@ metadata:
   name: webistecs
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "docker.io/emabhiza/webistecs"
-    argocd-image-updater.argoproj.io/update-strategy: newest-build
-    argocd-image-updater.argoproj.io/helm-image-path: webistecs.image
-    argocd-image-updater.argoproj.io/pull-secret: myregistrykey
+    argocd-image-updater.argoproj.io/image-list: emabhiza/webistecs
+    argocd-image-updater.argoproj.io/emabhiza.webistecs.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/emabhiza.webistecs.helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/emabhiza.webistecs.helm.image-tag: image.tag
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main  
 
 spec:
   project: default

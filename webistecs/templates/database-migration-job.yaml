@@ -7,9 +7,6 @@ metadata:
     argocd.argoproj.io/hook-weight: "5"
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
     argocd-image-updater.argoproj.io/pull-secret: myregistrykey
-
-
-
 spec:
   template:
     spec:
