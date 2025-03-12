@@ -4,7 +4,8 @@ metadata:
   name: webistecs
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: image.repository=docker.io/emabhiza/webistecs
+    argocd-image-updater.argoproj.io/image-list: webistecs.image.repository=docker.io/emabhiza/webistecs:0.x
+    argocd-image-updater.argoproj.io/webistecs.image.update-strategy: semver
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-repo-secret
     argocd-image-updater.argoproj.io/write-back-target: helmvalues:/webistecs/values.yaml:webistecs.image.tag
     argocd-image-updater.argoproj.io/image.repository.update-strategy: newest-build
