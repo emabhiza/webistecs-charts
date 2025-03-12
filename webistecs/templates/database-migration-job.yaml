@@ -4,8 +4,9 @@ metadata:
   name: {{ include "webistecs.fullname" . }}-migration
   annotations:
     argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-weight: "5"  # Ensures this runs first
+    argocd.argoproj.io/hook-weight: "5"
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+
 
 spec:
   template:
