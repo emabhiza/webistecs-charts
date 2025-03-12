@@ -64,7 +64,7 @@ nodeExporter:
 
 dbMigrationJob:
   image:
-    repository: docker.io/emabhiza/webistecs
+    repository: docker.io/emabhiza/webistecs-migrations
     tag: 0.0.5-beta
   environment:
     aspNetCoreEnvironment: Production
