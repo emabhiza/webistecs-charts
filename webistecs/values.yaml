@@ -78,6 +78,7 @@ dbMigrationJob:
       hook: PreSync
       hookWeight: "5"
       hookDeletePolicy: "BeforeHookCreation,HookSucceeded"
+  imagePullSecret: "myregistrykey"
   resources:
     requests:
       memory: "1Gi"
