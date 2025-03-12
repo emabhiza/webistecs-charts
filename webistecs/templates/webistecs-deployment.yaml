@@ -7,9 +7,6 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: "{{ .Values.webistecs.image.repository }}"
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/pull-secret: myregistrykey
-    
-
-
 spec:
   replicas: {{ .Values.webistecs.replicaCount }}
   selector:
@@ -58,42 +55,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbase__privateName }}
-            - name: KRAKEN__PUBLICKEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.krakenPublicKey }}
-            - name: KRAKEN__PRIVATEKEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.krakenPrivateKey }}
-            - name: TELEGRAM__TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.telegramBotToken }}
-            - name: TELEGRAM__CHANNELS__NOTIFICATIONS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.telegram_NotificationChannel }}
-            - name: TELEGRAM__CHANNELS__ERRORS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.telegram_ErrorsChannel }}
-            - name: TELEGRAM__CHANNELS__FUNCTIONS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.telegram_FunctionsChannel }}
-            - name: DATABASE_PATH
-              value: {{ .Values.webistecs.databasePath }}
-            - name: ENVIRONMENT
-              value: {{ .Values.webistecs.environment.aspNetCoreEnvironment }}
-            - name: ConnectionStrings__WebistecsContext
-              value: {{ .Values.webistecs.environment.webistecsContext}}
+            # (other environment variables)
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
