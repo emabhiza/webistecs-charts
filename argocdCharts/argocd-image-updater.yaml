@@ -5,6 +5,6 @@ imageUpdater:
     tag: latest
     pullPolicy: Always
   imagePullSecrets:
-    - name: myregistrykey  # ✅ Add this under `imageUpdater`
+    - name: myregistrykey  
 data:
   accounts.image-updater: apiKey
