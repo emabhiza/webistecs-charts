@@ -56,3 +56,9 @@ webistecs:
     module: "docker"
     fileset:
       stdout: "true"
+
+
+nodeExporter:
+  name: "node-exporter"  # Add this definition
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
