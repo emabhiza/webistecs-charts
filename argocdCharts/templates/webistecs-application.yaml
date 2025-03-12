@@ -7,6 +7,8 @@ metadata:
     argocd-image-updater.argoproj.io/image-list: "docker.io/emabhiza/webistecs"
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/helm-image-path: webistecs.image
+    argocd-image-updater.argoproj.io/image.pull-secret: myregistrykey
+
 spec:
   project: default
   source:

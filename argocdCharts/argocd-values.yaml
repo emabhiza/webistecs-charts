@@ -1,0 +1,10 @@
+configs:
+  rbac:
+    policy.default: role:admin
+    policy.csv: |
+      p, admin, applications, sync, *, allow
+      p, admin, applications, update, *, allow
+      p, admin, applications, get, *, allow
+      p, admin, repositories, get, *, allow
+      p, admin, repositories, update, *, allow
+      g, admin, role:admin
