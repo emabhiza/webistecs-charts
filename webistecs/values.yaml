@@ -1,28 +1,32 @@
+image:
+  name: "docker.io/emabhiza/webistecs"
+  tag: "0.0.9"
+
 webistecs:
   nameOverride: "webistecs"
   replicaCount: 1
   containerName: "my-container"
   image:
-    repository: docker.io/emabhiza/webistecs
-    tag: 0.0.9
+    repository: "{{ .Values.image.name }}"
+    tag: "{{ .Values.image.tag }}"
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
-    path: "/healthz/ready"  # Path to the health check endpoint
-    port: 8080        # Port for the health check
-    initialDelaySeconds: 5  # Wait 5 seconds before starting the probe
-    periodSeconds: 10       # Check every 10 seconds
-    failureThreshold: 3     # Mark as not ready after 3 failures
-    successThreshold: 1     # Mark as ready after 1 success
+    path: "/healthz/ready"
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
   livenessProbe:
-    path: "/healthz/live"  # Path to the health check endpoint
-    port: 8080        # Port for the health check
-    initialDelaySeconds: 15  # Wait 15 seconds before starting the probe
-    periodSeconds: 10        # Check every 10 seconds
-    failureThreshold: 3      # Restart the pod after 3 failures
+    path: "/healthz/live"
+    port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
   secrets:
     coingeckoApiKey: "coingecko_apiKey"
     coinbase__privateKey: "coinbase__privateKey"
@@ -61,7 +65,6 @@ nodeExporter:
   image: "prom/node-exporter:latest"
   containerPort: 9100
 
-
 dbMigrationJob:
   image:
     repository: docker.io/emabhiza/webistecs-migrations
@@ -86,4 +89,3 @@ dbMigrationJob:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-      
