@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: {{ include "webistecs.fullname" . }}-migration
   annotations:
+    checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-weight: "5"
     argocd.argoproj.io/hook-delete-policy: HookSucceeded

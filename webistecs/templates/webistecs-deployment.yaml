@@ -55,7 +55,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbase__privateName }}
-            # (other environment variables)
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
