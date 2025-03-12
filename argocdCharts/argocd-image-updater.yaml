@@ -3,8 +3,6 @@ imageUpdater:
   image:
     repository: quay.io/argoprojlabs/argocd-image-updater
     tag: latest
-    pullPolicy: Always
-  imagePullSecrets:
-    - name: myregistrykey  
+    pullPolicy: Always  
 data:
   accounts.image-updater: apiKey
