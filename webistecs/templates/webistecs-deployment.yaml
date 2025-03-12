@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.webistecs.containerName }}
-          image:{{ .Values.webistecs.image.tag }}"
+          image: "{{ .Values.webistecs.image.repository }}:{{ .Values.webistecs.image.tag }}"
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}
