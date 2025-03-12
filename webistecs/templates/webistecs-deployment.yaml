@@ -6,7 +6,7 @@ metadata:
     checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
     argocd-image-updater.argoproj.io/image-list: "{{ .Values.webistecs.image.repository }}"
     argocd-image-updater.argoproj.io/update-strategy: latest
-    argocd-image-updater.argoproj.io/image.pull-secret: myregistrykey
+    argocd-image-updater.argoproj.io/pull-secret: myregistrykey
 
 
 spec:
