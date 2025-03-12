@@ -3,8 +3,8 @@ webistecs:
   replicaCount: 1
   containerName: "my-container"
   image:
-    name: "docker.io/emabhiza/webistecs"
-    tag: 0.0.13
+    repository: "docker.io/emabhiza/webistecs"
+    tag: "0.0.13"   # Note the tag is wrapped in quotes to treat it as a string
   environment:
     aspNetCoreEnvironment: "Production"
     webistecsContext: "Data Source=/db/webistecs.db"
@@ -56,8 +56,3 @@ webistecs:
     module: "docker"
     fileset:
       stdout: "true"
-      
-nodeExporter:
-  name: "node-exporter"
-  image: "prom/node-exporter:latest"
-  containerPort: 9100
