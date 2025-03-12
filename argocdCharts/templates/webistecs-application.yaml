@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: emabhiza/webistecs
     argocd-image-updater.argoproj.io/emabhiza.webistecs.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/allow-tags: regexp:^.*-beta$
     argocd-image-updater.argoproj.io/emabhiza.webistecs.helm.image-name: image.repository
     argocd-image-updater.argoproj.io/emabhiza.webistecs.helm.image-tag: image.tag
     argocd-image-updater.argoproj.io/write-back-method: git
