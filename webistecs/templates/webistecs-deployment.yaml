@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: {{ include "webistecs.fullname" . }}
   annotations:
-    checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
     argocd-image-updater.argoproj.io/image-list: "{{ .Values.webistecs.image.repository }}"
     argocd-image-updater.argoproj.io/update-strategy: latest
     argocd-image-updater.argoproj.io/pull-secret: myregistrykey
@@ -45,6 +44,10 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.webistecs.environment.webistecsContext }}"
+            - name: RUN_MIGRATIONS
+              value: "{{ .Values.webistecs.environment.runMigrations }}"
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
@@ -55,6 +58,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbase__privateName }}
+                  
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"

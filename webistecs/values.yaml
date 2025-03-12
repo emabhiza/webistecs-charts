@@ -1,17 +1,14 @@
-image:
-  name: "docker.io/emabhiza/webistecs"
-  tag: "0.0.9"
-
 webistecs:
   nameOverride: "webistecs"
   replicaCount: 1
   containerName: "my-container"
   image:
-    repository: "{{ .Values.image.name }}"
-    tag: "{{ .Values.image.tag }}"
+    name: "docker.io/emabhiza/webistecs"
+    tag: "genie-test-4"
   environment:
-    aspNetCoreEnvironment: Production
+    aspNetCoreEnvironment: "Production"
     webistecsContext: "Data Source=/db/webistecs.db"
+    runMigrations: "true"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -43,7 +40,7 @@ webistecs:
   service:
     nodePortHttp: 30080
   restartPolicy: "Always"
-  imagePullSecret: "myregistrykey"
+  imagePullSecret: "myregistrykey"  # Only needed if using a private registry
   volume:
     persistentVolumeClaim:
       claimName: "webistecs-db-pvc"
@@ -59,33 +56,8 @@ webistecs:
     module: "docker"
     fileset:
       stdout: "true"
-
+      
 nodeExporter:
   name: "node-exporter"
   image: "prom/node-exporter:latest"
   containerPort: 9100
-
-dbMigrationJob:
-  image:
-    repository: docker.io/emabhiza/webistecs-migrations
-    tag: 0.0.9
-  environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/db/webistecs.db"
-  volumes:
-    - name: db-storage
-      persistentVolumeClaim:
-        claimName: webistecs-db-pvc
-  annotations:
-    argocd:
-      hook: PreSync
-      hookWeight: "5"
-      hookDeletePolicy: "BeforeHookCreation,HookSucceeded"
-  imagePullSecret: "myregistrykey"
-  resources:
-    requests:
-      memory: "1Gi"
-      cpu: "1000m"
-    limits:
-      memory: "1Gi"
-      cpu: "1000m"
