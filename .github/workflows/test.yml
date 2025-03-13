@@ -1,21 +1,86 @@
 name: Deploy to ArgoCD
 
 on:
-  push:
-    branches:
-      - main
+  # Check every 2 minutes for updates
+  schedule:
+    - cron: '*/2 * * * *'  # Every 2 minutes
+  
+  # Allow manual trigger as well
+  workflow_dispatch:
+    inputs:
+      trigger_action:
+        description: 'Manually trigger ArgoCD sync'
+        required: false
+        default: 'false'
 
 jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-    - name: Install ArgoCD CLI
-      run: |
-        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.6.0/argocd-linux-arm64
-        chmod +x /usr/local/bin/argocd
-    - name: ArgoCD Sync
-      run: |
-        argocd login 192.168.68.107:30007 --username emabhiza --password Gsquad238 --insecure
-        argocd app sync webistecs
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install ArgoCD CLI
+        run: |
+          echo "Installing ArgoCD CLI..."
+          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.6.0/argocd-linux-arm64
+          chmod +x /usr/local/bin/argocd
+          echo "ArgoCD CLI installed."
+
+      - name: Debug - Show ArgoCD CLI version
+        run: |
+          echo "Checking ArgoCD CLI version..."
+          argocd version --short
+          echo "ArgoCD CLI version checked."
+
+      - name: Debug - Log into ArgoCD
+        run: |
+          echo "Attempting ArgoCD login..."
+          argocd login 192.168.68.107:30007 --username emabhiza --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          echo "Logged into ArgoCD."
+
+      - name: Debug - List ArgoCD Applications
+        run: |
+          echo "Listing ArgoCD applications..."
+          argocd app list
+          echo "ArgoCD application list displayed."
+
+      - name: Debug - Get Latest Docker Image Tag
+        id: get_image_tag
+        run: |
+          echo "Checking for the latest Docker image tag..."
+          latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
+          echo "Latest Docker image tag is $latest_tag"
+          echo "::set-output name=latest_tag::$latest_tag"
+          echo "Docker image tag checked."
+
+      - name: Check if Docker image has changed
+        id: image_changed
+        run: |
+          # Get previously stored tag from GitHub Secrets
+          previous_tag="${{ secrets.LATEST_TAG }}"
+          echo "Previous Docker image tag: $previous_tag"
+          echo "Latest Docker image tag: ${{ steps.get_image_tag.outputs.latest_tag }}"
+          if [[ "$previous_tag" != "${{ steps.get_image_tag.outputs.latest_tag }}" ]]; then
+            echo "Image has changed. Triggering ArgoCD deployment."
+            echo "::set-output name=image_changed::true"
+          else
+            echo "No change in image. Skipping ArgoCD deployment."
+            echo "::set-output name=image_changed::false"
+          fi
+
+      - name: Debug - Sync ArgoCD
+        if: steps.image_changed.outputs.image_changed == 'true'
+        run: |
+          echo "Starting ArgoCD sync for 'webistecs'..."
+          argocd app sync webistecs
+          echo "ArgoCD sync complete."
+
+      - name: Debug - Store new image tag (update GitHub secret)
+        if: steps.image_changed.outputs.image_changed == 'true'
+        run: |
+          echo "Updating LATEST_TAG GitHub secret..."
+          # Here we use the GitHub CLI to update the secret for the next time
+          gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
+          echo "LATEST_TAG secret updated."
