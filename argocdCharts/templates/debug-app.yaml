@@ -4,11 +4,11 @@ metadata:
   name: debug-app
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: emabhiza/coinmarketcap-exporter
-    argocd-image-updater.argoproj.io/coinmarketcap-exporter.update-strategy: semver
-    argocd-image-updater.argoproj.io/coinmarketcap-exporter.allow-tags: regexp:^v\d+\.\d+\.\d+$
-    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-repo-secret
-    argocd-image-updater.argoproj.io/write-back-target: helmvalues:webistecs-charts/debug/values.yaml:image.tag
+    argocd-image-updater.argoproj.io/image-list: debug=emabhiza/coinmarketcap-exporter
+    argocd-image-updater.argoproj.io/debug.update-strategy: semver
+    argocd-image-updater.argoproj.io/debug.allow-tags: regexp:^v\d+\.\d+\.\d+$
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: helmvalues:webistecs-charts/debug/values.yaml:debug.image.tag
     argocd-image-updater.argoproj.io/git-repo-url: https://github.com/emabhiza/webistecs-charts.git
     argocd-image-updater.argoproj.io/git-branch: main
 spec:
