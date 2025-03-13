@@ -43,7 +43,7 @@ jobs:
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-          argocd login 192.168.68.107:30007 --auth-token Gsquad238 --insecure
+           argocd login 192.168.68.107:30007 --username admin --password Gsquad238 --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
