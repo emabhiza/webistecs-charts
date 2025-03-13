@@ -22,9 +22,12 @@ jobs:
       - name: Install ArgoCD CLI
         run: |
           echo "Installing ArgoCD CLI..."
-          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
-          chmod +x /usr/local/bin/argocd
+          mkdir -p $HOME/bin
+          curl -sSL -o $HOME/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
+          chmod +x $HOME/bin/argocd
           echo "ArgoCD CLI installed."
+          echo "Adding $HOME/bin to PATH"
+          echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Debug - Show ArgoCD CLI version
         run: |
