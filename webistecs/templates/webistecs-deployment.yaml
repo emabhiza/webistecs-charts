@@ -18,7 +18,9 @@ spec:
         co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
         co.elastic.logs/fileset.stdout: {{ .Values.webistecs.logging.fileset.stdout | quote }}
         co.elastic.logs/fileset.stderr: {{ .Values.webistecs.logging.fileset.stderr | quote }}
+        argocd-image-updater.argoproj.io/image-name: "{{ .Values.webistecs.image.repository }}"
         checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
+        
     spec:
       containers:
         - name: {{ .Values.webistecs.containerName }}
