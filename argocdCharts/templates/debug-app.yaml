@@ -16,7 +16,7 @@ spec:
       values: |
         image:
           repository: emabhiza/coinmarketcap-exporter
-          tag: latest
+          tag: v1.0.0
           pullPolicy: Always
   syncPolicy:
     automated:
