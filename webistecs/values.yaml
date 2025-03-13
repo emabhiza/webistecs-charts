@@ -3,7 +3,7 @@ webistecs:
   replicaCount: 1
   containerName: "my-container"
   image:
-    name: "docker.io/emabhiza/webistecs"
+    repository: "docker.io/emabhiza/webistecs"
     tag: "v0.0.5"
   environment:
     aspNetCoreEnvironment: Production
