@@ -9,6 +9,7 @@ metadata:
     argocd-image-updater.argoproj.io/debug.update-strategy: semver
     argocd-image-updater.argoproj.io/debug.allow-tags: regexp:^v\d+\.\d+\.\d+$
     argocd-image-updater.argoproj.io/debug.force-update: "true"
+    
 spec:
   project: default
   destination:
