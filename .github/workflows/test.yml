@@ -15,8 +15,7 @@ jobs:
       run: |
         curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.6.0/argocd-linux-arm64
         chmod +x /usr/local/bin/argocd
-        
     - name: ArgoCD Sync
       run: |
         argocd login 192.168.68.107 --username emabhiza --password Gsquad238 --insecure
-        argocd app sync argocd-example
+        argocd app sync webistecs
