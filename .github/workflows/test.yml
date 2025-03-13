@@ -1,0 +1,21 @@
+name: Deploy to ArgoCD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, arm64]
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Install ArgoCD CLI
+      run: |
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.6.0/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
+    - name: ArgoCD Sync
+      run: |
+        argocd login 192.168.68.107 --username emabhiza --password Gsquad238 --insecure
+        argocd app sync argocd-example
