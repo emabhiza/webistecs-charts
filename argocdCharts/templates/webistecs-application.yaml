@@ -4,7 +4,6 @@ metadata:
   name: webistecs
   namespace: argocd
   annotations:
-    # Image updater annotations
     argocd-image-updater.argoproj.io/image-list: webistecs=docker.io/emabhiza/webistecs:0.x
     argocd-image-updater.argoproj.io/webistecs.update-strategy: semver
     argocd-image-updater.argoproj.io/webistecs.allow-tags: regexp:^v\d+\.\d+\.\d+$
