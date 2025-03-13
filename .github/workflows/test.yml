@@ -17,5 +17,5 @@ jobs:
         chmod +x /usr/local/bin/argocd
     - name: ArgoCD Sync
       run: |
-        argocd login 192.168.68.107 --username emabhiza --password Gsquad238 --insecure
+        argocd login https://192.168.68.107 --username emabhiza --password Gsquad238
         argocd app sync webistecs
