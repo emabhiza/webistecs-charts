@@ -1,13 +1,9 @@
 webistecs:
-  nameOverride: "webistecs"
   replicaCount: 1
   containerName: "my-container"
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.5"
-  environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/db/webistecs.db"
+    tag: "v0.0.1"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -24,20 +20,10 @@ webistecs:
     periodSeconds: 10
     failureThreshold: 3
   secrets:
-    coingeckoApiKey: "coingecko_apiKey"
+    webistecsSecret: "webistecs-secret"
     coinbase__privateKey: "coinbase__privateKey"
     coinbase__privateName: "coinbase__privateName"
-    krakenPublicKey: "kraken_publicKey"
-    krakenPrivateKey: "kraken_privateKey"
-    telegramBotToken: "telegram_botToken"
-    telegram_NotificationChannel: "telegram_channelsNotifications"
-    telegram_ErrorsChannel: "telegram_channelsErrors"
-    telegram_FunctionsChannel: "telegram_channelsFunctions"
-    webistecsSecret: "webistecs-secret"
-  databasePath: "/db/webistecs.db"
   volumeMountPath: "/db"
-  service:
-    nodePortHttp: 30080
   restartPolicy: "Always"
   imagePullSecret: "myregistrykey"
   volume:
@@ -55,6 +41,7 @@ webistecs:
     module: "docker"
     fileset:
       stdout: "true"
+      stderr: "false"
 
 nodeExporter:
   name: "node-exporter"
