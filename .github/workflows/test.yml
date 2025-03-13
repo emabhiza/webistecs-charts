@@ -44,7 +44,7 @@ jobs:
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-          argocd login 192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          argocd login https://192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
