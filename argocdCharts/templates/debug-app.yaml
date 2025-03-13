@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: debug-app
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
+    targetRevision: HEAD
+    path: debug
+    helm:
+      values: |
+        image:
+          repository: emabhiza/coinmarketcap-exporter
+          tag: latest
+          pullPolicy: Always
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
