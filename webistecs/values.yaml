@@ -1,6 +1,6 @@
 webistecs:
   replicaCount: 1
-  containerName: "my-container"
+  containerName: "webistecs"
   image:
     repository: "docker.io/emabhiza/webistecs"
     tag: "v0.0.5"
