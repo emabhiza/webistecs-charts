@@ -3,6 +3,10 @@ kind: Application
 metadata:
   name: debug-app
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: emabhiza/coinmarketcap-exporter
+    argocd-image-updater.argoproj.io/coinmarketcap-exporter.update-strategy: semver
+    argocd-image-updater.argoproj.io/coinmarketcap-exporter.allow-tags: regexp:^v\d+\.\d+\.\d+$
 spec:
   project: default
   destination:
@@ -16,7 +20,7 @@ spec:
       values: |
         image:
           repository: emabhiza/coinmarketcap-exporter
-          tag: v1.0.0
+          tag: v1.0.0  # This will be updated automatically
           pullPolicy: Always
   syncPolicy:
     automated:
