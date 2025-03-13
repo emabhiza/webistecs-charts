@@ -4,14 +4,13 @@ metadata:
   name: webistecs
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: webistecs=docker.io/emabhiza/webistecs:0.x
+    argocd-image-updater.argoproj.io/image-list: webistecs=docker.io/emabhiza/webistecs:~0
     argocd-image-updater.argoproj.io/webistecs.update-strategy: semver
     argocd-image-updater.argoproj.io/webistecs.allow-tags: regexp:^v\d+\.\d+\.\d+$
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-repo-secret
     argocd-image-updater.argoproj.io/write-back-target: helmvalues:webistecs-charts/webistecs/values.yaml:webistecs.image.tag
     argocd-image-updater.argoproj.io/git-repo-url: https://github.com/emabhiza/webistecs-charts.git
     argocd-image-updater.argoproj.io/git-branch: main
-    argocd-image-updater.argoproj.io/git-secret: git-repo-secret
 spec:
   project: default
   source:
