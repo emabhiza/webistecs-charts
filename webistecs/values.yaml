@@ -51,7 +51,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: docker.io/emabhiza/webistecs-migrations
-    tag: "v0.0.16"
+    tag: "{{ .Values.imageTag | default 'latest' }}"
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
