@@ -4,7 +4,7 @@ metadata:
   name: webistecs
   namespace: argocd
   annotations:
-    argocd-image-updater.argoproj.io/image-list: webistecs=emabhiza/webistecs
+    argocd-image-updater.argoproj.io/image-list: emabhiza/webistecs
     argocd-image-updater.argoproj.io/webistecs.update-strategy: semver
     argocd-image-updater.argoproj.io/webistecs.allow-tags: regexp:^v\d+\.\d+\.\d+$
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-repo-secret
