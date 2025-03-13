@@ -43,7 +43,7 @@ jobs:
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-          argocd login 192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          argocd login 192.168.68.107:30007 --auth-token Gsquad238 --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
@@ -105,3 +105,6 @@ jobs:
           echo "Updating LATEST_TAG GitHub secret..."
           gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
           echo "LATEST_TAG secret updated."
+          
+          
+          
