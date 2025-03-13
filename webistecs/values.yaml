@@ -3,7 +3,7 @@ webistecs:
   containerName: "webistecs"
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.16"
+    tag:  "{{ .Values.imageTag | default 'latest' }}"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
