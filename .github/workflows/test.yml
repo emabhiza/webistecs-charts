@@ -1,11 +1,9 @@
 name: Deploy to ArgoCD
 
 on:
-  # Check every 2 minutes for updates
   schedule:
     - cron: '*/2 * * * *'  # Every 2 minutes
   
-  # Allow manual trigger as well
   workflow_dispatch:
     inputs:
       trigger_action:
@@ -24,7 +22,7 @@ jobs:
       - name: Install ArgoCD CLI
         run: |
           echo "Installing ArgoCD CLI..."
-          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.6.0/argocd-linux-arm64
+          curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
           chmod +x /usr/local/bin/argocd
           echo "ArgoCD CLI installed."
 
@@ -34,10 +32,16 @@ jobs:
           argocd version --short
           echo "ArgoCD CLI version checked."
 
+      - name: Install jq
+        run: |
+          echo "Installing jq for JSON parsing..."
+          sudo apt-get update && sudo apt-get install -y jq
+          echo "jq installed."
+
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-          argocd login 192.168.68.107:30007 --username emabhiza --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          argocd login 192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
@@ -62,7 +66,7 @@ jobs:
           previous_tag="${{ secrets.LATEST_TAG }}"
           echo "Previous Docker image tag: $previous_tag"
           echo "Latest Docker image tag: ${{ steps.get_image_tag.outputs.latest_tag }}"
-          if [[ "$previous_tag" != "${{ steps.get_image_tag.outputs.latest_tag }}" ]]; then
+          if [[ -z "$previous_tag" || "$previous_tag" != "${{ steps.get_image_tag.outputs.latest_tag }}" ]]; then
             echo "Image has changed. Triggering ArgoCD deployment."
             echo "::set-output name=image_changed::true"
           else
@@ -82,5 +86,11 @@ jobs:
         run: |
           echo "Updating LATEST_TAG GitHub secret..."
           # Here we use the GitHub CLI to update the secret for the next time
-          gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
+          if ! gh secret list | grep -q 'LATEST_TAG'; then
+            echo "LATEST_TAG secret not found. Creating a new secret."
+            gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
+          else
+            echo "LATEST_TAG secret found. Updating."
+            gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
+          fi
           echo "LATEST_TAG secret updated."
