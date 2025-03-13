@@ -3,7 +3,6 @@ name: Deploy to ArgoCD
 on:
   schedule:
     - cron: '*/2 * * * *'  # Every 2 minutes
-  
   workflow_dispatch:
     inputs:
       trigger_action:
@@ -44,7 +43,7 @@ jobs:
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-          argocd login https://192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
+          argocd login 192.168.68.107:30007 --auth-token ${{ secrets.ARGOCD_TOKEN }} --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
@@ -59,7 +58,7 @@ jobs:
           echo "Checking for the latest Docker image tag..."
           latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
           echo "Latest Docker image tag is $latest_tag"
-          echo "::set-output name=latest_tag::$latest_tag"
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           echo "Docker image tag checked."
 
       - name: Check if Docker image has changed
@@ -71,10 +70,10 @@ jobs:
           echo "Latest Docker image tag: ${{ steps.get_image_tag.outputs.latest_tag }}"
           if [[ -z "$previous_tag" || "$previous_tag" != "${{ steps.get_image_tag.outputs.latest_tag }}" ]]; then
             echo "Image has changed. Triggering ArgoCD deployment."
-            echo "::set-output name=image_changed::true"
+            echo "image_changed=true" >> $GITHUB_OUTPUT
           else
             echo "No change in image. Skipping ArgoCD deployment."
-            echo "::set-output name=image_changed::false"
+            echo "image_changed=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Debug - Sync ArgoCD
@@ -84,16 +83,25 @@ jobs:
           argocd app sync webistecs
           echo "ArgoCD sync complete."
 
+      - name: Install GitHub CLI
+        run: |
+          echo "Installing GitHub CLI..."
+          sudo apt-get update && sudo apt-get install -y gh
+          echo "GitHub CLI installed."
+
+      - name: Authenticate GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Authenticating GitHub CLI..."
+          gh auth login --with-token <<< "$GITHUB_TOKEN"
+          echo "GitHub CLI authenticated."
+
       - name: Debug - Store new image tag (update GitHub secret)
         if: steps.image_changed.outputs.image_changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Updating LATEST_TAG GitHub secret..."
-          # Here we use the GitHub CLI to update the secret for the next time
-          if ! gh secret list | grep -q 'LATEST_TAG'; then
-            echo "LATEST_TAG secret not found. Creating a new secret."
-            gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
-          else
-            echo "LATEST_TAG secret found. Updating."
-            gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
-          fi
+          gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
           echo "LATEST_TAG secret updated."
