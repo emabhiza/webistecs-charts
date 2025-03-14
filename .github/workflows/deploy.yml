@@ -30,16 +30,21 @@ jobs:
       - name: Get Latest Docker Image Tag (Docker CLI)
         id: get_image_tag_cli
         run: |
-          echo "Fetching latest Docker image tag using Docker CLI..."
-          latest_tag=$(docker manifest inspect emabhiza/webistecs:latest 2>/dev/null | jq -r '.manifests[0].digest' || echo "")
-
-          if [ -z "$latest_tag" ] || [ "$latest_tag" == "null" ]; then
-            echo "Error: Unable to fetch the latest tag using Docker CLI."
-            exit 1
+         echo "Fetching latest Docker image tag using Docker CLI..."
+      
+           # Log in to Docker Hub
+            echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
+      
+           # List all tags, filter valid version tags, sort numerically, and get the latest one
+           latest_tag=$(docker run --rm mplatform/mquery emabhiza/webistecs | grep -oP 'v\d+\.\d+\.\d+' | sort -V | tail -n 1)
+      
+         if [ -z "$latest_tag" ]; then
+             echo "Error: Unable to fetch the latest versioned tag."
+          exit 1
           fi
-
-          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "✅ Latest Docker image tag fetched: $latest_tag"
+      
+         echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+         echo "✅ Latest Docker image tag fetched: $latest_tag"
 
       - name: Store Previous Image Tag
         id: store_old_tag
