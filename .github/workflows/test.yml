@@ -73,6 +73,14 @@ jobs:
           echo "Updated values.yaml for dbMigrationJob image"
           cat webistecs/values.yaml  # Print the updated file to verify the changes
 
+      - name: Commit and push changes to values.yaml
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add webistecs/values.yaml
+          git commit -m "Update webistecs image tag to ${{ env.latest_tag }}"
+          git push
+
       - name: Check if Docker image has changed
         id: image_changed
         run: |
