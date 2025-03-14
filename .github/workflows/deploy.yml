@@ -30,11 +30,11 @@ jobs:
           echo "Fetching latest Docker image tag using Docker Hub API..."
           
           # Log in to Docker Hub
-          echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
           
           # Fetch tags using Docker Hub API
           IMAGE_NAME="emabhiza/webistecs"  # Replace with your Docker Hub repository name
-          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'"${{ secrets.DOCKER_USERNAME }}"'", "password": "'"${{ secrets.DOCKER_HUBPAT }}"'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'"${{ secrets.DOCKER__USERNAME }}"'", "password": "'"${{ secrets.DOCKER_HUBPAT }}"'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
           TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
           
           # Filter valid version tags, sort numerically, and get the latest one
