@@ -3,7 +3,7 @@ webistecs:
   containerName: "webistecs"
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.6"
+    tag: "v0.0.1"
   imagePullPolicy: "Always"
   containerPort: 80
   readinessProbe:
@@ -51,7 +51,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: docker.io/emabhiza/webistecs-migrations
-    tag: "v0.0.6"
+    tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: Production
     webistecsContext: "Data Source=/db/webistecs.db"
