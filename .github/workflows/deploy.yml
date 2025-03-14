@@ -1,5 +1,3 @@
-name: Deploy to ArgoCD
-
 on:
   workflow_dispatch:
     inputs:
@@ -26,29 +24,29 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
+      - name: Send Telegram Message - Deployment Started
+        run: |
+          MESSAGE="🚀 *Deployment Started!*
+          👤 *Triggered by:* ${{ github.actor }}
+          🏷️ *Target Version:* ${{ env.latest_tag }}
+          ⏳ *Status:* In Progress..."
+          
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode="MarkdownV2" \
+          -d text="$MESSAGE"
+
       - name: Debug - Show ArgoCD CLI version
         run: |
           echo "Checking ArgoCD CLI version..."
           argocd version --short
           echo "ArgoCD CLI version checked."
 
-      - name: Install jq
-        run: |
-          echo "Installing jq for JSON parsing..."
-          sudo apt-get update && sudo apt-get install -y jq
-          echo "jq installed."
-
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
           argocd login 192.168.68.107:30007 --username admin --password Gsquad238 --insecure
           echo "Logged into ArgoCD."
-
-      - name: Debug - List ArgoCD Applications
-        run: |
-          echo "Listing ArgoCD applications..."
-          argocd app list
-          echo "ArgoCD application list displayed."
 
       - name: Debug - Get Latest Docker Image Tag
         id: get_image_tag
@@ -71,14 +69,6 @@ jobs:
           echo "Updating webistecs image tag in values.yaml to ${{ env.latest_tag }}..."
           sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
           echo "Updated values.yaml for webistecs image"
-          cat webistecs/values.yaml
-
-      - name: Update Helm Chart with Latest Docker Tag for Migration Job
-        run: |
-          echo "Updating dbMigrationJob image tag in values.yaml to ${{ env.latest_tag }}..."
-          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
-          echo "Updated values.yaml for dbMigrationJob image"
-          cat webistecs/values.yaml
 
       - name: Commit and push changes to values.yaml
         run: |
@@ -87,20 +77,6 @@ jobs:
           git add webistecs/values.yaml
           git commit -m "Update webistecs image tag to ${{ env.latest_tag }}"
           git push
-
-      - name: Check if Docker image has changed
-        id: image_changed
-        run: |
-          previous_tag="${{ env.old_tag }}"
-          echo "Previous Docker image tag: $previous_tag"
-          echo "Latest Docker image tag: ${{ env.latest_tag }}"
-          if [[ -z "$previous_tag" || "$previous_tag" != "${{ env.latest_tag }}" ]]; then
-            echo "Image has changed. Triggering ArgoCD deployment."
-            echo "image_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "No change in image. Skipping ArgoCD deployment."
-            echo "image_changed=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Debug - Sync ArgoCD and Check for Failure
         if: steps.image_changed.outputs.image_changed == 'true'
@@ -128,17 +104,34 @@ jobs:
           git push
           echo "Rollback complete."
 
-      - name: Install GitHub CLI
+      - name: Send Telegram Message - Deployment Success
+        if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
         run: |
-          echo "Installing GitHub CLI..."
-          sudo apt-get update && sudo apt-get install -y gh
-          echo "GitHub CLI installed."
+          MESSAGE="✅ *Deployment Successful!*
+          👤 *Deployed by:* ${{ github.actor }}
+          📦 *Application:* Webistecs
+          🏷️ *Version:* ${{ env.latest_tag }}
+          🚀 *Status:* Success!"
+          
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode="MarkdownV2" \
+          -d text="$MESSAGE"
 
-      - name: Authenticate GitHub CLI
+      - name: Send Telegram Message - Deployment Failed
+        if: env.sync_failed == 'true'
         run: |
-          echo "Authenticating GitHub CLI..."
-          echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
-          echo "GitHub CLI authenticated."
+          MESSAGE="❌ *Deployment Failed!*
+          👤 *Triggered by:* ${{ github.actor }}
+          📦 *Application:* Webistecs
+          🏷️ *Attempted Version:* ${{ env.latest_tag }}
+          🔄 *Rolled Back to:* ${{ env.old_tag }}
+          🚨 *Status:* Rollback Complete"
+          
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode="MarkdownV2" \
+          -d text="$MESSAGE"
 
       - name: Debug - Store new image tag (update GitHub secret)
         if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
