@@ -24,19 +24,21 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Get Latest Docker Image Tag (Docker CLI)
-        id: get_image_tag_cli
+      - name: Get Latest Docker Image Tag (Docker Hub API)
+        id: get_image_tag_api
         run: |
-          echo "Fetching latest Docker image tag using Docker CLI..."
+          echo "Fetching latest Docker image tag using Docker Hub API..."
           
           # Log in to Docker Hub
-          echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
+          echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           
-          # Pull the latest image (if not already present)
-          docker pull mplatform/mquery:latest
+          # Fetch tags using Docker Hub API
+          IMAGE_NAME="emabhiza/webistecs"  # Replace with your Docker Hub repository name
+          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'"${{ secrets.DOCKER_USERNAME }}"'", "password": "'"${{ secrets.DOCKER_HUBPAT }}"'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+          TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
           
-          # List all tags, filter valid version tags, sort numerically, and get the latest one
-          latest_tag=$(docker run --rm mplatform/mquery emabhiza/webistecs | grep -oP 'v\d+\.\d+\.\d+' | sort -V | tail -n 1)
+          # Filter valid version tags, sort numerically, and get the latest one
+          latest_tag=$(echo "$TAGS" | grep -oP 'v\d+\.\d+\.\d+' | sort -V | tail -n 1)
           
           if [ -z "$latest_tag" ]; then
             echo "Error: Unable to fetch the latest versioned tag."
