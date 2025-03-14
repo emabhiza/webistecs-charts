@@ -24,7 +24,7 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Get Latest Docker Image Tag
+      - name: Get Latest Docker Image Tag with secrets
         id: get_image_tag
         run: |
           echo "Fetching latest Docker image tag..."
