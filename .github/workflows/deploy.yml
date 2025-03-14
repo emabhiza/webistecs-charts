@@ -24,24 +24,25 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Debug - Get Latest Docker Image Tag
+      - name: Get Latest Docker Image Tag
         id: get_image_tag
         run: |
-          echo "Checking for the latest Docker image tag..."
           latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "Docker image tag fetched: $latest_tag"
+          echo "Latest Docker image tag: $latest_tag"
 
       - name: Send Telegram Message - Deployment Started
         run: |
           START_TIME=$(date +%s)
           echo "START_TIME=$START_TIME" >> $GITHUB_ENV
+
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
-          -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM__CHATID }}" \
-            --arg parse_mode "HTML" \
-            --arg text "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n🏷️ <b>Target Version:</b> ${{ env.latest_tag }}\n⏳ <b>Status:</b> In Progress..." \
-            '{ chat_id: $chat_id, parse_mode: $parse_mode, text: $text }')"
+          -d '{
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+            "parse_mode": "HTML",
+            "text": "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
+          }'
 
       - name: Update Helm Chart with Latest Docker Tag
         run: |
@@ -71,20 +72,21 @@ jobs:
       - name: Send Telegram Message - Deployment Status
         run: |
           END_TIME=$(date +%s)
-          DEPLOY_TIME=$((END_TIME - $START_TIME))
+          DEPLOY_TIME=$((END_TIME - START_TIME))
 
           if [[ "${{ env.sync_failed }}" == "true" ]]; then
-            STATUS="❌ <b>Deployment Failed!</b>\n🔄 <b>Rolled Back to:</b> '${{ env.old_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
+            MESSAGE="❌ <b>Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
           else
-            STATUS="✅ <b>Deployment Successful!</b>\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME}' sec\n🚀 <b>Status:</b> Success!"
+            MESSAGE="✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
-          -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM__CHATID }}" \
-            --arg parse_mode "HTML" \
-            --arg text "$STATUS" \
-            '{ chat_id: $chat_id, parse_mode: $parse_mode, text: $text }')"
+          -d '{
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+            "parse_mode": "HTML",
+            "text": "'"$MESSAGE"'"
+          }'
 
       - name: Debug - Store new image tag (update GitHub secret)
         if: env.sync_failed == 'false'
