@@ -26,11 +26,10 @@ jobs:
 
       - name: Send Telegram Message - Deployment Started
         run: |
-          ESCAPED_TAG=$(echo "${{ env.latest_tag }}" | sed 's/\./\\./g' | sed 's/-/\\-/g' | sed 's/_/\\_/g' | sed 's/!/\\!/g')
-          MESSAGE="🚀 *Deployment Started!*\n👤 *Triggered by:* ${{ github.actor }}\n🏷️ *Target Version:* $ESCAPED_TAG\n⏳ *Status:* In Progress..."
+          MESSAGE="🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n🏷️ <b>Target Version:</b> ${{ env.latest_tag }}\n⏳ <b>Status:</b> In Progress..."
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="MarkdownV2" \
+          -d parse_mode="HTML" \
           -d text="$MESSAGE"
 
       - name: Debug - Show ArgoCD CLI version
@@ -104,19 +103,19 @@ jobs:
       - name: Send Telegram Message - Deployment Success
         if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
         run: |
-          MESSAGE="✅ *Deployment Successful!*\n👤 *Deployed by:* ${{ github.actor }}\n📦 *Application:* Webistecs\n🏷️ *Version:* ${{ env.latest_tag }}\n🚀 *Status:* Success!"
+          MESSAGE="✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> ${{ github.actor }}\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> ${{ env.latest_tag }}\n🚀 <b>Status:</b> Success!"
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="MarkdownV2" \
+          -d parse_mode="HTML" \
           -d text="$MESSAGE"
 
       - name: Send Telegram Message - Deployment Failed
         if: env.sync_failed == 'true'
         run: |
-          MESSAGE="❌ *Deployment Failed!*\n👤 *Triggered by:* ${{ github.actor }}\n📦 *Application:* Webistecs\n🏷️ *Attempted Version:* ${{ env.latest_tag }}\n🔄 *Rolled Back to:* ${{ env.old_tag }}\n🚨 *Status:* Rollback Complete"
+          MESSAGE="❌ <b>Deployment Failed!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> ${{ env.latest_tag }}\n🔄 <b>Rolled Back to:</b> ${{ env.old_tag }}\n🚨 <b>Status:</b> Rollback Complete"
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
           -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="MarkdownV2" \
+          -d parse_mode="HTML" \
           -d text="$MESSAGE"
 
       - name: Debug - Store new image tag (update GitHub secret)
