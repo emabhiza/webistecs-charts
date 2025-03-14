@@ -1,8 +1,6 @@
 name: Deploy to ArgoCD
 
 on:
-#  schedule:
-#    - cron: '*/2 * * * *'  # Every 2 minutes
   workflow_dispatch:
     inputs:
       trigger_action:
@@ -43,7 +41,7 @@ jobs:
       - name: Debug - Log into ArgoCD
         run: |
           echo "Attempting ArgoCD login..."
-           argocd login 192.168.68.107:30007 --username admin --password Gsquad238 --insecure
+          argocd login 192.168.68.107:30007 --username admin --password Gsquad238 --insecure
           echo "Logged into ArgoCD."
 
       - name: Debug - List ArgoCD Applications
@@ -57,7 +55,7 @@ jobs:
         run: |
           echo "Checking for the latest Docker image tag..."
           latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
-          echo "Latest Docker image tag is $latest_tag"
+          echo "Latest Docker image tag fetched: $latest_tag"
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           echo "Docker image tag checked."
 
@@ -65,13 +63,15 @@ jobs:
         run: |
           echo "Updating webistecs image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
           sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
-          cat webistecs/values.yaml
+          echo "Updated values.yaml for webistecs image"
+          cat webistecs/values.yaml  # Print the updated file to verify the changes
 
       - name: Update Helm Chart with Latest Docker Tag for Migration Job
         run: |
           echo "Updating dbMigrationJob image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
           sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
-          cat webistecs/values.yaml
+          echo "Updated values.yaml for dbMigrationJob image"
+          cat webistecs/values.yaml  # Print the updated file to verify the changes
 
       - name: Check if Docker image has changed
         id: image_changed
@@ -113,4 +113,4 @@ jobs:
         run: |
           echo "Updating LATEST_TAG GitHub secret..."
           gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
-          echo "LATEST_TAG secret updated."   
+          echo "LATEST_TAG secret updated."
