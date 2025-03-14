@@ -13,6 +13,10 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
+    
+    permissions:
+      contents: write
+      secrets: write
 
     steps:
       - name: Checkout Repository
