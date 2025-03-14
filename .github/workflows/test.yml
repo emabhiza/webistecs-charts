@@ -56,30 +56,30 @@ jobs:
           echo "Checking for the latest Docker image tag..."
           latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
           echo "Latest Docker image tag fetched: $latest_tag"
-          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "Docker image tag checked."
 
       - name: Update Helm Chart with Latest Docker Tag for Webistecs Image
         run: |
-          echo "Updating webistecs image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
-          sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
+          echo "Updating webistecs image tag in values.yaml to ${{ env.latest_tag }}..."
+          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
           echo "Updated values.yaml for webistecs image"
           cat webistecs/values.yaml  # Print the updated file to verify the changes
 
       - name: Update Helm Chart with Latest Docker Tag for Migration Job
         run: |
-          echo "Updating dbMigrationJob image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
-          sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
+          echo "Updating dbMigrationJob image tag in values.yaml to ${{ env.latest_tag }}..."
+          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
           echo "Updated values.yaml for dbMigrationJob image"
           cat webistecs/values.yaml  # Print the updated file to verify the changes
 
       - name: Check if Docker image has changed
         id: image_changed
         run: |
-          previous_tag="${{ secrets.LATEST_TAG }}"
+          previous_tag="${{ env.latest_tag }}"
           echo "Previous Docker image tag: $previous_tag"
-          echo "Latest Docker image tag: ${{ steps.get_image_tag.outputs.latest_tag }}"
-          if [[ -z "$previous_tag" || "$previous_tag" != "${{ steps.get_image_tag.outputs.latest_tag }}" ]]; then
+          echo "Latest Docker image tag: ${{ env.latest_tag }}"
+          if [[ -z "$previous_tag" || "$previous_tag" != "${{ env.latest_tag }}" ]]; then
             echo "Image has changed. Triggering ArgoCD deployment."
             echo "image_changed=true" >> $GITHUB_OUTPUT
           else
@@ -112,5 +112,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           echo "Updating LATEST_TAG GitHub secret..."
-          gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
+          gh secret set LATEST_TAG --body="${{ env.latest_tag }}"
           echo "LATEST_TAG secret updated."
