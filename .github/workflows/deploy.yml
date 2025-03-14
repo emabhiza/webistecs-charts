@@ -31,24 +31,23 @@ jobs:
         id: get_image_tag_cli
         run: |
           echo "Fetching latest Docker image tag using Docker CLI..."
-          latest_tag=$(docker pull emabhiza/webistecs:latest --quiet | grep -oP 'sha256:\K.*')
+          latest_tag=$(docker manifest inspect emabhiza/webistecs:latest 2>/dev/null | jq -r '.manifests[0].digest' || echo "")
 
-          if [ -z "$latest_tag" ]; then
+          if [ -z "$latest_tag" ] || [ "$latest_tag" == "null" ]; then
             echo "Error: Unable to fetch the latest tag using Docker CLI."
             exit 1
           fi
 
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "Latest Docker image tag (CLI): $latest_tag"  
-          
+          echo "✅ Latest Docker image tag fetched: $latest_tag"
+
       - name: Store Previous Image Tag
         id: store_old_tag
         run: |
           old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
           echo "Previous image tag: $old_tag"
           echo "old_tag=$old_tag" >> $GITHUB_ENV
-  
-      
+
       - name: Send Telegram Message - Deployment Started
         run: |
           START_TIME=$(date +%s)
@@ -59,7 +58,7 @@ jobs:
           -d '{
             "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
             "parse_mode": "HTML",
-            "text": "🚀 <b>ArgoCD Deployment!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
+            "text": "🚀 <b>ArgoCD Deployment!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
           }'
 
       - name: Update Helm Chart with Latest Docker Tag
@@ -134,7 +133,7 @@ jobs:
           if [[ "${{ env.sync_failed }}" == "true" ]]; then
             MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
           else
-            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
+            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
