@@ -1,8 +1,0 @@
-imageUpdater:
-  enabled: true
-  image:
-    repository: quay.io/argoprojlabs/argocd-image-updater
-    tag: latest
-    pullPolicy: Always  
-data:
-  accounts.image-updater: apiKey

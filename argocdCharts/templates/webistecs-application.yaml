@@ -3,12 +3,6 @@ kind: Application
 metadata:
   name: webistecs
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: webistecs=emabhiza/webistecs
-    argocd-image-updater.argoproj.io/webistecs.image-name: image.repository
-    argocd-image-updater.argoproj.io/webistecs.update-strategy: semver
-    argocd-image-updater.argoproj.io/webistecs.allow-tags: regexp:^v\d+\.\d+\.\d+$
-    argocd-image-updater.argoproj.io/webistecs.force-update: "true"
 spec:
   project: default
   destination:
@@ -25,6 +19,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-      
-      
-      
