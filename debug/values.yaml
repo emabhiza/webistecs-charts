@@ -1,4 +1,0 @@
-image:
-  repository: emabhiza/coinmarketcap-exporter
-  tag: v1.0.8
-  pullPolicy: Always
