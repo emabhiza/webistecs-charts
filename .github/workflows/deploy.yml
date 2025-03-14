@@ -1,125 +1,163 @@
-name: Deployment Pipeline
-
 on:
   workflow_dispatch:
     inputs:
-      deploy_to_prod:
-        description: 'Deploy to production?'
-        required: true
-        type: boolean
-        default: false
-
+      trigger_action:
+        description: 'Manually trigger ArgoCD sync'
+        required: false
+        default: 'false'
+  schedule:
+    - cron: "*/2 * * * *"
+      
 jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
-    
+
     steps:
-      - name: Install yq
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_arm64 -O /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Set Version Manually
+      - name: Install ArgoCD CLI
         run: |
-          # ==========================
-          # CHANGE THE VERSION HERE
-          # ==========================
-          NEW_VERSION="0.0.2"
-          echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Installing ArgoCD CLI..."
+          mkdir -p $HOME/bin
+          curl -sSL -o $HOME/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
+          chmod +x $HOME/bin/argocd
+          echo "ArgoCD CLI installed."
+          echo "Adding $HOME/bin to PATH"
+          echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Get Latest Docker Image Tag (Docker Hub API)
+        id: get_image_tag_api
+        run: |
+          echo "Fetching latest Docker image tag using Docker Hub API..."
           
-
-    
-      - name: Get Last Commit Details
-        id: commit_info
-        run: |
-          COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" || echo "No commit message")
-          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" || echo "Unknown Author")
-          COMMIT_HASH=$(git log -1 --pretty=format:"%h" || echo "Unknown Hash")
+          # Log in to Docker Hub
+          echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
           
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-      - name: Send Start Deployment Message
-        run: |
-          if ${{ github.event.inputs.deploy_to_prod }}; then
-            ENVIRONMENT="Production"
-          else
-            ENVIRONMENT="Staging"
+          # Fetch tags using Docker Hub API
+          IMAGE_NAME="emabhiza/webistecs"  # Replace with your Docker Hub repository name
+          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'"${{ secrets.DOCKER__USERNAME }}"'", "password": "'"${{ secrets.DOCKER_HUBPAT }}"'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+          TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
+          
+          # Filter valid version tags, sort numerically, and get the latest one
+          latest_tag=$(echo "$TAGS" | grep -oP 'v\d+\.\d+\.\d+' | sort -V | tail -n 1)
+          
+          if [ -z "$latest_tag" ]; then
+            echo "Error: Unable to fetch the latest versioned tag."
+            exit 1
           fi
+          
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          echo "✅ Latest Docker image tag fetched: $latest_tag"
+          
+      - name: Store Previous Image Tag
+        id: store_old_tag
+        run: |
+          old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          echo "Previous image tag: $old_tag"
+          echo "old_tag=$old_tag" >> $GITHUB_ENV
+
+      - name: Send Telegram Message - Deployment Started
+        run: |
+          START_TIME=$(date +%s)
+          echo "START_TIME=$START_TIME" >> $GITHUB_ENV
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
           -d '{
-            "chat_id": "-1002261960073",
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
             "parse_mode": "HTML",
-            "text": "🚀 <b>Starting Deployment</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n🌍 <b>Environment:</b> '$ENVIRONMENT'\n🏷️ <b>Version:</b> '${{ env.VERSION }}'\n📝 <b>Commit:</b> '$COMMIT_HASH' - '$COMMIT_MESSAGE'\n👨‍💻 <b>Author:</b> '$COMMIT_AUTHOR'"
+            "text": "🚀 <b>ArgoCD Deployment!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
           }'
 
-      - name: Add .NET to PATH
-        run: echo "$HOME/dotnet" >> $GITHUB_PATH
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build application
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER__USERNAME }}
-          password: ${{ secrets.DOCKER__ACCESSTOKEN }}
-
-      - name: Build and push Webistecs Docker image
-        id: build_web_image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Trader/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER__USERNAME }}/webistecs:${{ env.VERSION }}
-
-      - name: Build and push Migration Docker image
-        id: build_migration_image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Infrastructure/Migrations/Deployment/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER__USERNAME }}/webistecs-migrations:${{ env.VERSION }}
-
-      - name: Send Success or Failure Message
-        if: always()
+      - name: Update Helm Chart with Latest Docker Tag
         run: |
-          BUILD_RESULT="${{ steps.build_application.outcome || 'N/A' }}"
-          WEB_IMAGE_RESULT="${{ steps.build_web_image.outcome || 'N/A' }}"
-          MIGRATION_IMAGE_RESULT="${{ steps.build_migration_image.outcome || 'N/A' }}"
+          echo "Updating values.yaml with new image tag..."
+          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
+          echo "Updated values.yaml"
 
-          if ${{ github.event.inputs.deploy_to_prod }}; then
-            ENVIRONMENT="Production"
-          else
-            ENVIRONMENT="Staging"
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add webistecs/values.yaml
+          git commit -m "Update image tag to ${{ env.latest_tag }}"
+          git push
+
+      - name: Force Sync ArgoCD and Check for Failure
+        id: argocd_sync
+        continue-on-error: true
+        run: |
+          echo "Forcing ArgoCD sync..."
+          if ! argocd app sync --force webistecs; then
+            echo "sync_failed=true" >> $GITHUB_ENV
+            exit 1
           fi
-          
-          if [[ "$BUILD_RESULT" == "success" && "$WEB_IMAGE_RESULT" == "success" && "$MIGRATION_IMAGE_RESULT" == "success" ]]; then
-            MESSAGE="✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n🌍 <b>Environment:</b> '${ENVIRONMENT}'\n🏷️ <b>Version:</b> '${{ env.VERSION }}'\n⏳ <b>Please wait for the next deployment to start...</b>"
+          echo "sync_failed=false" >> $GITHUB_ENV
+
+      - name: Check Deployment Status in ArgoCD
+        id: check_argocd_status
+        run: |
+          echo "Checking deployment status..."
+          DEPLOYMENT_STATUS=$(argocd app get webistecs --output json | jq -r '.status.operationState.phase')
+
+          if [[ "$DEPLOYMENT_STATUS" == "Failed" ]]; then
+            echo "ArgoCD deployment failed. Image might not exist."
+            echo "sync_failed=true" >> $GITHUB_ENV
+            exit 1
+          fi
+          echo "sync_failed=false" >> $GITHUB_ENV
+
+      - name: Send Logs on Failure (if needed)
+        if: env.sync_failed == 'true'
+        run: |
+          LOGS=$(kubectl logs -l app=webistecs --tail=20)
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+            "parse_mode": "HTML",
+            "text": "⚠️ <b>Deployment Failed! Logs:</b>\n<pre>'"$LOGS"'</pre>"
+          }'
+
+      - name: Rollback Image Tag if ArgoCD Sync Fails
+        if: env.sync_failed == 'true'
+        run: |
+          echo "Rolling back to previous image tag: ${{ env.old_tag }}"
+          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' webistecs/values.yaml
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add webistecs/values.yaml
+          git commit -m "Rollback: Restore image tag to ${{ env.old_tag }} due to failed ArgoCD sync"
+          git push
+          echo "Rollback complete."
+
+      - name: Send Telegram Message - Deployment Status
+        run: |
+          END_TIME=$(date +%s)
+          DEPLOY_TIME=$((END_TIME - START_TIME))
+
+          if [[ "${{ env.sync_failed }}" == "true" ]]; then
+            MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
           else
-            MESSAGE="❌ <b>Deployment Failed!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n🌍 <b>Environment:</b> '${ENVIRONMENT}'\n🏷️ <b>Version:</b> '${{ env.VERSION }}'\n🚨 <b>Errors:</b>\n - Build: ${BUILD_RESULT}\n - Web Image: ${WEB_IMAGE_RESULT}\n - Migration Image: ${MIGRATION_IMAGE_RESULT}"
+            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
           -d '{
-            "chat_id": "-1002261960073",
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
             "parse_mode": "HTML",
             "text": "'"$MESSAGE"'"
           }'
+
+      - name: Debug - Store new image tag (update GitHub secret)
+        if: env.sync_failed == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          echo "Updating LATEST_TAG GitHub secret..."
+          gh secret set LATEST_TAG --body="${{ env.latest_tag }}"
+          echo "LATEST_TAG secret updated."
