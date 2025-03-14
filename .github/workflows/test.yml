@@ -14,9 +14,6 @@ jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
     
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -64,10 +61,21 @@ jobs:
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
           echo "Docker image tag checked."
 
+      - name: Update Helm Chart with Latest Docker Tag for Webistecs Image
+        run: |
+          echo "Updating webistecs image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
+          sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
+          cat webistecs/values.yaml
+
+      - name: Update Helm Chart with Latest Docker Tag for Migration Job
+        run: |
+          echo "Updating dbMigrationJob image tag in values.yaml to ${{ steps.get_image_tag.outputs.latest_tag }}..."
+          sed -i 's/tag: .*/tag: "${{ steps.get_image_tag.outputs.latest_tag }}"/' webistecs/values.yaml
+          cat webistecs/values.yaml
+
       - name: Check if Docker image has changed
         id: image_changed
         run: |
-          # Get previously stored tag from GitHub Secrets
           previous_tag="${{ secrets.LATEST_TAG }}"
           echo "Previous Docker image tag: $previous_tag"
           echo "Latest Docker image tag: ${{ steps.get_image_tag.outputs.latest_tag }}"
@@ -105,7 +113,4 @@ jobs:
         run: |
           echo "Updating LATEST_TAG GitHub secret..."
           gh secret set LATEST_TAG --body="${{ steps.get_image_tag.outputs.latest_tag }}"
-          echo "LATEST_TAG secret updated."
-          
-          
-          
+          echo "LATEST_TAG secret updated."   
