@@ -27,7 +27,15 @@ jobs:
       - name: Get Latest Docker Image Tag
         id: get_image_tag
         run: |
-          latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
+          echo "Fetching latest Docker image tag..."
+          latest_tag=$(curl -s -u "${{ secrets.DOCKER__USERNAME }}:${{ secrets.DOCKER_HUBPAT }}" \
+          "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/" | jq -r '.results[0].name')
+
+          if [ -z "$latest_tag" ] || [ "$latest_tag" == "null" ]; then
+            echo "Error: Unable to fetch the latest tag. Check authentication or permissions."
+            exit 1
+          fi
+
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "Latest Docker image tag: $latest_tag"
 
