@@ -59,19 +59,26 @@ jobs:
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "Docker image tag checked."
 
+      - name: Store Previous Image Tag
+        id: store_old_tag
+        run: |
+          old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          echo "Previous image tag: $old_tag"
+          echo "old_tag=$old_tag" >> $GITHUB_ENV
+
       - name: Update Helm Chart with Latest Docker Tag for Webistecs Image
         run: |
           echo "Updating webistecs image tag in values.yaml to ${{ env.latest_tag }}..."
           sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
           echo "Updated values.yaml for webistecs image"
-          cat webistecs/values.yaml  # Print the updated file to verify the changes
+          cat webistecs/values.yaml
 
       - name: Update Helm Chart with Latest Docker Tag for Migration Job
         run: |
           echo "Updating dbMigrationJob image tag in values.yaml to ${{ env.latest_tag }}..."
           sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
           echo "Updated values.yaml for dbMigrationJob image"
-          cat webistecs/values.yaml  # Print the updated file to verify the changes
+          cat webistecs/values.yaml
 
       - name: Commit and push changes to values.yaml
         run: |
@@ -84,7 +91,7 @@ jobs:
       - name: Check if Docker image has changed
         id: image_changed
         run: |
-          previous_tag="${{ env.latest_tag }}"
+          previous_tag="${{ env.old_tag }}"
           echo "Previous Docker image tag: $previous_tag"
           echo "Latest Docker image tag: ${{ env.latest_tag }}"
           if [[ -z "$previous_tag" || "$previous_tag" != "${{ env.latest_tag }}" ]]; then
@@ -95,12 +102,31 @@ jobs:
             echo "image_changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Debug - Sync ArgoCD
+      - name: Debug - Sync ArgoCD and Check for Failure
         if: steps.image_changed.outputs.image_changed == 'true'
+        id: argocd_sync
+        continue-on-error: true
         run: |
           echo "Starting ArgoCD sync for 'webistecs'..."
-          argocd app sync webistecs
+          if ! argocd app sync webistecs; then
+            echo "ArgoCD sync failed!"
+            echo "sync_failed=true" >> $GITHUB_ENV
+            exit 1
+          fi
           echo "ArgoCD sync complete."
+          echo "sync_failed=false" >> $GITHUB_ENV
+
+      - name: Rollback Image Tag if ArgoCD Sync Fails
+        if: env.sync_failed == 'true'
+        run: |
+          echo "Rolling back image tag in values.yaml to previous tag: ${{ env.old_tag }}..."
+          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' webistecs/values.yaml
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add webistecs/values.yaml
+          git commit -m "Rollback: Restore image tag to ${{ env.old_tag }} due to failed ArgoCD sync"
+          git push
+          echo "Rollback complete."
 
       - name: Install GitHub CLI
         run: |
@@ -115,7 +141,7 @@ jobs:
           echo "GitHub CLI authenticated."
 
       - name: Debug - Store new image tag (update GitHub secret)
-        if: steps.image_changed.outputs.image_changed == 'true'
+        if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
