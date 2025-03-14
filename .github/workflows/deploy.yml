@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -26,11 +26,23 @@ jobs:
 
       - name: Send Telegram Message - Deployment Started
         run: |
-          MESSAGE="🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n🏷️ <b>Target Version:</b> ${{ env.latest_tag }}\n⏳ <b>Status:</b> In Progress..."
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="HTML" \
-          -d text="$MESSAGE"
+          START_TIME=$(date +%s)
+          echo "START_TIME=$START_TIME" >> $GITHUB_ENV
+
+          MESSAGE=$(jq -n \
+            --arg actor "${{ github.actor }}" \
+            --arg repo "${{ github.repository }}" \
+            --arg branch "${{ github.ref }}" \
+            --arg machine "${{ runner.name }}" \
+            '{text: "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> \($actor)\n📦 <b>Repository:</b> \($repo)\n🔀 <b>Branch:</b> \($branch)\n💻 <b>Runner:</b> \($machine)\n⏳ <b>Status:</b> In Progress..."}')
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+               -H "Content-Type: application/json" \
+               -d "{
+                    \"chat_id\": \"${{ secrets.TELEGRAM__CHATID }}\",
+                    \"parse_mode\": \"HTML\",
+                    \"text\": $(echo "$MESSAGE" | jq -r '.text')
+               }"
 
       - name: Debug - Show ArgoCD CLI version
         run: |
@@ -103,20 +115,43 @@ jobs:
       - name: Send Telegram Message - Deployment Success
         if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
         run: |
-          MESSAGE="✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> ${{ github.actor }}\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> ${{ env.latest_tag }}\n🚀 <b>Status:</b> Success!"
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="HTML" \
-          -d text="$MESSAGE"
+          END_TIME=$(date +%s)
+          DEPLOY_TIME=$((END_TIME - $START_TIME))
+
+          MESSAGE=$(jq -n \
+            --arg actor "${{ github.actor }}" \
+            --arg repo "${{ github.repository }}" \
+            --arg branch "${{ github.ref }}" \
+            --arg latest_tag "${{ env.latest_tag }}" \
+            --arg deploy_time "$DEPLOY_TIME" \
+            '{text: "✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> \($actor)\n📦 <b>Repository:</b> \($repo)\n🔀 <b>Branch:</b> \($branch)\n🏷️ <b>Version:</b> \($latest_tag)\n⏳ <b>Deployment Time:</b> \($deploy_time) sec\n🚀 <b>Status:</b> Success!"}')
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+               -H "Content-Type: application/json" \
+               -d "{
+                    \"chat_id\": \"${{ secrets.TELEGRAM__CHATID }}\",
+                    \"parse_mode\": \"HTML\",
+                    \"text\": $(echo "$MESSAGE" | jq -r '.text')
+               }"
 
       - name: Send Telegram Message - Deployment Failed
         if: env.sync_failed == 'true'
         run: |
-          MESSAGE="❌ <b>Deployment Failed!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> ${{ env.latest_tag }}\n🔄 <b>Rolled Back to:</b> ${{ env.old_tag }}\n🚨 <b>Status:</b> Rollback Complete"
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM__CHATID }} \
-          -d parse_mode="HTML" \
-          -d text="$MESSAGE"
+          MESSAGE=$(jq -n \
+            --arg actor "${{ github.actor }}" \
+            --arg repo "${{ github.repository }}" \
+            --arg branch "${{ github.ref }}" \
+            --arg latest_tag "${{ env.latest_tag }}" \
+            --arg old_tag "${{ env.old_tag }}" \
+            '{text: "❌ <b>Deployment Failed!</b>\n👤 <b>Triggered by:</b> \($actor)\n📦 <b>Repository:</b> \($repo)\n🔀 <b>Branch:</b> \($branch)\n🏷️ <b>Attempted Version:</b> \($latest_tag)\n🔄 <b>Rolled Back to:</b> \($old_tag)\n🚨 <b>Status:</b> Rollback Complete"}')
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+               -H "Content-Type: application/json" \
+               -d "{
+                    \"chat_id\": \"${{ secrets.TELEGRAM__CHATID }}\",
+                    \"parse_mode\": \"HTML\",
+                    \"text\": $(echo "$MESSAGE" | jq -r '.text')
+               }"
 
       - name: Debug - Store new image tag (update GitHub secret)
         if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
