@@ -24,21 +24,43 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Get Latest Docker Image Tag with secrets
-        id: get_image_tag
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
+
+      - name: Get Latest Docker Image Tag (API)
+        id: get_image_tag_api
         run: |
-          echo "Fetching latest Docker image tag..."
-          latest_tag=$(curl -s -u "${{ secrets.DOCKER__USERNAME }}:${{ secrets.DOCKER_HUBPAT }}" \
-          "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/" | jq -r '.results[0].name')
+          echo "Fetching latest Docker image tag using Docker Hub API..."
+          response=$(curl -s -u "${{ secrets.DOCKER__USERNAME }}:${{ secrets.DOCKER_HUBPAT }}" \
+          "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/")
+
+          echo "Raw API response:"
+          echo "$response" | jq
+
+          latest_tag=$(echo "$response" | jq -r '.results[0].name')
 
           if [ -z "$latest_tag" ] || [ "$latest_tag" == "null" ]; then
-            echo "Error: Unable to fetch the latest tag. Check authentication or permissions."
+            echo "API call failed. Falling back to Docker CLI..."
             exit 1
           fi
 
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "Latest Docker image tag: $latest_tag"
+          echo "Latest Docker image tag (API): $latest_tag"
 
+      - name: Get Latest Docker Image Tag (Docker CLI)
+        if: steps.get_image_tag_api.outcome == 'failure'
+        id: get_image_tag_cli
+        run: |
+          echo "Fetching latest Docker image tag using Docker CLI..."
+          latest_tag=$(docker pull emabhiza/webistecs:latest --quiet | grep -oP 'sha256:\K.*')
+
+          if [ -z "$latest_tag" ]; then
+            echo "Error: Unable to fetch the latest tag using Docker CLI."
+            exit 1
+          fi
+
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          echo "Latest Docker image tag (CLI): $latest_tag"  
       - name: Send Telegram Message - Deployment Started
         run: |
           START_TIME=$(date +%s)
