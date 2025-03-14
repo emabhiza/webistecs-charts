@@ -26,9 +26,8 @@ jobs:
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
-        
+
       - name: Get Latest Docker Image Tag (Docker CLI)
-        if: steps.get_image_tag_api.outcome == 'failure'
         id: get_image_tag_cli
         run: |
           echo "Fetching latest Docker image tag using Docker CLI..."
