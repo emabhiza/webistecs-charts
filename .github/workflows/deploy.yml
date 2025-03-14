@@ -24,6 +24,14 @@ jobs:
           echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
+      - name: Debug - Get Latest Docker Image Tag
+        id: get_image_tag
+        run: |
+          echo "Checking for the latest Docker image tag..."
+          latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          echo "Docker image tag fetched: $latest_tag"
+
       - name: Send Telegram Message - Deployment Started
         run: |
           START_TIME=$(date +%s)
@@ -37,101 +45,52 @@ jobs:
             "text": "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
           }'
 
-      - name: Debug - Show ArgoCD CLI version
+      - name: Update Helm Chart with Latest Docker Tag
         run: |
-          echo "Checking ArgoCD CLI version..."
-          argocd version --short
-          echo "ArgoCD CLI version checked."
-
-      - name: Debug - Log into ArgoCD
-        run: |
-          echo "Attempting ArgoCD login..."
-          argocd login 192.168.68.107:30007 --username admin --password Gsquad238 --insecure
-          echo "Logged into ArgoCD."
-
-      - name: Debug - Get Latest Docker Image Tag
-        id: get_image_tag
-        run: |
-          echo "Checking for the latest Docker image tag..."
-          latest_tag=$(curl -s https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/ | jq -r '.results[0].name')
-          echo "Latest Docker image tag fetched: $latest_tag"
-          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "Docker image tag checked."
-
-      - name: Store Previous Image Tag
-        id: store_old_tag
-        run: |
-          old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
-          echo "Previous image tag: $old_tag"
-          echo "old_tag=$old_tag" >> $GITHUB_ENV
-
-      - name: Update Helm Chart with Latest Docker Tag for Webistecs Image
-        run: |
-          echo "Updating webistecs image tag in values.yaml to ${{ env.latest_tag }}..."
+          echo "Updating values.yaml with new image tag..."
           sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
-          echo "Updated values.yaml for webistecs image"
+          echo "Updated values.yaml"
 
-      - name: Commit and push changes to values.yaml
+      - name: Commit and Push Changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add webistecs/values.yaml
-          git commit -m "Update webistecs image tag to ${{ env.latest_tag }}"
+          git commit -m "Update image tag to ${{ env.latest_tag }}"
           git push
 
-      - name: Debug - Sync ArgoCD and Check for Failure
-        if: steps.image_changed.outputs.image_changed == 'true'
+      - name: Force Sync ArgoCD and Check for Failure
         id: argocd_sync
         continue-on-error: true
         run: |
-          echo "Starting ArgoCD sync for 'webistecs'..."
-          if ! argocd app sync webistecs; then
-            echo "ArgoCD sync failed!"
+          echo "Forcing ArgoCD sync..."
+          if ! argocd app sync --force webistecs; then
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
-          echo "ArgoCD sync complete."
           echo "sync_failed=false" >> $GITHUB_ENV
 
-      - name: Rollback Image Tag if ArgoCD Sync Fails
-        if: env.sync_failed == 'true'
-        run: |
-          echo "Rolling back image tag in values.yaml to previous tag: ${{ env.old_tag }}..."
-          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' webistecs/values.yaml
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add webistecs/values.yaml
-          git commit -m "Rollback: Restore image tag to ${{ env.old_tag }} due to failed ArgoCD sync"
-          git push
-          echo "Rollback complete."
-
-      - name: Send Telegram Message - Deployment Success
-        if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
+      - name: Send Telegram Message - Deployment Status
         run: |
           END_TIME=$(date +%s)
           DEPLOY_TIME=$((END_TIME - $START_TIME))
 
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-            "parse_mode": "HTML",
-            "text": "✅ <b>Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME}' sec\n🚀 <b>Status:</b> Success!"
-          }'
+          if [[ "${{ env.sync_failed }}" == "true" ]]; then
+            STATUS="❌ <b>Deployment Failed!</b>\n🔄 <b>Rolled Back to:</b> '${{ env.old_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
+          else
+            STATUS="✅ <b>Deployment Successful!</b>\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME}' sec\n🚀 <b>Status:</b> Success!"
+          fi
 
-      - name: Send Telegram Message - Deployment Failed
-        if: env.sync_failed == 'true'
-        run: |
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
           -d '{
             "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
             "parse_mode": "HTML",
-            "text": "❌ <b>Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🔄 <b>Rolled Back to:</b> '${{ env.old_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
+            "text": "'$STATUS'"
           }'
 
       - name: Debug - Store new image tag (update GitHub secret)
-        if: steps.image_changed.outputs.image_changed == 'true' && env.sync_failed == 'false'
+        if: env.sync_failed == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
