@@ -36,14 +36,12 @@ jobs:
         run: |
           START_TIME=$(date +%s)
           echo "START_TIME=$START_TIME" >> $GITHUB_ENV
-
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
-          -d '{
-            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-            "parse_mode": "HTML",
-            "text": "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n🏷️ <b>Target Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Status:</b> In Progress..."
-          }'
+          -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM__CHATID }}" \
+            --arg parse_mode "HTML" \
+            --arg text "🚀 <b>Deployment Started!</b>\n👤 <b>Triggered by:</b> ${{ github.actor }}\n🏷️ <b>Target Version:</b> ${{ env.latest_tag }}\n⏳ <b>Status:</b> In Progress..." \
+            '{ chat_id: $chat_id, parse_mode: $parse_mode, text: $text }')"
 
       - name: Update Helm Chart with Latest Docker Tag
         run: |
@@ -83,11 +81,10 @@ jobs:
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
           -H "Content-Type: application/json" \
-          -d '{
-            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-            "parse_mode": "HTML",
-            "text": "'$STATUS'"
-          }'
+          -d "$(jq -n --arg chat_id "${{ secrets.TELEGRAM__CHATID }}" \
+            --arg parse_mode "HTML" \
+            --arg text "$STATUS" \
+            '{ chat_id: $chat_id, parse_mode: $parse_mode, text: $text }')"
 
       - name: Debug - Store new image tag (update GitHub secret)
         if: env.sync_failed == 'false'
