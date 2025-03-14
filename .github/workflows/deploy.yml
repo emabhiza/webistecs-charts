@@ -69,6 +69,45 @@ jobs:
           fi
           echo "sync_failed=false" >> $GITHUB_ENV
 
+      - name: Check Deployment Status in ArgoCD
+        id: check_argocd_status
+        run: |
+          echo "Checking deployment status..."
+          DEPLOYMENT_STATUS=$(argocd app get webistecs --output json | jq -r '.status.operationState.phase')
+
+          if [[ "$DEPLOYMENT_STATUS" == "Failed" ]]; then
+            echo "ArgoCD deployment failed. Image might not exist."
+            echo "sync_failed=true" >> $GITHUB_ENV
+            exit 1
+          fi
+          echo "sync_failed=false" >> $GITHUB_ENV
+
+      - name: Send Logs on Failure (if needed)
+        if: env.sync_failed == 'true'
+        run: |
+          LOGS=$(kubectl logs -l app=webistecs --tail=20)
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+            "parse_mode": "HTML",
+            "text": "⚠️ <b>Deployment Failed! Logs:</b>\n<pre>'"$LOGS"'</pre>"
+          }'
+
+      - name: Rollback Image Tag if ArgoCD Sync Fails
+        if: env.sync_failed == 'true'
+        run: |
+          echo "Rolling back to previous image tag: ${{ env.old_tag }}"
+          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' webistecs/values.yaml
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add webistecs/values.yaml
+          git commit -m "Rollback: Restore image tag to ${{ env.old_tag }} due to failed ArgoCD sync"
+          git push
+          echo "Rollback complete."
+
       - name: Send Telegram Message - Deployment Status
         run: |
           END_TIME=$(date +%s)
@@ -77,7 +116,7 @@ jobs:
           if [[ "${{ env.sync_failed }}" == "true" ]]; then
             MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
           else
-            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment To Argo Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
+            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
