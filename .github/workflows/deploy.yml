@@ -41,6 +41,14 @@ jobs:
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "Latest Docker image tag (CLI): $latest_tag"  
           
+      - name: Store Previous Image Tag
+        id: store_old_tag
+        run: |
+          old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          echo "Previous image tag: $old_tag"
+          echo "old_tag=$old_tag" >> $GITHUB_ENV
+  
+      
       - name: Send Telegram Message - Deployment Started
         run: |
           START_TIME=$(date +%s)
