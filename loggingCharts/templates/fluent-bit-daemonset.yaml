@@ -20,11 +20,6 @@ spec:
           image: fluent/fluent-bit:3.2.0-arm64
           imagePullPolicy: Always
           env:
-            - name: NEW_RELIC_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: logging-secrets
-                  key: newrelic-api
             - name: MALLOC_CONF  # Disabling jemalloc settings
               value: "abort_conf:true,background_thread:false"
           ports:
