@@ -11,17 +11,16 @@ data:
         Flush         5
         Daemon        Off
         Log_Level     info
-        Parsers_File  /fluent-bit/etc/parsers.conf  # ✅ Ensure parsers.conf is loaded correctly
+        Parsers_File  /fluent-bit/etc/parsers.conf
 
     [INPUT]
         Name          tail
         Path          /var/log/containers/*.log
         Tag           kube.*
-        Parser        structured_log_parser  # ✅ Directly parse JSON logs
+        Parser        structured_log_parser
         Refresh_Interval  10
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
-        docker_mode      on  # ✅ Fixed boolean syntax
 
     [FILTER]
         Name          kubernetes
@@ -43,7 +42,7 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
-        Remove        log  # ✅ Remove redundant `log` field after extraction
+        Remove        log
 
     [FILTER]
         Name          grep

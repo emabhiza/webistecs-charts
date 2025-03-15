@@ -20,7 +20,7 @@ spec:
           image: fluent/fluent-bit:3.2.0-arm64
           imagePullPolicy: Always
           env:
-            - name: MALLOC_CONF  # Disabling jemalloc settings
+            - name: MALLOC_CONF
               value: "abort_conf:true,background_thread:false"
           ports:
             - containerPort: 2020
