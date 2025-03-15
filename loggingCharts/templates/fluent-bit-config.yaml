@@ -30,7 +30,7 @@ data:
         Kube_URL      https://kubernetes.default.svc
         K8S-Logging.Parser  On
 
-    # ✅ Only capture logs from the "webistecs" container (NO other filtering)
+    # ✅ Filter logs only from "webistecs" container
     [FILTER]
         Name          grep
         Match         kube.*
@@ -48,7 +48,8 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
-        Remove        log  # ✅ Remove redundant `log` field after extraction
+        Condition     Key_Exists log
+        Remove        log
 
   parsers.conf: |
     [PARSER]
