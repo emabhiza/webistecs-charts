@@ -48,7 +48,22 @@ data:
     Rename        AssetName asset
     Rename        RequestType request_type
     Rename        Response response
-  
-    [ OUTPUT ]
-    Name          stdout
-    Match         *
+
+     # ✅ Output logs to console (for debugging)
+     [OUTPUT]
+         Name          stdout
+         Match         *
+
+  parsers.conf: |
+    [PARSER]
+        Name        structured_log_parser
+        Format      json
+        Time_Key    @t
+        Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+
+    [MULTILINE]
+        Name          multiline_log_parser
+        Type          regex
+        Flush_Timeout 10
+        Rule          "start_state"  "^\{"  "cont"
+        Rule          "cont"         "^\s+at\s|\s+---\s"  "cont""
