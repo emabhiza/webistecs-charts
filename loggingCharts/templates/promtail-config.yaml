@@ -24,22 +24,29 @@ data:
         pipeline_stages:
           - json:
               expressions:
-                timestamp: "@t"
-                level: "@l"
-                message: "@m"
-                exception: "@x"
-                application: "Application"
-                machine: "MachineName"
-                asset: "AssetName"
-                request_type: "RequestType"
-                response: "Response"
+                timestamp: '`@t`'
+                level: '`@l`'
+                message: '`@mt`'
+                exception: '`@x`'
+                application: Application
+                machine: MachineName
+                environment: EnvironmentName
+                thread_id: ThreadId
+                process_id: ProcessId
+                process_name: ProcessName
+                source_context: SourceContext
+                event_id: 'EventId.Id'
 
           - labels:
               level:
               application:
               machine:
-              asset:
-              request_type:
+              environment:
+              thread_id:
+              process_id:
+              process_name:
+              source_context:
+              event_id:
 
           - timestamp:
               source: timestamp
