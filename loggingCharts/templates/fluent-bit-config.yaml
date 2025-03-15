@@ -21,7 +21,7 @@ data:
         Refresh_Interval  10
         Buffer_Chunk_Size 32k
         Buffer_Max_Size   64k
-        Docker_Mode    On  # ✅ Enable for parsing Kubernetes logs correctly
+        docker_mode      on  # ✅ Fixed boolean syntax
 
     [FILTER]
         Name          kubernetes
@@ -50,16 +50,6 @@ data:
         Match         kube.*
         Regex        message  ^.*(Exception|Error|Trace|INF|ERR|WRN|FTL).*
 
-    [OUTPUT]
-        Name          http
-        Match         *
-        Host          log-api.eu.newrelic.com
-        Port          443
-        URI           /log/v1
-        Format        json
-        tls           On
-        Header        Content-Type application/json
-        Header        Authorization Bearer ${NEW_RELIC_API_KEY}
 
   parsers.conf: |
     [PARSER]
