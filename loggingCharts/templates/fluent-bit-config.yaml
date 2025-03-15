@@ -34,13 +34,7 @@ data:
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex         kubernetes.container_name  ^webistecs$
-
-    # ✅ If filtering by container fails, filter by namespace instead
-    [FILTER]
-        Name          grep
-        Match         kube.*
-        Regex         kubernetes.namespace_name  ^default$
+        Regex         kubernetes.container_name ^webistecs$
 
     [FILTER]
         Name          modify
@@ -54,6 +48,10 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
+
+    [OUTPUT]
+        Name          stdout
+        Match         *
 
   parsers.conf: |
     [PARSER]
