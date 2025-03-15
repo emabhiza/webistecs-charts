@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/emabhiza/webistecs-charts.git
-    targetRevision: main
+    targetRevision: structured-logging
     path: loggingCharts
     helm:
       valueFiles:

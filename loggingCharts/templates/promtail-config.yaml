@@ -28,16 +28,24 @@ data:
                 level: "@l"
                 message: "@m"
                 exception: "@x"
-                application: "Application"
-                machine: "MachineName"
-                asset: "AssetName"
-                request_type: "RequestType"
-                response: "Response"
+                application: Application
+                machine: MachineName
+                environment: EnvironmentName
+                thread_id: ThreadId
+                process_id: ProcessId
+                process_name: ProcessName
+                asset: AssetName
+                request_type: RequestType
+                response: Response
 
           - labels:
               level:
               application:
               machine:
+              environment:
+              thread_id:
+              process_id:
+              process_name:
               asset:
               request_type:
 
