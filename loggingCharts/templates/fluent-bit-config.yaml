@@ -34,13 +34,13 @@ data:
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex        kubernetes.container_name  ^webistecs$
+        Regex         kubernetes.container_name  ^webistecs$
 
     # ✅ If filtering by container fails, filter by namespace instead
     [FILTER]
         Name          grep
         Match         kube.*
-        Regex        kubernetes.namespace_name  ^default$
+        Regex         kubernetes.namespace_name  ^default$
 
     [FILTER]
         Name          modify
@@ -54,8 +54,6 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
-        Condition     Key_Exists log  # ✅ Only remove if log exists
-        Remove        log  
 
   parsers.conf: |
     [PARSER]
