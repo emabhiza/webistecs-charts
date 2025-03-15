@@ -30,17 +30,11 @@ data:
         Kube_URL      https://kubernetes.default.svc
         K8S-Logging.Parser  On
 
-    # ✅ Keep only logs from container "webistecs"
+    # ✅ Keep only logs from the "webistecs" container
     [FILTER]
         Name          grep
         Match         kube.*
         Regex        kubernetes.container_name  ^webistecs$
-
-    # ✅ If filtering by container fails, filter by namespace instead
-    [FILTER]
-        Name          grep
-        Match         kube.*
-        Regex        kubernetes.namespace_name  ^default$
 
     [FILTER]
         Name          modify
@@ -54,7 +48,7 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
-        Condition     Key_Exists log  # ✅ Only remove if log exists
+        Condition     Key_Exists log  
         Remove        log  
 
   parsers.conf: |
