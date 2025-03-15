@@ -48,8 +48,8 @@ data:
         Rename        AssetName asset
         Rename        RequestType request_type
         Rename        Response response
-        Condition     Key_Exists log  # ✅ Remove only if "log" exists
-        Remove        log  # ✅ Fixes crash on missing "log" field
+        Condition     Key_Exists log  
+        Remove        log  
 
   parsers.conf: |
     [PARSER]
