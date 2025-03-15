@@ -35,7 +35,7 @@ data:
                 process_id: ProcessId
                 process_name: ProcessName
                 source_context: SourceContext
-                event_id: EventId.Id
+                event_id: 'EventId.Id'
 
           - labels:
               level:
