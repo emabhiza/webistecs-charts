@@ -1,3 +1,5 @@
+name: ArgoCD Pipeline
+
 on:
   workflow_dispatch:
     inputs:
@@ -5,8 +7,6 @@ on:
         description: 'Manually trigger ArgoCD sync'
         required: false
         default: 'false'
-  schedule:
-    - cron: "*/2 * * * *"
       
 jobs:
   deploy:
@@ -49,6 +49,25 @@ jobs:
           
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
           echo "✅ Latest Docker image tag fetched: $latest_tag"
+          
+  
+
+      - name: Wait for New Docker Image to Be Available
+        run: |
+              echo "Waiting for the new Docker image to be available in Docker Hub..."
+              IMAGE_NAME="emabhiza/webistecs:${{ env.latest_tag }}"
+    
+              for i in {1..10}; do
+                if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${{ env.latest_tag }}" | jq -e .; then
+                  echo "✅ New Docker image found!"
+                  exit 0
+                fi
+                echo "⏳ Docker image not found. Retrying in 30 seconds..."
+                sleep 30
+              done
+    
+              echo "❌ Error: Docker image not found after waiting. Exiting..."
+              exit 1             
           
       - name: Store Previous Image Tag
         id: store_old_tag
@@ -140,9 +159,9 @@ jobs:
           DEPLOY_TIME=$((END_TIME - START_TIME))
 
           if [[ "${{ env.sync_failed }}" == "true" ]]; then
-            MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
+            MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete \n <b>===================================</b>"
           else
-            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
+            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success! \n <b>===================================</b>"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
