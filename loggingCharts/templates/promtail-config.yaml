@@ -24,10 +24,10 @@ data:
         pipeline_stages:
           - json:
               expressions:
-                timestamp: '@t'
-                level: '@l'
-                message: '@mt'
-                exception: '@x'
+                timestamp: '`@t`'
+                level: '`@l`'
+                message: '`@mt`'
+                exception: '`@x`'
                 application: Application
                 machine: MachineName
                 environment: EnvironmentName
