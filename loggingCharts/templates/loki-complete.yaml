@@ -41,11 +41,11 @@ data:
       tsdb_shipper:
         active_index_directory: /var/loki/tsdb-index
         cache_location: /var/loki/tsdb-cache
-
+        shared_store: filesystem
       boltdb_shipper:
         active_index_directory: /var/loki/index
         cache_location: /var/loki/index-cache
-
+        shared_store: filesystem
       filesystem:
         directory: /var/loki/chunks
 
@@ -62,12 +62,10 @@ data:
       retention_enabled: true
       retention_delete_delay: 2h
       retention_delete_worker_count: 10
-      delete_request_store: filesystem  
-
 
     table_manager:
       retention_deletes_enabled: true
-      retention_period: 168h  
+      retention_period: 168h  # 7 days
 
     query_range:
       align_queries_with_step: true
@@ -117,10 +115,9 @@ spec:
     spec:
       containers:
         - name: loki
-          image: grafana/loki:3.4.2
+          image: grafana/loki:2.9.0
           args:
             - "-config.file=/etc/loki/loki.yaml"
-            - "-log.level=debug"  # Enable debug logging
           ports:
             - containerPort: 3100
           volumeMounts:

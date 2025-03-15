@@ -22,18 +22,30 @@ data:
               __path__: "/var/log/containers/webistecs-*.log"
 
         pipeline_stages:
-          - regex:
-              expression: "^(?P<container>[^-]+)-(?P<container_id>[^_]+)_(?P<pod>[^_]+)_(?P<namespace>[^_]+)_[^.]+\\.log$"
-              source: __path__
-              target: filename_data
+          - json:
+              expressions:
+                timestamp: "@t"
+                level: "@l"
+                message: "@m"
+                exception: "@x"
+                application: "Application"
+                machine: "MachineName"
+                asset: "AssetName"
+                request_type: "RequestType"
+                response: "Response"
 
           - labels:
-              pod: '{{ if and .filename_data .filename_data.pod }}{{ .filename_data.pod }}{{ else }}unknown{{ end }}'
-              namespace: '{{ if and .filename_data .filename_data.namespace }}{{ .filename_data.namespace }}{{ else }}unknown{{ end }}'
-              container: '{{ if and .filename_data .filename_data.container }}{{ .filename_data.container }}{{ else }}unknown{{ end }}'
+              level:
+              application:
+              machine:
+              asset:
+              request_type:
+
+          - timestamp:
+              source: timestamp
+              format: RFC3339Nano
 
           - multiline:
-              firstline: '^\S.*(Exception|Error|Trace):|^\d{4}-\d{2}-\d{2}T.* (INF|ERR|WRN|FTL)'
+              firstline: '^\{'
               max_wait_time: 10s
               max_lines: 500
-              continue_through: '^\s+at\s|\s+---\s'
