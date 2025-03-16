@@ -19,8 +19,12 @@ spec:
           env:
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
               value: "Production"
-            - name: environmentVariables__ASPNETCORE_ENVIRONMENT
-              value: "Production"
+            - name: environmentVariables__ASPNETCORE_TYPE
+              value: "BESTIE"
+            - name: environmentVariables__ASPNETCORE__TYPE
+              value: "TESTIE"
+            - name: ASPNETCORE_ENVIRONMENTTYPE
+              value: "FESTIE"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
