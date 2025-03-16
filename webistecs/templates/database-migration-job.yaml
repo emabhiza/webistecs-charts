@@ -19,10 +19,10 @@ spec:
           env:
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
               value: "Production"
-            - name: environmentVariables__ConnectionStrings__WebistecsContext
-              value: "FAIL FAIL"
-            - name: ASPNETCORE_ENVIRONMENT
+            - name: environmentVariables__ASPNETCORE_ENVIRONMENT
               value: "Production"
+            - name: ASPNETCORE__ENVIRONMENT
+              value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
           resources:
