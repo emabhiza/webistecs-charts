@@ -42,6 +42,8 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
@@ -52,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: {{ .Values.webistecs.secrets.coinbase__privateName }}
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.webistecs.environment.webistecsContext }}"
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
