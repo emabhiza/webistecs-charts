@@ -23,7 +23,7 @@ spec:
               value: "BESTIE"
             - name: environmentVariables__ASPNETCORE__TYPE
               value: "TESTIE"
-            - name: ASPNETCORE_ENVIRONMENTTYPE
+            - name: APPLICATION__EnvironmentType
               value: "FESTIE"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
