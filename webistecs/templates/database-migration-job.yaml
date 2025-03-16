@@ -19,8 +19,8 @@ spec:
           env:
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
               value: "Local"
-            - name: ASPNETCORE__ENVIRONMENT
-              value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
           resources:
