@@ -24,7 +24,7 @@ spec:
             - name: environmentVariables__ASPNETCORE__TYPE
               value: "TESTIE"
             - name: APPLICATION__EnvironmentType
-              value: "FESTIE"
+              value: "Production"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
