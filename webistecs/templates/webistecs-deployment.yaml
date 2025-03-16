@@ -42,7 +42,7 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
-            - name: Application__EnvironmentType
+            - name: ASPNETCORE_ENVIRONMENT
               value: "Production"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
