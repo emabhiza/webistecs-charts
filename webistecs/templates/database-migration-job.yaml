@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Local"
+              value: "Production"
             - name: ASPNETCORE_ENVIRONMENT
               value: "Production"
             - name: ConnectionStrings__WebistecsContext
