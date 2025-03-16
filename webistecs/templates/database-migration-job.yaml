@@ -17,7 +17,7 @@ spec:
           image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
           imagePullPolicy: Always
           env:
-            - name: ASPNETCORE_ENVIRONMENT
+            - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
