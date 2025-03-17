@@ -37,3 +37,8 @@ data:
           - source_labels: [__meta_kubernetes_service_name]
             action: keep
             regex: kube-state-metrics
+
+    remote_write:
+      - url: "https://metric-api.newrelic.com/prometheus/v1/write?prometheus_server={{ .Values.global.namespace }}"
+        headers:
+          api-key: "eu01xx412db3fd16f4e739ee70b2b1d1FFFFNRAL"
