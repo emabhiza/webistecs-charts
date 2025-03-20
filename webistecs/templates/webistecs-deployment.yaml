@@ -58,9 +58,9 @@ spec:
                   key: coinbase__privateName
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.webistecs.environment.webistecsContext }}"
-            - name: GRAFANA_URL
+            - name: GRAFANA__URL
               value: "http://192.168.68.107:32100"
-            - name: LOKI_URL
+            - name: LOKI__URL
               value: "https://log-api.eu.newrelic.com/log/v1"
             - name: NEWRELIC__APIKEY
               valueFrom:
