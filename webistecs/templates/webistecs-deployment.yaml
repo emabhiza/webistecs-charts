@@ -67,46 +67,50 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: NEWRELIC__APIKEY
-            - name: TELEGRAM__NOTIFICATIONS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__NOTIFICATIONS
-            - name: TELEGRAM__ERRORS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__ERRORS
-            - name: TELEGRAM__LISTENER_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__LISTENER_ID
-            - name: TELEGRAM__API_HASH
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__API_HASH
-            - name: TELEGRAM__FUNCTIONS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__FUNCTIONS
-            - name: TELEGRAM__PHONE_NUMBER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__PHONE_NUMBER
-            - name: TELEGRAM__RELEASES
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__RELEASES
-            - name: TELEGRAM__TOKEN
+
+            # Telegram Configuration
+            - name: Telegram__Token
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: TELEGRAM__TOKEN
+            - name: Telegram__Channels__0__Type
+              value: "Notifications"
+            - name: Telegram__Channels__0__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__NOTIFICATIONS
+            - name: Telegram__Channels__1__Type
+              value: "Errors"
+            - name: Telegram__Channels__1__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__ERRORS
+            - name: Telegram__Channels__2__Type
+              value: "Functions"
+            - name: Telegram__Channels__2__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__FUNCTIONS
+            - name: Telegram__Listener__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__LISTENER_ID
+            - name: Telegram__Listener__Hash
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__API_HASH
+            - name: Telegram__Listener__PhoneNumber
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__PHONE_NUMBER
+
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
