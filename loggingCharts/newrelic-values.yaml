@@ -8,21 +8,18 @@ fluentd:
         read_from_head: true
 
     filters:
-      # ✅ Keep only logs from the "default" namespace
       - type: grep
         tag: kube.*
         regexp:
           - key: kubernetes.namespace_name
             pattern: "default"
 
-      # ✅ Remove specific log messages (e.g., health checks)
       - type: grep
         tag: kube.*
         exclude:
           - key: log
             pattern: "Health check passed"
 
-      # ✅ Rename fields for structured logging
       - type: record_transformer
         tag: kube.*
         enable_ruby: true

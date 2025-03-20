@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegram-config
+data:
+  TELEGRAM_CHANNELS: '[
+      {"Type": "Notifications", "Id": 0},
+      {"Type": "Errors", "Id": 0},
+      {"Type": "Functions", "Id": 0},
+      {"Type": "Releases", "Id":0}
+  ]'

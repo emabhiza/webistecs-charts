@@ -58,6 +58,71 @@ spec:
                   key: {{ .Values.webistecs.secrets.coinbase__privateName }}
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.webistecs.environment.webistecsContext }}"
+            - name: GRAFANA_URL
+              value: "http://192.168.68.107:32100"
+            - name: LOKI_URL
+              value: "https://log-api.eu.newrelic.com/log/v1"
+            - name: NEWRELIC__APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: NEWRELIC__APIKEY
+            - name: TELEGRAM__NOTIFICATIONS
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__NOTIFICATIONS
+            - name: TELEGRAM__ERRORS
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__ERRORS
+            - name: TELEGRAM__FUNCTIONS
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__FUNCTIONS
+            - name: TELEGRAM__LISTENER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__LISTENER_ID
+            - name: TELEGRAM__API_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__API_HASH
+            - name: TELEGRAM__FUNCTIONS_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__FUNCTIONS_HASH
+            - name: TELEGRAM__PHONE_NUMBER
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__PHONE_NUMBER
+            - name: TELEGRAM__RELEASES
+              valueFrom:
+                secretKeyRef:
+                  name: webistecs-secret
+                  key: TELEGRAM__RELEASES  
+
+            - name: TELEGRAM_CHANNELS
+              value: '[
+                  {"Type": "Notifications", "Id": "$(TELEGRAM__NOTIFICATIONS)"},
+                  {"Type": "Errors", "Id": "$(TELEGRAM__ERRORS)"},
+                  {"Type": "Functions", "Id": "$(TELEGRAM__FUNCTIONS)"},
+                  {"Type": "Releases", "Id": "$(TELEGRAM__RELEASES)"}
+              ]'
+
+            - name: TELEGRAM_LISTENER
+              value: '{
+                  "Id": "$(TELEGRAM__LISTENER_ID)",
+                  "Hash": "$(TELEGRAM__API_HASH)",
+                  "PhoneNumber": "$(TELEGRAM__PHONE_NUMBER)"
+              }'      
+            
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
