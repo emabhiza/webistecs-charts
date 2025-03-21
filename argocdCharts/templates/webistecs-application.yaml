@@ -10,7 +10,7 @@ spec:
     server: https://kubernetes.default.svc
   source:
     repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
-    targetRevision: structured-logging
+    targetRevision: test-env
     path: webistecs
     helm:
       valueFiles:

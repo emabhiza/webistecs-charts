@@ -3,7 +3,7 @@ webistecs:
   containerName: "webistecs-test"
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.20"
+    tag: "v0.0.100"
   imagePullPolicy: "Always"
   environment:
     aspNetCoreEnvironment: Development
@@ -54,7 +54,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: docker.io/emabhiza/webistecs-migrations
-    tag: "v0.0.20"
+    tag: "v0.0.100"
   environment:
     aspNetCoreEnvironment: Development
     webistecsContext: "Data Source=/db/webistecs-test.db"
