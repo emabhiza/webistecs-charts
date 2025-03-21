@@ -42,16 +42,8 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
-            - name: APPLICATION__EnvironmentType
-              value: "Development"
-            - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Development"
-            - name: environmentVariables__ASPNETCORE_TYPE
-              value: "Development"
-            - name: environmentVariables__ASPNETCORE__TYPE
-              value: "Development"
-            - name: ASPNETCORE__ENVIRONMENT
-              value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:

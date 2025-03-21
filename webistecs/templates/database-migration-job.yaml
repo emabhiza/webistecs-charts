@@ -17,16 +17,8 @@ spec:
           image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
           imagePullPolicy: Always
           env:
-            - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Development"
-            - name: environmentVariables__ASPNETCORE_TYPE
-              value: "Development"
-            - name: environmentVariables__ASPNETCORE__TYPE
-              value: "Development"
-            - name: APPLICATION__EnvironmentType
-              value: "Development"
-            - name: ASPNETCORE__ENVIRONMENT
-              value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
             - name: GRAFANA__URL
