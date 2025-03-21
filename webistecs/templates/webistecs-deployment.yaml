@@ -44,6 +44,12 @@ spec:
           env:
             - name: APPLICATION__EnvironmentType
               value: "Production"
+            - name: environmentVariables__ASPNETCORE__ENVIRONMENT
+              value: "Production"
+            - name: environmentVariables__ASPNETCORE_TYPE
+              value: "Production"
+            - name: environmentVariables__ASPNETCORE__TYPE
+              value: "Production"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: COINBASE__PRIVATEKEY
