@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "webistecs.fullname" . }}
+  name: {{ include "webistecs.fullname" . }}-test
   annotations:
     checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
 spec:
@@ -43,13 +43,13 @@ spec:
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
             - name: APPLICATION__EnvironmentType
-              value: "Production"
+              value: "Development"
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Production"
+              value: "Development"
             - name: environmentVariables__ASPNETCORE_TYPE
-              value: "Production"
+              value: "Development"
             - name: environmentVariables__ASPNETCORE__TYPE
-              value: "Production"
+              value: "Development"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: COINBASE__PRIVATEKEY

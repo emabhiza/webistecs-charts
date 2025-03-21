@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "webistecs.fullname" . }}-migration
+  name: {{ include "webistecs.fullname" . }}-migration-test
   annotations:
     checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
     argocd.argoproj.io/hook: PreSync
@@ -18,13 +18,13 @@ spec:
           imagePullPolicy: Always
           env:
             - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Production"
+              value: "Development"
             - name: environmentVariables__ASPNETCORE_TYPE
-              value: "BESTIE"
+              value: "Development"
             - name: environmentVariables__ASPNETCORE__TYPE
-              value: "TESTIE"
+              value: "Development"
             - name: APPLICATION__EnvironmentType
-              value: "Production"
+              value: "Development"
             - name: ASPNETCORE__ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext

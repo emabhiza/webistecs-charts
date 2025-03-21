@@ -1,13 +1,13 @@
 webistecs:
   replicaCount: 1
-  containerName: "webistecs"
+  containerName: "webistecs-test"
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.10"
+    tag: "v0.0.20"
   imagePullPolicy: "Always"
   environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/db/webistecs.db"
+    aspNetCoreEnvironment: Development
+    webistecsContext: "Data Source=/db/webistecs-test.db"
   containerPort: 80
   readinessProbe:
     path: "/healthz/ready"
@@ -54,10 +54,10 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: docker.io/emabhiza/webistecs-migrations
-    tag: "v0.0.10"
+    tag: "v0.0.20"
   environment:
-    aspNetCoreEnvironment: Production
-    webistecsContext: "Data Source=/db/webistecs.db"
+    aspNetCoreEnvironment: Development
+    webistecsContext: "Data Source=/db/webistecs-test.db"
   volumes:
     - name: db-storage
       persistentVolumeClaim:
