@@ -42,16 +42,10 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
-            - name: APPLICATION__EnvironmentType
-              value: "Production"
-            - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Production"
-            - name: environmentVariables__ASPNETCORE_TYPE
-              value: "Production"
-            - name: environmentVariables__ASPNETCORE__TYPE
-              value: "Production"
-            - name: ASPNETCORE__ENVIRONMENT
+            - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
+            - name: TELEGRAM__SESSION_PATH
+              value: /session
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
@@ -64,17 +58,14 @@ spec:
                   key: coinbase__privateName
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.webistecs.environment.webistecsContext }}"
-            - name: GRAFANA__URL
+            - name: NEWRELIC__GRAFANAURL
               value: "http://192.168.68.107:32100"
-            - name: LOKI__URL
-              value: "https://log-api.eu.newrelic.com/log/v1"
             - name: NEWRELIC__APIKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: NEWRELIC__APIKEY
-
-            # Telegram Configuration
+            # Telegram config
             - name: Telegram__Token
               valueFrom:
                 secretKeyRef:
@@ -116,7 +107,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: TELEGRAM__PHONE_NUMBER
-
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
@@ -127,6 +117,8 @@ spec:
           volumeMounts:
             - name: db-volume
               mountPath: {{ .Values.webistecs.volumeMountPath }}
+            - name: session-volume
+              mountPath: /session
         - name: {{ .Values.nodeExporter.name }}
           image: "{{ .Values.nodeExporter.image }}"
           ports:
@@ -138,3 +130,6 @@ spec:
         - name: db-volume
           persistentVolumeClaim:
             claimName: {{ .Values.webistecs.volume.persistentVolumeClaim.claimName }}
+        - name: session-volume
+          persistentVolumeClaim:
+            claimName: webistecs-session-pvc

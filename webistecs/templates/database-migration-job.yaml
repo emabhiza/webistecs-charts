@@ -17,24 +17,10 @@ spec:
           image: "{{ .Values.dbMigrationJob.image.repository }}:{{ .Values.dbMigrationJob.image.tag }}"
           imagePullPolicy: Always
           env:
-            - name: environmentVariables__ASPNETCORE__ENVIRONMENT
-              value: "Production"
-            - name: environmentVariables__ASPNETCORE_TYPE
-              value: "BESTIE"
-            - name: environmentVariables__ASPNETCORE__TYPE
-              value: "TESTIE"
-            - name: APPLICATION__EnvironmentType
-              value: "Production"
-            - name: ASPNETCORE__ENVIRONMENT
+            - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
-            - name: GRAFANA__URL
-              value: "http://192.168.68.107:32100"
-            - name: LOKI__URL
-              value: "https://log-api.eu.newrelic.com/log/v1"
-            - name: NEWRELIC__APIKEY
-              value: "eu01xx412db3fd16f4e739ee70b2b1d1FFFFNRAL"
           resources:
             requests:
               memory: "{{ .Values.dbMigrationJob.resources.requests.memory }}"
@@ -50,5 +36,5 @@ spec:
       volumes:
         - name: db-storage
           persistentVolumeClaim:
-            claimName: webistecs-db-pvc
+            claimName: {{ .Values.dbMigrationJob.volumeClaimName | quote }}
       restartPolicy: Never
