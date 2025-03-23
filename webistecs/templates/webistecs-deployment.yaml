@@ -42,16 +42,75 @@ spec:
             periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
+            - name: TELEGRAM__SESSION_PATH
+              value: /session
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.coinbase__privateKey }}
+                  key: coinbase__privateKey
             - name: COINBASE__PRIVATEKEYNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: {{ .Values.webistecs.secrets.coinbase__privateName }}
+                  key: coinbase__privateName
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.webistecs.environment.webistecsContext }}"
+            - name: DB_CONTEXT
+              value: "WebistecsContext"
+            - name: NEWRELIC__GRAFANAURL
+              value: "http://192.168.68.107:32100"
+            - name: NEWRELIC__APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: NEWRELIC__APIKEY
+
+
+            # Telegram config
+            - name: Telegram__Token
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__TOKEN
+            - name: Telegram__Channels__0__Type
+              value: "Notifications"
+            - name: Telegram__Channels__0__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__NOTIFICATIONS
+            - name: Telegram__Channels__1__Type
+              value: "Errors"
+            - name: Telegram__Channels__1__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__ERRORS
+            - name: Telegram__Channels__2__Type
+              value: "Functions"
+            - name: Telegram__Channels__2__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__FUNCTIONS
+            - name: Telegram__Listener__Id
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__LISTENER_ID
+            - name: Telegram__Listener__Hash
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__API_HASH
+            - name: Telegram__Listener__PhoneNumber
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
+                  key: TELEGRAM__PHONE_NUMBER
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
@@ -62,6 +121,8 @@ spec:
           volumeMounts:
             - name: db-volume
               mountPath: {{ .Values.webistecs.volumeMountPath }}
+            - name: session-volume
+              mountPath: /session
         - name: {{ .Values.nodeExporter.name }}
           image: "{{ .Values.nodeExporter.image }}"
           ports:
@@ -73,3 +134,6 @@ spec:
         - name: db-volume
           persistentVolumeClaim:
             claimName: {{ .Values.webistecs.volume.persistentVolumeClaim.claimName }}
+        - name: session-volume
+          persistentVolumeClaim:
+            claimName: webistecs-session-pvc

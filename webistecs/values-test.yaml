@@ -1,0 +1,57 @@
+nameOverride: test-webistecs
+
+webistecs:
+  replicaCount: 1
+  containerName: webistecs
+  image:
+    repository: "docker.io/emabhiza/webistecs"
+    tag: "v0.0.10"
+  containerPort: 80
+  imagePullPolicy: "Always"
+  imagePullSecret: "myregistrykey"
+  restartPolicy: "Always"
+  environment:
+    aspNetCoreEnvironment: "Test"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+  secrets:
+    webistecsSecret: "webistecs-secret"
+  volumeMountPath: "/db"
+  volume:
+    persistentVolumeClaim:
+      claimName: "webistecs-db-pvc"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  logging:
+    enabled: "true"
+    module: "docker"
+    fileset:
+      stdout: "true"
+      stderr: "false"
+
+nodeExporter:
+  name: node-exporter
+  image: prom/node-exporter:latest
+  containerPort: 9100
+
+
+dbMigrationJob:
+  image:
+    repository: "docker.io/emabhiza/webistecs-migrations"
+    tag: "v0.0.10"
+  environment:
+    aspNetCoreEnvironment: "Test"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+  imagePullSecret: myregistrykey
+  volumeClaimName: webistecs-db-pvc
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"

@@ -1,0 +1,70 @@
+nameOverride: prod-webistecs
+
+webistecs:
+  replicaCount: 1
+  containerName: webistecs
+  image:
+    repository: "docker.io/emabhiza/webistecs"
+    tag: "v0.0.25"
+  readinessProbe:
+    path: /healthz
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: /healthz/live
+    port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
+  containerPort: 80
+  imagePullPolicy: "Always"
+  imagePullSecret: "myregistrykey"
+  restartPolicy: "Always"
+  environment:
+    aspNetCoreEnvironment: "Production"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+  secrets:
+    webistecsSecret: "webistecs-secret"
+  volumeMountPath: "/db"
+  volume:
+    persistentVolumeClaim:
+      claimName: "webistecs-db-pvc"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  logging:
+    enabled: "true"
+    module: "docker"
+    fileset:
+      stdout: "true"
+      stderr: "false"
+
+nodeExporter:
+  name: node-exporter
+  image: prom/node-exporter:latest
+  containerPort: 9100
+
+
+dbMigrationJob:
+  image:
+    repository: "docker.io/emabhiza/webistecs-migrations"
+    tag: "v0.0.25"
+  environment:
+    aspNetCoreEnvironment: "Production"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+  imagePullSecret: myregistrykey
+  volumeClaimName: webistecs-db-pvc
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "2000m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"

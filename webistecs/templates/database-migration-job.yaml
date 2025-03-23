@@ -21,6 +21,8 @@ spec:
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
+            - name: DB_CONTEXT
+              value: "WebistecsContext"
           resources:
             requests:
               memory: "{{ .Values.dbMigrationJob.resources.requests.memory }}"
@@ -36,5 +38,5 @@ spec:
       volumes:
         - name: db-storage
           persistentVolumeClaim:
-            claimName: webistecs-db-pvc
+            claimName: {{ .Values.dbMigrationJob.volumeClaimName | quote }}
       restartPolicy: Never

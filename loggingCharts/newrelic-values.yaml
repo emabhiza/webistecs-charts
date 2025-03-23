@@ -1,0 +1,49 @@
+fluentd:
+  config:
+    inputs:
+      - type: tail
+        path: /var/log/containers/*.log
+        tag: kube.*
+        pos_file: /var/log/td-agent-kube.pos
+        read_from_head: true
+
+    filters:
+      - type: grep
+        tag: kube.*
+        regexp:
+          - key: kubernetes.namespace_name
+            pattern: "default"
+
+      - type: grep
+        tag: kube.*
+        exclude:
+          - key: log
+            pattern: "Health check passed"
+
+      - type: record_transformer
+        tag: kube.*
+        enable_ruby: true
+        records:
+          timestamp: '${time.strftime("%Y-%m-%dT%H:%M:%S%z")}'
+          log_level: '${record["log"] =~ /(ERROR|WARN|INFO)/ ? $1 : "INFO"}'
+          message: '${record["log"]}'
+          container_name: '${record["kubernetes"]["container_name"]}'
+          pod_name: '${record["kubernetes"]["pod_name"]}'
+          namespace: '${record["kubernetes"]["namespace_name"]}'
+
+      - type: record_modifier
+        tag: kube.*
+        remove_keys:
+          - kubernetes.pod_id
+          - kubernetes.docker_id
+          - kubernetes.container_hash
+
+    outputs:
+      - type: http
+        endpoint: https://log-api.eu.newrelic.com/log/v1
+        format: json
+        headers:
+          - key: Content-Type
+            value: application/json
+          - key: Authorization
+            value: "Bearer eu01xxb8b6f9cde620bd5171843435eaFFFFNRAL"

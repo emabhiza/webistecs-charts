@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: webistecs
+  name: webistecs-prod
   namespace: argocd
 spec:
   project: default
-  destination:
-    namespace: default
-    server: https://kubernetes.default.svc
   source:
     repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
-    targetRevision: main
     path: webistecs
+    targetRevision: postgres
     helm:
       valueFiles:
-        - values.yaml
+        - values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
   syncPolicy:
     automated:
       prune: true
