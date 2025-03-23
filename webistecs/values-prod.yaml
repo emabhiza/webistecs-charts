@@ -5,14 +5,27 @@ webistecs:
   containerName: webistecs
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.2"
+    tag: "v0.0.25"
+  readinessProbe:
+    path: /healthz
+    port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: /healthz/live
+    port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
   containerPort: 80
   imagePullPolicy: "Always"
   imagePullSecret: "myregistrykey"
   restartPolicy: "Always"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Data Source=/db/webistecs.db"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
   volumeMountPath: "/db"
@@ -42,10 +55,10 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "v0.0.2"
+    tag: "v0.0.25"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Data Source=/db/webistecs.db"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   imagePullSecret: myregistrykey
   volumeClaimName: webistecs-db-pvc
   resources:

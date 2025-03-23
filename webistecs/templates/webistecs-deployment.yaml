@@ -58,6 +58,8 @@ spec:
                   key: coinbase__privateName
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.webistecs.environment.webistecsContext }}"
+            - name: DB_CONTEXT
+              value: "WebistecsContext"
             - name: NEWRELIC__GRAFANAURL
               value: "http://192.168.68.107:32100"
             - name: NEWRELIC__APIKEY
@@ -65,6 +67,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: NEWRELIC__APIKEY
+
+
             # Telegram config
             - name: Telegram__Token
               valueFrom:
