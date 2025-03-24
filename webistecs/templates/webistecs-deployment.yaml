@@ -58,8 +58,6 @@ spec:
                   key: coinbase__privateName
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.webistecs.environment.webistecsContext }}"
-            - name: NEWRELIC__GRAFANAURL
-              value: "http://192.168.68.107:32100"
             - name: NEWRELIC__APIKEY
               valueFrom:
                 secretKeyRef:
