@@ -31,14 +31,13 @@ jobs:
       - name: ArgoCD Login
         id: argocd-login
         run: |
-          if ! argocd login $ARGOCD_SERVER --auth-token $ARGOCD_AUTH_TOKEN --insecure; then
+          if ! argocd login  login 192.168.68.107:30007--auth-token $ARGOCD_AUTH_TOKEN --insecure; then
             echo "❌ ArgoCD login failed"
             echo "ARGOCD_LOGIN_FAILED=true" >> $GITHUB_ENV
             exit 1
           fi
           echo "ARGOCD_LOGIN_FAILED=false" >> $GITHUB_ENV
         env:
-          ARGOCD_SERVER: argocd.example.com
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGO_TOKEN }}
 
       - name: Get Latest Docker Image Tag (Environment-aware)
