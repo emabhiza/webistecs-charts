@@ -27,17 +27,16 @@ jobs:
           curl -sSL -o $HOME/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
-
+    
       - name: ArgoCD Login
-        id: argocd-login
         run: |
-          export ARGOCD_AUTH_TOKEN="${{ secrets.ARGO_TOKEN }}"
-          argocd login 192.168.68.107:30007 --auth-token "$ARGOCD_AUTH_TOKEN" --insecure || {
-            echo "❌ ArgoCD login failed"
-            echo "ARGOCD_LOGIN_FAILED=true" >> $GITHUB_ENV
-            exit 1
-          }
-          echo "ARGOCD_LOGIN_FAILED=false" >> $GITHUB_ENV
+          argocd login 192.168.68.107:30007 \
+            --username admin \
+            --password Gsquad238 \
+            --insecure || {
+              echo "❌ Login failed"
+              exit 1
+            }
 
       - name: Get Latest Docker Image Tag (Environment-aware)
         id: get_image_tag_api
