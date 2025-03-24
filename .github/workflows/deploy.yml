@@ -28,6 +28,19 @@ jobs:
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
+      - name: ArgoCD Login
+        id: argocd-login
+        run: |
+          if ! argocd login $ARGOCD_SERVER --auth-token $ARGOCD_AUTH_TOKEN --insecure; then
+            echo "❌ ArgoCD login failed"
+            echo "ARGOCD_LOGIN_FAILED=true" >> $GITHUB_ENV
+            exit 1
+          fi
+          echo "ARGOCD_LOGIN_FAILED=false" >> $GITHUB_ENV
+        env:
+          ARGOCD_SERVER: argocd.example.com
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGO_TOKEN }}
+
       - name: Get Latest Docker Image Tag (Environment-aware)
         id: get_image_tag_api
         run: |
@@ -107,11 +120,13 @@ jobs:
           }'
 
       - name: Update Helm Chart with Latest Docker Tag
+        if: env.ARGOCD_LOGIN_FAILED != 'true'
         run: |
           echo "Updating image tag in ${{ env.VALUES_FILE }}..."
           sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' ${{ env.VALUES_FILE }}
 
       - name: Commit and Push Changes
+        if: env.ARGOCD_LOGIN_FAILED != 'true'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -120,6 +135,7 @@ jobs:
           git push
 
       - name: Force Sync ArgoCD and Check for Failure
+        if: env.ARGOCD_LOGIN_FAILED != 'true'
         id: argocd_sync
         continue-on-error: true
         run: |
@@ -131,7 +147,7 @@ jobs:
           echo "sync_failed=false" >> $GITHUB_ENV
 
       - name: Check Deployment Status in ArgoCD
-        id: check_argocd_status
+        if: env.ARGOCD_LOGIN_FAILED != 'true'
         run: |
           echo "Checking deployment status..."
           DEPLOYMENT_STATUS=$(argocd app get ${{ env.ARGO_APP }} --output json | jq -r '.status.operationState.phase')
