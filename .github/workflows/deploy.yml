@@ -27,17 +27,6 @@ jobs:
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
-
-      - name: Send Telegram Message (Deployment Started)
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
-              "parse_mode": "HTML",
-              "text": "🚀 <b>Deployment Started</b>\n👤 <b>Triggered by:</b> '"$GITHUB_ACTOR"'"
-            }'
-
       - name: ArgoCD Login
         run: |
           if ! argocd login 192.168.68.107:30007 \
@@ -181,7 +170,7 @@ jobs:
             -d '{
               "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
               "parse_mode": "HTML",
-              "text": "🚀 <b>Deployment Started</b>\n👤 <b>User:</b> '"${{ github.actor }}"'\n📦 <b>App:</b> '"$ARGO_APP"'\n🏷️ <b>Tag:</b> '"$latest_tag"'"
+              "text": "🚀 <b>ArgoCD Deployment Started</b>\n👤 <b>User:</b> '"${{ github.actor }}"'\n📦 <b>App:</b> '"$ARGO_APP"'\n🏷️ <b>Tag:</b> '"$latest_tag"'"
             }'
 
       - name: Update Tag in Helm Chart
