@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install ArgoCD CLI
         run: |
@@ -28,8 +28,7 @@ jobs:
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Define Telegram Function
-        shell: bash
+      - name: ArgoCD Login
         run: |
           send_telegram() {
             local status="$1"
@@ -43,10 +42,7 @@ jobs:
                 "text": "'"$status\n$message"'"
               }'
           }
-          declare -f send_telegram >> $GITHUB_ENV
 
-      - name: ArgoCD Login
-        run: |
           argocd login 192.168.68.107:30007 \
             --username admin \
             --password $ARGOCD_PASSWORD \
@@ -61,6 +57,19 @@ jobs:
       - name: Get Latest Docker Image Tag (Environment-aware)
         id: get_image_tag_api
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           IMAGE_NAME="emabhiza/webistecs"
           AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "${{ secrets.DOCKER__USERNAME }}", "password": "${{ secrets.DOCKER_HUBPAT }}"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
           TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
@@ -95,6 +104,19 @@ jobs:
 
       - name: Check if Tag Already Deployed
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           old_tag=$(grep 'tag:' $VALUES_FILE | head -1 | awk '{print $2}' | tr -d '"')
           echo "old_tag=$old_tag" >> $GITHUB_ENV
 
@@ -107,6 +129,19 @@ jobs:
 
       - name: Wait for New Docker Image to Be Available
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           for i in {1..10}; do
             if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${{ env.latest_tag }}" | jq -e .; then
               echo "✅ New Docker image found!"
@@ -122,6 +157,19 @@ jobs:
 
       - name: Send Telegram Message - Deployment Started
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           START_TIME=$(date +%s)
           echo "START_TIME=$START_TIME" >> $GITHUB_ENV
 
@@ -143,6 +191,19 @@ jobs:
 
       - name: Force ArgoCD Sync
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           if ! argocd app sync --force $ARGO_APP; then
             send_telegram "❌ <b>ArgoCD Sync Failed</b>" "📦 <b>App:</b> $ARGO_APP\n🚨 Sync command failed."
             echo "sync_failed=true" >> $GITHUB_ENV
@@ -153,6 +214,19 @@ jobs:
       - name: Check Deployment Status
         if: env.sync_failed == 'false'
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           STATUS=$(argocd app get $ARGO_APP --output json | jq -r '.status.operationState.phase')
 
           if [[ "$STATUS" != "Succeeded" ]]; then
@@ -175,6 +249,19 @@ jobs:
 
       - name: Final Telegram - Status Summary
         run: |
+          send_telegram() {
+            local status="$1"
+            local message="$2"
+
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
+                "parse_mode": "HTML",
+                "text": "'"$status\n$message"'"
+              }'
+          }
+
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
 
