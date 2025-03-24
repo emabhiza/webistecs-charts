@@ -185,7 +185,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add $VALUES_FILE
-          git commit -m "Update ${{ github.event.inputs.environment }} tag to $latest_tag"
+          git commit -m "Update test tag to $latest_tag"
+          git pull --rebase  # This fixes the "non-fast-forward" error
           git push
 
       - name: Verify ArgoCD Login
