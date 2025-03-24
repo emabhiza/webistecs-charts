@@ -7,7 +7,7 @@ webistecs:
     repository: "docker.io/emabhiza/webistecs"
     tag: "test-0.0.1"
   readinessProbe:
-    path: /healthz
+    path: /healthz/ready  
     port: 8080
     initialDelaySeconds: 5
     periodSeconds: 10
