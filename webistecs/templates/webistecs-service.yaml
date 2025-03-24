@@ -1,16 +1,22 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: webistecs-service
+  name: {{ .Values.nameOverride }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
+    environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
 spec:
   type: NodePort
   ports:
     - name: "http"
       port: 8000
-      targetPort: 8080
+      targetPort: {{ .Values.webistecs.containerPort }}
+      {{- if eq .Values.webistecs.environment.aspNetCoreEnvironment "Production" }}
       nodePort: 30080
+      {{- else }}
+      nodePort: 30081
+      {{- end }}
       protocol: TCP
   selector:
     {{- include "webistecs.selectorLabels" . | nindent 4 }}
+    environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
