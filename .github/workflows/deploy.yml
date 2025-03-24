@@ -129,19 +129,28 @@ jobs:
         run: |
           old_tag=$(grep 'tag:' $VALUES_FILE | head -1 | awk '{print $2}' | tr -d '"')
           echo "old_tag=$old_tag" >> $GITHUB_ENV
-
+          
           if [[ "$old_tag" == "$latest_tag" ]]; then
             echo "same_tag=true" >> $GITHUB_ENV
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
+            BORDER="========================"
+            MESSAGE="
+              ${BORDER}
+              ⚠️ <b>SAME TAG DEPLOYED</b> ⚠️
+              ${BORDER}
+              👤 <b>User:</b> ${{ github.actor }}
+              🏷️ <b>Tag:</b> $latest_tag
+              ${BORDER}
+              "
+                   curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
               -H "Content-Type: application/json" \
               -d '{
-                "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
-                "parse_mode": "HTML",
-                "text": "⚠️ <b>Same tag already deployed</b>\n👤 <b>User:</b> '"${{ github.actor }}"'\n🏷️ <b>Tag:</b> '"$latest_tag"'"
-              }'
-          else
-            echo "same_tag=false" >> $GITHUB_ENV
-          fi
+              "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
+              "parse_mode": "HTML",
+              "text": "'"$MESSAGE"'"
+          }'
+                 else
+                   echo "same_tag=false" >> $GITHUB_ENV
+                 fi
 
       - name: Wait for Docker Image
         run: |
@@ -198,6 +207,7 @@ jobs:
           argocd account get-user-info
 
       - name: ArgoCD Sync
+        if: env.same_tag != 'true'
         run: |
           echo "Trying to sync app: ${ARGO_APP:-unset}"
           if ! argocd app sync --force $ARGO_APP; then
@@ -241,23 +251,44 @@ jobs:
         run: |
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
+          BORDER="===================================="
+          
           if [[ "$sync_failed" == "true" ]]; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
               -H "Content-Type: application/json" \
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "❌ <b>Deployment Failed</b>\nRollback complete.\nDuration: '"${DURATION}"'s"
-              }'
-          elif [[ "$same_tag" != "true" ]]; then
+                "text": "'"
+            ${BORDER}
+            ❌ <b>DEPLOYMENT FAILED</b> ❌
+            ${BORDER}
+            👤 <b>Triggered by:</b> '"${{ github.actor }}"'
+            📦 <b>Application:</b> '"$ARGO_APP"'
+            🔄 <b>Rollback to:</b> '"$old_tag"'
+            ⏱️ <b>Duration:</b> '"${DURATION}"'s
+            ${BORDER}
+            "'
+                  }'
+              elif [[ "$same_tag" != "true" ]]; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
-                "parse_mode": "HTML",
-                "text": "✅ <b>Deployment Succeeded</b>\n📦 <b>App:</b> '"$ARGO_APP"'\n🏷️ <b>From:</b> '"$old_tag"' → '"$latest_tag"'\n⏱️ '"${DURATION}"'s"
-              }'
-          fi
+          -H "Content-Type: application/json" \
+            -d '{
+          "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
+          "parse_mode": "HTML",
+          "text": "'"
+            ${BORDER}
+            ✅ <b>DEPLOYMENT SUCCESS</b> ✅
+            ${BORDER}
+            👤 <b>Triggered by:</b> '"${{ github.actor }}"'
+            📦 <b>Application:</b> '"$ARGO_APP"'
+            🆕 <b>New Version:</b> '"$latest_tag"'
+            🔄 <b>Previous Version:</b> '"$old_tag"'
+            ⏱️ <b>Duration:</b> '"${DURATION}"'s
+            ${BORDER}
+            "'
+                  }'
+              fi
 
       - name: Update GitHub Secret with Latest Tag
         if: env.sync_failed == 'false' && env.same_tag != 'true'
