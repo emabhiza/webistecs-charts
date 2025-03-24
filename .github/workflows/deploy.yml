@@ -29,7 +29,7 @@ jobs:
 
       - name: Load Telegram Function
         run: |
-          chmod +x .github/scripts/send_telegram.sh
+          chmod +x .github/scripts/send-telegram.sh
           echo "source .github/scripts/send_telegram.sh" >> $GITHUB_ENV
 
       - name: ArgoCD Login
