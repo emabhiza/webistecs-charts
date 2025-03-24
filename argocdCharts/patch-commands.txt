@@ -1,0 +1,8 @@
+kubectl -n argocd patch configmap argocd-rbac-cm --type merge -p '{
+  "data": {
+    "policy.csv": "p, role:admin, applications, sync, *, allow\np, role:admin, applications, update, *, allow\np, role:admin, applications, get, *, allow\np, role:admin, repositories, get, *, allow\np, role:admin, repositories, update, *, allow\np, role:admin, account, generate-token, *, allow\ng, user:admin, role:admin",
+    "policy.default": "role:admin",
+    "policy.matchMode": "glob",
+    "scopes": "[username]"
+  }
+}' && kubectl -n argocd rollout restart deployment argocd-server
