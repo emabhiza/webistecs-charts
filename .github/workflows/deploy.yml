@@ -58,24 +58,49 @@ jobs:
         id: get_tag
         run: |
           source .github/scripts/send-telegram.sh
-
+          
           IMAGE_NAME="emabhiza/webistecs"
-          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "${{ secrets.DOCKER__USERNAME }}", "password": "${{ secrets.DOCKER_HUBPAT }}"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
-          TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
-
+          
+          # Safely generate authentication payload using jq
+          auth_payload=$(jq -n \
+            --arg username "${{ secrets.DOCKER__USERNAME }}" \
+            --arg password "${{ secrets.DOCKER_HUBPAT }}" \
+            '{
+              username: $username,
+              password: $password
+            }')
+          
+          # Get authentication token
+          AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST \
+            -d "$auth_payload" \
+            https://hub.docker.com/v2/users/login/ | jq -r .token)
+          
+          if [ -z "$AUTH_TOKEN" ]; then
+            send_telegram "❌ <b>Docker Hub Auth Failed</b>" "👤 <b>User:</b> ${{ github.actor }}\n🔐 Could not authenticate with Docker Hub"
+            echo "sync_failed=true" >> $GITHUB_ENV
+            exit 1
+          fi
+          
+          # Get tags with proper authentication
+          TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" \
+            "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | \
+            jq -r '.results[].name')
+          
+          # Determine tag based on environment
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
             latest_tag=$(echo "$TAGS" | grep -oP '^v\d+\.\d+\.\d+' | sort -V | tail -n 1)
           else
             latest_tag=$(echo "$TAGS" | grep -oP '^test-\d+\.\d+\.\d+' | sort -V | tail -n 1)
           fi
-
+          
           if [ -z "$latest_tag" ]; then
-            send_telegram "❌ <b>Deployment Failed</b>" "👤 <b>User:</b> ${{ github.actor }}\n🚫 No suitable Docker tag found."
+            send_telegram "❌ <b>Deployment Failed</b>" "👤 <b>User:</b> ${{ github.actor }}\n🚫 No suitable Docker tag found for ${{ github.event.inputs.environment }} environment"
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
-
+          
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          echo "Found tag: $latest_tag"
 
       - name: Set Helm & App Info
         run: |
