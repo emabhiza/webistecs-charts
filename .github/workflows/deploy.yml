@@ -178,10 +178,11 @@ jobs:
           source .github/scripts/send-telegram.sh
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
-          if [[ "${{ env.sync_failed }}" == "true" ]]; then
+          if [[ "$sync_failed" == "true" ]]; then
             send_telegram "❌ <b>Deployment Failed</b>" "Rollback complete.\nDuration: ${DURATION}s"
           elif [[ "$same_tag" != "true" ]]; then
             send_telegram "✅ <b>Deployment Succeeded</b>" "📦 <b>App:</b> $ARGO_APP\n🏷️ <b>From:</b> $old_tag → $latest_tag\n⏱️ ${DURATION}s"
+          fi
 
       - name: Update GitHub Secret with Latest Tag
         if: env.sync_failed == 'false' && env.same_tag != 'true'
