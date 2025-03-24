@@ -7,7 +7,11 @@ on:
         description: 'Manually trigger ArgoCD sync'
         required: false
         default: 'false'
-      
+      environment:
+        description: 'Deployment environment (prod or test)'
+        required: true
+        default: 'prod'
+
 jobs:
   deploy:
     runs-on: [self-hosted, linux, arm64]
@@ -22,55 +26,70 @@ jobs:
           mkdir -p $HOME/bin
           curl -sSL -o $HOME/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
           chmod +x $HOME/bin/argocd
-          echo "ArgoCD CLI installed."
-          echo "Adding $HOME/bin to PATH"
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Get Latest Docker Image Tag (Docker Hub API)
+      - name: Get Latest Docker Image Tag (Environment-aware)
         id: get_image_tag_api
         run: |
-          echo "Fetching latest Docker image tag using Docker Hub API..."
-          
-          # Log in to Docker Hub
+          echo "Fetching latest Docker image tag for environment '${{ github.event.inputs.environment }}'..."
+
           echo "${{ secrets.DOCKER_HUBPAT }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
-          
-          # Fetch tags using Docker Hub API
-          IMAGE_NAME="emabhiza/webistecs"  # Replace with your Docker Hub repository name
+
+          IMAGE_NAME="emabhiza/webistecs"
           AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'"${{ secrets.DOCKER__USERNAME }}"'", "password": "'"${{ secrets.DOCKER_HUBPAT }}"'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
           TAGS=$(curl -s -H "Authorization: JWT ${AUTH_TOKEN}" "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/?page_size=100" | jq -r '.results[].name')
-          
-          # Filter valid version tags, sort numerically, and get the latest one
-          latest_tag=$(echo "$TAGS" | grep -oP 'v\d+\.\d+\.\d+' | sort -V | tail -n 1)
-          
+
+          if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+            latest_tag=$(echo "$TAGS" | grep -oP '^v\d+\.\d+\.\d+' | sort -V | tail -n 1)
+          else
+            latest_tag=$(echo "$TAGS" | grep -oP '^test-\d+\.\d+\.\d+' | sort -V | tail -n 1)
+          fi
+
           if [ -z "$latest_tag" ]; then
-            echo "Error: Unable to fetch the latest versioned tag."
+            echo "❌ Error: No suitable image tag found for environment '${{ github.event.inputs.environment }}'"
             exit 1
           fi
-          
+
+          echo "✅ Latest tag for ${{ github.event.inputs.environment }}: $latest_tag"
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "✅ Latest Docker image tag fetched: $latest_tag"
+
+      - name: Set Environment-specific Helm Values and App
+        run: |
+          if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
+            VALUES_FILE="webistecs/values-prod.yaml"
+            ARGO_APP="webistecs"
+          else
+            VALUES_FILE="webistecs/values-test.yaml"
+            ARGO_APP="webistecs-test"
+          fi
+
+          echo "Using values file: $VALUES_FILE"
+          echo "Target ArgoCD app: $ARGO_APP"
+
+          echo "VALUES_FILE=$VALUES_FILE" >> $GITHUB_ENV
+          echo "ARGO_APP=$ARGO_APP" >> $GITHUB_ENV
 
       - name: Wait for New Docker Image to Be Available
         run: |
-              echo "Waiting for the new Docker image to be available in Docker Hub..."
-              IMAGE_NAME="emabhiza/webistecs:${{ env.latest_tag }}"
-    
-              for i in {1..10}; do
-                if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${{ env.latest_tag }}" | jq -e .; then
-                  echo "✅ New Docker image found!"
-                  exit 0
-                fi
-                echo "⏳ Docker image not found. Retrying in 30 seconds..."
-                sleep 30
-              done
-    
-              echo "❌ Error: Docker image not found after waiting. Exiting..."
-              exit 1             
-          
+          echo "Waiting for the new Docker image to be available in Docker Hub..."
+          IMAGE_NAME="emabhiza/webistecs:${{ env.latest_tag }}"
+
+          for i in {1..10}; do
+            if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${{ env.latest_tag }}" | jq -e .; then
+              echo "✅ New Docker image found!"
+              exit 0
+            fi
+            echo "⏳ Docker image not found. Retrying in 30 seconds..."
+            sleep 30
+          done
+
+          echo "❌ Error: Docker image not found after waiting. Exiting..."
+          exit 1
+
       - name: Store Previous Image Tag
         id: store_old_tag
         run: |
-          old_tag=$(grep 'tag:' webistecs/values.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          old_tag=$(grep 'tag:' ${{ env.VALUES_FILE }} | head -1 | awk '{print $2}' | tr -d '"')
           echo "Previous image tag: $old_tag"
           echo "old_tag=$old_tag" >> $GITHUB_ENV
 
@@ -89,24 +108,23 @@ jobs:
 
       - name: Update Helm Chart with Latest Docker Tag
         run: |
-          echo "Updating values.yaml with new image tag..."
-          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' webistecs/values.yaml
-          echo "Updated values.yaml"
+          echo "Updating image tag in ${{ env.VALUES_FILE }}..."
+          sed -i 's/tag: .*/tag: "${{ env.latest_tag }}"/' ${{ env.VALUES_FILE }}
 
       - name: Commit and Push Changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add webistecs/values.yaml
-          git commit -m "Update image tag to ${{ env.latest_tag }}"
+          git add ${{ env.VALUES_FILE }}
+          git commit -m "Update ${{ github.event.inputs.environment }} image tag to ${{ env.latest_tag }}"
           git push
 
       - name: Force Sync ArgoCD and Check for Failure
         id: argocd_sync
         continue-on-error: true
         run: |
-          echo "Forcing ArgoCD sync..."
-          if ! argocd app sync --force webistecs; then
+          echo "Forcing ArgoCD sync for ${{ env.ARGO_APP }}..."
+          if ! argocd app sync --force ${{ env.ARGO_APP }}; then
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
@@ -116,7 +134,7 @@ jobs:
         id: check_argocd_status
         run: |
           echo "Checking deployment status..."
-          DEPLOYMENT_STATUS=$(argocd app get webistecs --output json | jq -r '.status.operationState.phase')
+          DEPLOYMENT_STATUS=$(argocd app get ${{ env.ARGO_APP }} --output json | jq -r '.status.operationState.phase')
 
           if [[ "$DEPLOYMENT_STATUS" == "Failed" ]]; then
             echo "ArgoCD deployment failed. Image might not exist."
@@ -142,11 +160,11 @@ jobs:
         if: env.sync_failed == 'true'
         run: |
           echo "Rolling back to previous image tag: ${{ env.old_tag }}"
-          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' webistecs/values.yaml
+          sed -i 's/tag: .*/tag: "${{ env.old_tag }}"/' ${{ env.VALUES_FILE }}
 
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add webistecs/values.yaml
+          git add ${{ env.VALUES_FILE }}
           git commit -m "Rollback: Restore image tag to ${{ env.old_tag }} due to failed ArgoCD sync"
           git push
           echo "Rollback complete."
@@ -157,9 +175,9 @@ jobs:
           DEPLOY_TIME=$((END_TIME - START_TIME))
 
           if [[ "${{ env.sync_failed }}" == "true" ]]; then
-            MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete \n <b>================================================</b>"
+            MESSAGE="❌ <b>ArgoCD Deployment Failed!</b>\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> ${{ env.ARGO_APP }}\n🏷️ <b>Attempted Version:</b> '${{ env.latest_tag }}'\n🚨 <b>Status:</b> Rollback Complete"
           else
-            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> Webistecs\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success! \n <b>===================================</b>"
+            MESSAGE="✅ <b>ArgoCD Deployment Successful!</b>\n👤 <b>Deployed by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> ${{ env.ARGO_APP }}\n🏷️ <b>Previous Version:</b> '${{ env.old_tag }}'\n🏷️ <b>New Version:</b> '${{ env.latest_tag }}'\n⏳ <b>Deployment Time:</b> '${DEPLOY_TIME} sec'\n🚀 <b>Status:</b> Success!"
           fi
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
