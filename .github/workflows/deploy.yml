@@ -134,28 +134,28 @@ jobs:
           git push
 
       - name: Force Sync ArgoCD and Check for Failure
-        if: env.ARGOCD_LOGIN_FAILED != 'true'
         id: argocd_sync
-        continue-on-error: true
         run: |
           echo "Forcing ArgoCD sync for ${{ env.ARGO_APP }}..."
           if ! argocd app sync --force ${{ env.ARGO_APP }}; then
+            echo "❌ ArgoCD sync failed"
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
           echo "sync_failed=false" >> $GITHUB_ENV
 
       - name: Check Deployment Status in ArgoCD
-        if: env.ARGOCD_LOGIN_FAILED != 'true'
+        if: env.sync_failed == 'false'
         run: |
           echo "Checking deployment status..."
           DEPLOYMENT_STATUS=$(argocd app get ${{ env.ARGO_APP }} --output json | jq -r '.status.operationState.phase')
-
-          if [[ "$DEPLOYMENT_STATUS" == "Failed" ]]; then
-            echo "ArgoCD deployment failed. Image might not exist."
+          
+          if [[ "$DEPLOYMENT_STATUS" != "Succeeded" ]]; then
+            echo "❌ Deployment status is: $DEPLOYMENT_STATUS"
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
+          
           echo "sync_failed=false" >> $GITHUB_ENV
 
       - name: Send Logs on Failure (if needed)
