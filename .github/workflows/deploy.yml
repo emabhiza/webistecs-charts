@@ -27,7 +27,7 @@ jobs:
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
-// 1
+
       - name: Send Telegram Message (Deployment Started)
         run: |
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
