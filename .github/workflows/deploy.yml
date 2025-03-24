@@ -135,10 +135,19 @@ jobs:
           git add $VALUES_FILE
           git commit -m "Update ${{ github.event.inputs.environment }} tag to $latest_tag"
           git push
+          
+          
+      - name: Verify ArgoCD Login
+        run: |
+          echo "🔍 Current ArgoCD Context:"
+          argocd context
+          echo "🔐 Logged-in User Info:"
+          argocd account get-user-info
 
       - name: ArgoCD Sync
         run: |
           source .github/scripts/send-telegram.sh
+          echo "Trying to sync app: ${ARGO_APP:-unset}"
           if ! argocd app sync --force $ARGO_APP; then
             send_telegram "❌ <b>ArgoCD Sync Failed</b>" "📦 <b>App:</b> $ARGO_APP"
             echo "sync_failed=true" >> $GITHUB_ENV
@@ -169,7 +178,7 @@ jobs:
           source .github/scripts/send-telegram.sh
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
-          if [[ "$sync_failed" == "true" ]]; then
+          if [[ "${{ env.sync_failed }}" == "true" ]]; then
             send_telegram "❌ <b>Deployment Failed</b>" "Rollback complete.\nDuration: ${DURATION}s"
           elif [[ "$same_tag" != "true" ]]; then
             send_telegram "✅ <b>Deployment Succeeded</b>" "📦 <b>App:</b> $ARGO_APP\n🏷️ <b>From:</b> $old_tag → $latest_tag\n⏱️ ${DURATION}s"
