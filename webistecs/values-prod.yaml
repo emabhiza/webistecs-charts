@@ -25,7 +25,8 @@ webistecs:
   restartPolicy: "Always"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Data Source=/db/webistecs.db"
+#    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
   volumeMountPath: "/db"
@@ -58,7 +59,8 @@ dbMigrationJob:
     tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Data Source=/db/webistecs.db"  
+  #    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   imagePullSecret: myregistrykey
   volumeClaimName: webistecs-db-pvc
   resources:
