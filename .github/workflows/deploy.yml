@@ -40,7 +40,7 @@ jobs:
 
       - name: ArgoCD Login
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           argocd login 192.168.68.107:30007 \
             --username admin \
             --password $ARGOCD_PASSWORD \
@@ -57,7 +57,7 @@ jobs:
       - name: Get Latest Docker Image Tag
         id: get_tag
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
 
           IMAGE_NAME="emabhiza/webistecs"
           AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "${{ secrets.DOCKER__USERNAME }}", "password": "${{ secrets.DOCKER_HUBPAT }}"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
@@ -89,7 +89,7 @@ jobs:
 
       - name: Check if Tag Already Deployed
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           old_tag=$(grep 'tag:' $VALUES_FILE | head -1 | awk '{print $2}' | tr -d '"')
           echo "old_tag=$old_tag" >> $GITHUB_ENV
 
@@ -102,7 +102,7 @@ jobs:
 
       - name: Wait for Docker Image
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           for i in {1..10}; do
             if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${latest_tag}" | jq -e .; then
               echo "✅ Image is available!"
@@ -117,7 +117,7 @@ jobs:
 
       - name: Notify Start
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           START_TIME=$(date +%s)
           echo "START_TIME=$START_TIME" >> $GITHUB_ENV
           send_telegram "🚀 <b>Deployment Started</b>" "👤 <b>User:</b> ${{ github.actor }}\n📦 <b>App:</b> $ARGO_APP\n🏷️ <b>Tag:</b> $latest_tag"
@@ -138,7 +138,7 @@ jobs:
 
       - name: ArgoCD Sync
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           if ! argocd app sync --force $ARGO_APP; then
             send_telegram "❌ <b>ArgoCD Sync Failed</b>" "📦 <b>App:</b> $ARGO_APP"
             echo "sync_failed=true" >> $GITHUB_ENV
@@ -166,7 +166,7 @@ jobs:
 
       - name: Final Telegram Summary
         run: |
-          source .github/scripts/send_telegram.sh
+          source .github/scripts/send-telegram.sh
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           if [[ "$sync_failed" == "true" ]]; then
