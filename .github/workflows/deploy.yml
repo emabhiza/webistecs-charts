@@ -18,31 +18,23 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Install ArgoCD CLI
         run: |
-          echo "Installing ArgoCD CLI..."
           mkdir -p $HOME/bin
           curl -sSL -o $HOME/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v2.14.4/argocd-linux-arm64
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
+      - name: Load Telegram Function
+        run: |
+          chmod +x .github/scripts/send_telegram.sh
+          echo "source .github/scripts/send_telegram.sh" >> $GITHUB_ENV
+
       - name: ArgoCD Login
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           argocd login 192.168.68.107:30007 \
             --username admin \
             --password $ARGOCD_PASSWORD \
@@ -53,22 +45,13 @@ jobs:
             }
         env:
           ARGOCD_PASSWORD: ${{ secrets.ARGO_PASSWORD }}
+          TELEGRAM__TOKEN: ${{ secrets.TELEGRAM__TOKEN }}
+          TELEGRAM__CHATID: ${{ secrets.TELEGRAM__CHATID }}
 
-      - name: Get Latest Docker Image Tag (Environment-aware)
-        id: get_image_tag_api
+      - name: Get Latest Docker Image Tag
+        id: get_tag
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
+          source .github/scripts/send_telegram.sh
 
           IMAGE_NAME="emabhiza/webistecs"
           AUTH_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "${{ secrets.DOCKER__USERNAME }}", "password": "${{ secrets.DOCKER_HUBPAT }}"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
@@ -86,196 +69,107 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Latest tag for ${{ github.event.inputs.environment }}: $latest_tag"
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
 
-      - name: Set Environment-specific Helm Values and App
+      - name: Set Helm & App Info
         run: |
           if [[ "${{ github.event.inputs.environment }}" == "prod" ]]; then
-            VALUES_FILE="webistecs/values-prod.yaml"
-            ARGO_APP="webistecs"
+            echo "VALUES_FILE=webistecs/values-prod.yaml" >> $GITHUB_ENV
+            echo "ARGO_APP=webistecs" >> $GITHUB_ENV
           else
-            VALUES_FILE="webistecs/values-test.yaml"
-            ARGO_APP="webistecs-test"
+            echo "VALUES_FILE=webistecs/values-test.yaml" >> $GITHUB_ENV
+            echo "ARGO_APP=webistecs-test" >> $GITHUB_ENV
           fi
-
-          echo "VALUES_FILE=$VALUES_FILE" >> $GITHUB_ENV
-          echo "ARGO_APP=$ARGO_APP" >> $GITHUB_ENV
 
       - name: Check if Tag Already Deployed
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           old_tag=$(grep 'tag:' $VALUES_FILE | head -1 | awk '{print $2}' | tr -d '"')
           echo "old_tag=$old_tag" >> $GITHUB_ENV
 
           if [[ "$old_tag" == "$latest_tag" ]]; then
             echo "same_tag=true" >> $GITHUB_ENV
-            send_telegram "⚠️ <b>Same image tag already deployed</b>" "👤 <b>User:</b> ${{ github.actor }}\n🏷️ <b>Tag:</b> $latest_tag\n✅ Continuing without update."
+            send_telegram "⚠️ <b>Same tag already deployed</b>" "👤 <b>User:</b> ${{ github.actor }}\n🏷️ <b>Tag:</b> $latest_tag"
           else
             echo "same_tag=false" >> $GITHUB_ENV
           fi
 
-      - name: Wait for New Docker Image to Be Available
+      - name: Wait for Docker Image
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           for i in {1..10}; do
-            if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${{ env.latest_tag }}" | jq -e .; then
-              echo "✅ New Docker image found!"
+            if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${latest_tag}" | jq -e .; then
+              echo "✅ Image is available!"
               exit 0
             fi
-            echo "⏳ Docker image not found. Retrying in 30 seconds..."
+            echo "Waiting for Docker image..."
             sleep 30
           done
-
-          send_telegram "❌ <b>Image Not Found</b>" "🏷️ <b>Tag:</b> $latest_tag not found in Docker Hub."
+          send_telegram "❌ <b>Image Not Found</b>" "🏷️ <b>Tag:</b> $latest_tag"
           echo "sync_failed=true" >> $GITHUB_ENV
           exit 1
 
-      - name: Send Telegram Message - Deployment Started
+      - name: Notify Start
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           START_TIME=$(date +%s)
           echo "START_TIME=$START_TIME" >> $GITHUB_ENV
+          send_telegram "🚀 <b>Deployment Started</b>" "👤 <b>User:</b> ${{ github.actor }}\n📦 <b>App:</b> $ARGO_APP\n🏷️ <b>Tag:</b> $latest_tag"
 
-          send_telegram "🚀 <b>Deployment Started</b>" "👤 <b>User:</b> ${{ github.actor }}\n📦 <b>App:</b> $ARGO_APP\n🏷️ <b>From:</b> $old_tag → $latest_tag\n⏳ Status: In Progress..."
-
-      - name: Update Helm Chart with Latest Docker Tag
+      - name: Update Tag in Helm Chart
         if: env.same_tag != 'true'
         run: |
-          sed -i 's/tag: .*/tag: "$latest_tag"/' $VALUES_FILE
+          sed -i 's/tag: .*/tag: "'${{ env.latest_tag }}'"/' "${{ env.VALUES_FILE }}"
 
-      - name: Commit and Push Changes
+      - name: Commit & Push Helm Change
         if: env.same_tag != 'true'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add $VALUES_FILE
-          git commit -m "Update ${{ github.event.inputs.environment }} image tag to $latest_tag"
+          git commit -m "Update ${{ github.event.inputs.environment }} tag to $latest_tag"
           git push
 
-      - name: Force ArgoCD Sync
+      - name: ArgoCD Sync
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           if ! argocd app sync --force $ARGO_APP; then
-            send_telegram "❌ <b>ArgoCD Sync Failed</b>" "📦 <b>App:</b> $ARGO_APP\n🚨 Sync command failed."
+            send_telegram "❌ <b>ArgoCD Sync Failed</b>" "📦 <b>App:</b> $ARGO_APP"
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
-          echo "sync_failed=false" >> $GITHUB_ENV
 
-      - name: Check Deployment Status
-        if: env.sync_failed == 'false'
+      - name: Check Sync Status
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
           STATUS=$(argocd app get $ARGO_APP --output json | jq -r '.status.operationState.phase')
-
           if [[ "$STATUS" != "Succeeded" ]]; then
-            send_telegram "❌ <b>Deployment Status: $STATUS</b>" "📦 <b>App:</b> $ARGO_APP\n🚨 ArgoCD did not complete successfully."
+            send_telegram "❌ <b>Deployment Failed</b>" "📦 <b>App:</b> $ARGO_APP\nStatus: $STATUS"
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
           fi
 
-      - name: Rollback Image Tag on Failure
+      - name: Rollback on Failure
         if: env.sync_failed == 'true'
         run: |
-          sed -i 's/tag: .*/tag: "$old_tag"/' $VALUES_FILE
-
+          sed -i 's/tag: .*/tag: "'$old_tag'"/' $VALUES_FILE
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add $VALUES_FILE
-          git commit -m "Rollback: Restore image tag to $old_tag due to failed ArgoCD sync"
+          git commit -m "Rollback: Restore to $old_tag"
           git push
-          echo "Rollback complete."
 
-      - name: Final Telegram - Status Summary
+      - name: Final Telegram Summary
         run: |
-          send_telegram() {
-            local status="$1"
-            local message="$2"
-
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "chat_id": "'${{ secrets.TELEGRAM__CHATID }}'",
-                "parse_mode": "HTML",
-                "text": "'"$status\n$message"'"
-              }'
-          }
-
+          source .github/scripts/send_telegram.sh
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
-
           if [[ "$sync_failed" == "true" ]]; then
-            send_telegram "❌ <b>Deployment Failed</b>" "👤 <b>User:</b> ${{ github.actor }}\n📦 <b>App:</b> $ARGO_APP\n🏷️ <b>Attempted:</b> $latest_tag\n⏳ Rollback complete."
-          elif [[ "$same_tag" == "true" ]]; then
-            echo "Same tag deployment complete. No telegram needed."
-          else
-            send_telegram "✅ <b>Deployment Success</b>" "👤 <b>User:</b> ${{ github.actor }}\n📦 <b>App:</b> $ARGO_APP\n🏷️ <b>From:</b> $old_tag → $latest_tag\n⏳ Time: ${DURATION}s"
+            send_telegram "❌ <b>Deployment Failed</b>" "Rollback complete.\nDuration: ${DURATION}s"
+          elif [[ "$same_tag" != "true" ]]; then
+            send_telegram "✅ <b>Deployment Succeeded</b>" "📦 <b>App:</b> $ARGO_APP\n🏷️ <b>From:</b> $old_tag → $latest_tag\n⏱️ ${DURATION}s"
 
-      - name: Update GitHub Secret with New Tag (optional)
+      - name: Update GitHub Secret with Latest Tag
         if: env.sync_failed == 'false' && env.same_tag != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          gh secret set LATEST_TAG --body="$latest_tag"
-          echo "GitHub secret LATEST_TAG updated to $latest_tag"
+        run: gh secret set LATEST_TAG --body="$latest_tag"
