@@ -248,36 +248,17 @@ jobs:
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "'"
-            ${BORDER}
-            ❌ <b>DEPLOYMENT FAILED</b> ❌
-            ${BORDER}
-            👤 <b>Triggered by:</b> '"${{ github.actor }}"'
-            📦 <b>Application:</b> '"$ARGO_APP"'
-            🔄 <b>Rollback to:</b> '"$old_tag"'
-            ⏱️ <b>Duration:</b> '"${DURATION}"'s
-            ${BORDER}
-            "'
-                  }'
-              elif [[ "$same_tag" != "true" ]]; then
+                "text": "'"${BORDER}"'\n❌ <b>DEPLOYMENT FAILED</b> ❌\n'"${BORDER}"'\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🔄 <b>Rollback to:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+              }'
+          elif [[ "$same_tag" != "true" ]]; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
-          -H "Content-Type: application/json" \
-            -d '{
-          "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
-          "parse_mode": "HTML",
-          "text": "'"
-            ${BORDER}
-            ✅ <b>DEPLOYMENT SUCCESS</b> ✅
-            ${BORDER}
-            👤 <b>Triggered by:</b> '"${{ github.actor }}"'
-            📦 <b>Application:</b> '"$ARGO_APP"'
-            🆕 <b>New Version:</b> '"$latest_tag"'
-            🔄 <b>Previous Version:</b> '"$old_tag"'
-            ⏱️ <b>Duration:</b> '"${DURATION}"'s
-            ${BORDER}
-            "'
-                  }'
-              fi
+              -H "Content-Type: application/json" \
+              -d '{
+                "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
+                "parse_mode": "HTML",
+                "text": "'"${BORDER}"'\n✅ <b>DEPLOYMENT SUCCESS</b> ✅\n'"${BORDER}"'\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+              }'
+          fi
 
       - name: Update GitHub Secret with Latest Tag
         if: env.sync_failed == 'false' && env.same_tag != 'true'
