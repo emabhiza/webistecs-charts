@@ -28,9 +28,7 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Make Telegram Script Executable
-        run: |
-          chmod +x .github/scripts/send-telegram.sh
-          echo "source .github/scripts/send_telegram.sh" >> $GITHUB_ENV
+        run: chmod +x .github/scripts/send-telegram.sh
 
       - name: Send Telegram Message (via function)
         run: |
