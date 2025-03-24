@@ -27,10 +27,18 @@ jobs:
           chmod +x $HOME/bin/argocd
           echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Load Telegram Function
+      - name: Make Telegram Script Executable
         run: |
           chmod +x .github/scripts/send-telegram.sh
           echo "source .github/scripts/send_telegram.sh" >> $GITHUB_ENV
+
+      - name: Send Telegram Message (via function)
+        run: |
+          source .github/scripts/send-telegram.sh
+          send_telegram "🚀 Deployment Started" "Triggered by: $GITHUB_ACTOR"
+        env:
+          TELEGRAM__TOKEN: ${{ secrets.TELEGRAM__TOKEN }}
+          TELEGRAM__CHATID: ${{ secrets.TELEGRAM__CHATID }}
 
       - name: ArgoCD Login
         run: |
