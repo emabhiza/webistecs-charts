@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
     path: webistecs
-    targetRevision: sandbox
+    targetRevision: main
     helm:
       valueFiles:
         - values-prod.yaml

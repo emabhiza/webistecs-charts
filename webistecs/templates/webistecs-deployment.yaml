@@ -46,6 +46,8 @@ spec:
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: TELEGRAM__SESSION_PATH
               value: /session
+            - name: DB_CONTEXT
+              value: "WebistecsContext"
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
