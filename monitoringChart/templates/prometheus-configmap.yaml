@@ -22,6 +22,10 @@ data:
         static_configs:
           - targets: ['192.168.68.107:30080']
 
+      - job_name: 'websitecs-test'
+        static_configs:
+          - targets: ['10.43.171.92:30081']
+
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
         kubernetes_sd_configs:
           - role: endpoints

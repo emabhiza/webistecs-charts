@@ -10,7 +10,7 @@ on:
       environment:
         description: 'Deployment environment (prod or test)'
         required: true
-        default: 'prod'
+        default: 'test'
 
 jobs:
   deploy:
@@ -256,7 +256,7 @@ jobs:
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "'"${BORDER}"'\n✅ <b>DEPLOYMENT SUCCESS</b> ✅\n'"${BORDER}"'\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+                "text":  <b>DEPLOYMENT SUCCESS</b> ✅\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
               }'
           fi
 
