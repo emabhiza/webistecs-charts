@@ -5,7 +5,7 @@ webistecs:
   containerName: webistecs
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "test-0.0.10"
+    tag: "test-0.0.11"
   readinessProbe:
     path: /healthz/ready  
     port: 80
@@ -57,7 +57,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "test-0.0.10"
+    tag: "test-0.0.11"
   environment:
     aspNetCoreEnvironment: "Test"
     webistecsContext: "Data Source=/db/webistecs-test.db"  
