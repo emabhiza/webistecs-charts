@@ -24,6 +24,7 @@ webistecs:
   imagePullSecret: "myregistrykey"
   restartPolicy: "Always"
   environment:
+    ASPNETCORE_URLS: "http://0.0.0.0:80"
     aspNetCoreEnvironment: "Production"
     webistecsContext: "Data Source=/db/webistecs.db"
 #    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"

@@ -65,6 +65,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: NEWRELIC__APIKEY
+            - name: ASPNETCORE_URLS
+              value: "http://0.0.0.0:80"
             # Telegram config
             - name: Telegram__Token
               valueFrom:
