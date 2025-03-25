@@ -256,7 +256,8 @@ jobs:
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text":  <b>DEPLOYMENT SUCCESS</b> ✅\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+                "text": "'"${BORDER}"'\n✅ <b>DEPLOYMENT SUCCESS</b> ✅\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+
               }'
           fi
 
