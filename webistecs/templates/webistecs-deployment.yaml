@@ -5,14 +5,15 @@ metadata:
   annotations:
     checksum/config: "{{ printf "%s:%s" .Values.webistecs.image.repository .Values.webistecs.image.tag | sha256sum }}"
 spec:
-  replicas: {{ .Values.webistecs.replicaCount }}
   selector:
     matchLabels:
       {{- include "webistecs.selectorLabels" . | nindent 6 }}
+      environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
   template:
     metadata:
       labels:
         {{- include "webistecs.selectorLabels" . | nindent 8 }}
+        environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
       annotations:
         co.elastic.logs/enabled: {{ .Values.webistecs.logging.enabled | quote }}
         co.elastic.logs/module: {{ .Values.webistecs.logging.module | quote }}
