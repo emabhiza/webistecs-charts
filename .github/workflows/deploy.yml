@@ -143,6 +143,9 @@ jobs:
 
       - name: Wait for Docker Image
         run: |
+          BORDER="===================================="
+          DOUBLE_BORDER="${BORDER}\n${BORDER}"
+          
           for i in {1..10}; do
             if curl -s "https://hub.docker.com/v2/repositories/emabhiza/webistecs/tags/${latest_tag}" | jq -e .; then
               echo "✅ Image is available!"
@@ -151,13 +154,15 @@ jobs:
             echo "Waiting for Docker image..."
             sleep 30
           done
+          
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
             -H "Content-Type: application/json" \
             -d '{
               "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
               "parse_mode": "HTML",
-              "text": "❌ <b>Image Not Found</b>\n🏷️ <b>Tag:</b> '"$latest_tag"'"
+              "text": "❌ <b>Image Not Found</b>\n🏷️ <b>Tag:</b> '"$latest_tag"'\n<b>${DOUBLE_BORDER}</b>"
             }'
+          
           echo "sync_failed=true" >> $GITHUB_ENV
           exit 1
 
@@ -199,13 +204,16 @@ jobs:
         if: env.same_tag != 'true'
         run: |
           echo "Trying to sync app: ${ARGO_APP:-unset}"
+          BORDER="===================================="
+          DOUBLE_BORDER="${BORDER}\n${BORDER}"
+          
           if ! argocd app sync --force $ARGO_APP; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
               -H "Content-Type: application/json" \
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "❌ <b>ArgoCD Sync Failed</b>\n📦 <b>App:</b> '"$ARGO_APP"'"
+                "text": "❌ <b>ArgoCD Sync Failed</b>\n📦 <b>App:</b> '"$ARGO_APP"'\n<b>${DOUBLE_BORDER}</b>"
               }'
             echo "sync_failed=true" >> $GITHUB_ENV
             exit 1
@@ -241,6 +249,7 @@ jobs:
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           BORDER="===================================="
+          DOUBLE_BORDER="${BORDER}\n${BORDER}" 
           
           if [[ "$sync_failed" == "true" ]]; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
@@ -248,7 +257,7 @@ jobs:
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "'"${BORDER}"'\n❌ <b>DEPLOYMENT FAILED</b> ❌\n'"${BORDER}"'\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🔄 <b>Rollback to:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
+                "text": "❌ <b>DEPLOYMENT FAILED</b> ❌\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🔄 <b>Rollback to:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n<b>${DOUBLE_BORDER}</b>"
               }'
           elif [[ "$same_tag" != "true" ]]; then
             curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM__TOKEN }}/sendMessage" \
@@ -256,8 +265,7 @@ jobs:
               -d '{
                 "chat_id": "'"${{ secrets.TELEGRAM__CHATID }}"'",
                 "parse_mode": "HTML",
-                "text": "'"${BORDER}"'\n✅ <b>DEPLOYMENT SUCCESS</b> ✅\n👤 <b>Triggered by:</b> '"${{ github.actor }}"'\n📦 <b>Application:</b> '"$ARGO_APP"'\n🆕 <b>New Version:</b> '"$latest_tag"'\n🔄 <b>Previous Version:</b> '"$old_tag"'\n⏱️ <b>Duration:</b> '"${DURATION}"'s\n'"${BORDER}"'"
-
+                "text": "✅ <b>DEPLOYMENT SUCCESS</b> ✅\n👤 <b>Triggered by:</b> '${{ github.actor }}'\n📦 <b>Application:</b> '$ARGO_APP'\n🆕 <b>New Version:</b> '$latest_tag'\n🔄 <b>Previous Version:</b> '$old_tag'\n⏱️ <b>Duration:</b> '${DURATION}'s\n<b>${DOUBLE_BORDER}</b>"
               }'
           fi
 
