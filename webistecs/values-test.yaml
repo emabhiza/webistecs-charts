@@ -8,7 +8,7 @@ webistecs:
     tag: "test-0.0.6"
   readinessProbe:
     path: /healthz/ready  
-    port: 8080
+    port: 80
     initialDelaySeconds: 5
     periodSeconds: 10
     failureThreshold: 3
