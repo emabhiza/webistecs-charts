@@ -15,7 +15,7 @@ webistecs:
     successThreshold: 1
   livenessProbe:
     path: /healthz/live
-    port: 8080
+    port: 80
     initialDelaySeconds: 15
     periodSeconds: 10
     failureThreshold: 3

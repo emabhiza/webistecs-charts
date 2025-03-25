@@ -8,14 +8,14 @@ webistecs:
     tag: "v0.0.2"
   readinessProbe:
     path: /healthz/ready  # Changed from /healthz
-    port: 8080
+    port: 80
     initialDelaySeconds: 5
     periodSeconds: 10
     failureThreshold: 3
     successThreshold: 1
   livenessProbe:
     path: /healthz/live
-    port: 8080
+    port: 80
     initialDelaySeconds: 15
     periodSeconds: 10
     failureThreshold: 3
