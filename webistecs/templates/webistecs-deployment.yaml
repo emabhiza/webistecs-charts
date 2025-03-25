@@ -46,7 +46,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: TELEGRAM__SESSION_PATH
-              value: /session
+              value: /session/WTelegram.session
             - name: DB_CONTEXT
               value: "WebistecsContext"
             - name: COINBASE__PRIVATEKEY
