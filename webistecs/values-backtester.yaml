@@ -56,7 +56,7 @@ backtester:
     pullPolicy: "Always"
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
-  year: "2023"
+  year: "2019"
   resources:
     requests:
       ephemeral-storage: "100Mi"
