@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backtest-{{ include "webistecs.fullname" . }}
+  name: {{ .Release.Name }}-backtester
   labels:
     app: backtester
   annotations:
@@ -43,5 +43,7 @@ spec:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
+      {{- if .Values.webistecs.imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
+      {{- end }}
