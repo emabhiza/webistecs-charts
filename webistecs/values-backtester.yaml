@@ -2,6 +2,9 @@ webistecs:
   environment:
     aspNetCoreEnvironment: "Backtest"
   imagePullSecret: "myregistrykey"
+  image:
+    repository: "placeholder"
+    tag: "placeholder"
 
 backtester:
   environment:
