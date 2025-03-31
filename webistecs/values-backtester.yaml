@@ -1,3 +1,8 @@
+webistecs:
+  environment:
+    aspNetCoreEnvironment: "Backtest"
+  imagePullSecret: "myregistrykey"
+
 backtester:
   environment:
     aspNetCoreEnvironment: "Backtester"
