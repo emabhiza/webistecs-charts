@@ -16,9 +16,6 @@ spec:
     spec:
       containers:
         - name: backtester
-          command: [ "/bin/sh", "-c" ]
-          args:
-            - ls -lh /db && ls -lh /app && ls -lh && your-original-command
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
           env:
@@ -29,15 +26,20 @@ spec:
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.backtester.environment.webistecsContext }}"
           resources:
-          {{- toYaml .Values.backtester.resources | nindent 10 }}
+            {{- toYaml .Values.backtester.resources | nindent 12 }}
           volumeMounts:
             - name: pricadata-volume
               mountPath: {{ .Values.backtester.dataDir }}
+            - name: db-volume
+              mountPath: /db
       volumes:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: {{ .Values.dbMigrationJob.volumeClaimName }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}

@@ -2,8 +2,8 @@ webistecs:
   enabled: false
   fullnameOverride: "placeholder-disabled"
   image:
-    repository: "placeholder"   # <--- REQUIRED default placeholder
-    tag: "placeholder"          # <--- REQUIRED default placeholder
+    repository: "placeholder"
+    tag: "placeholder"
     pullPolicy: "IfNotPresent"
   containerName: "placeholder"
   containerPort: 80
@@ -45,7 +45,6 @@ webistecs:
   imagePullSecret: "placeholder-secret"
   restartPolicy: "Always"
 
-# Your actual enabled backtester component:
 backtester:
   enabled: true
   environment:
@@ -94,3 +93,6 @@ nodeExporter:
   name: "node-exporter"
   image: "prom/node-exporter:latest"
   containerPort: 9100
+
+imagePullSecrets:
+  - name: "myregistrykey"
