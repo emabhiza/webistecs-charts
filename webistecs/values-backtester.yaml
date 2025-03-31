@@ -1,16 +1,46 @@
 webistecs:
+  enabled: false
   environment:
     aspNetCoreEnvironment: "Backtest"
   imagePullSecret: "myregistrykey"
   image:
     repository: "placeholder"
     tag: "placeholder"
+  containerPort: 80
+  imagePullPolicy: "Always"
+  readinessProbe:
+    path: "/healthz/ready"
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: "/healthz/live"
+    port: 80
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
+  volumeMountPath: "/db"
+  volume:
+    persistentVolumeClaim:
+      claimName: "placeholder-pvc"
+  secrets:
+    webistecsSecret: "placeholder-secret"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
   logging:
     enabled: true
     module: "placeholder"
     fileset:
       stdout: "true"
       stderr: "false"
+
 
 backtester:
   environment:
