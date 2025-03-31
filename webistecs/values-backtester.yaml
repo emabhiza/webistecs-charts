@@ -1,69 +1,43 @@
-environment: "backtester"  # or "production"/"test" as needed
-
-# values-backtester.yaml
+# Disable main webistecs deployment
 webistecs:
-  enabled: false  # Completely disable main webistecs deployment
-  fullnameOverride: ""  # Clear any naming overrides
+  enabled: false  # This disables webistecs-deployment.yaml
+  # Keep other webistecs configs that are referenced elsewhere
+  containerPort: 80  # Needed by service
+  environment:
+    aspNetCoreEnvironment: "Backtest"  # Needed by service
 
-# Backtester specific configuration
+# Backtester configuration (enabled)
 backtester:
   enabled: true
-  
-  # Environment variables
-  environment:
-    aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Data Source=/db/webistecs-backtest.db"
-  
-  # Image configuration
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.1"
     pullPolicy: "Always"
-  
-  # Storage configuration (only using pricadata-pvc)
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
-  
-  # Backtest parameters
   year: "2023"
-  
-  # Resources
+  environment:
+    webistecsContext: "Data Source=/db/webistecs-backtest.db"
   resources:
     requests:
       ephemeral-storage: "100Mi"
     limits:
       ephemeral-storage: "300Mi"
 
-# Database migration job configuration
+# Service configuration
+service:
+  enabled: true  # Keep service even if webistecs is disabled
+  type: ClusterIP
+  port: 8000
+
+# Migration job
 dbMigrationJob:
   enabled: true
-  
-  # Image configuration
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
     tag: "test-0.0.1"
-    pullPolicy: "Always"
-  
-  # Storage (using separate PVC for DB)
   volumeClaimName: "webistecs-db-pvc"
-  
-  # Resources
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "250m"
 
-# Registry configuration (shared)
+# Shared configurations
 imagePullSecrets:
   - name: "myregistrykey"
-
-# Service configuration (explicitly disabled)
-service:
-  enabled: false
-
-# Monitoring (disabled)
-nodeExporter:
-  enabled: false

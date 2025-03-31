@@ -1,31 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-backtester
+  name: {{ include "webistecs.fullname" . }}-backtester
   labels:
-    app: backtester
-    app.kubernetes.io/component: backtester
-    app.kubernetes.io/instance: {{ .Release.Name }}
-  annotations:
-    checksum/config: "{{ printf "%s:%s" .Values.backtester.image.repository .Values.backtester.image.tag | sha256sum }}"
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-weight: "10"
+    {{- include "webistecs.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backtester
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "webistecs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: backtester
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "webistecs.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
           env:
             - name: DATA_DIR
               value: "{{ .Values.backtester.dataDir }}"
@@ -33,13 +25,8 @@ spec:
               value: "{{ .Values.backtester.year }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.backtester.environment.webistecsContext }}"
-            - name: DB_CONTEXT
-              value: "WebistecsContext"
           resources:
-            requests:
-              ephemeral-storage: "100Mi"
-            limits:
-              ephemeral-storage: "300Mi"
+          {{- toYaml .Values.backtester.resources | nindent 10 }}
           volumeMounts:
             - name: pricadata-volume
               mountPath: {{ .Values.backtester.dataDir }}
@@ -47,7 +34,7 @@ spec:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
-      {{- if .Values.webistecs.imagePullSecret }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ .Values.webistecs.imagePullSecret }}
+      {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}

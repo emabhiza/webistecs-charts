@@ -4,19 +4,11 @@ metadata:
   name: {{ include "webistecs.fullname" . }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
-    environment: {{ .Values.environment | default "development" | lower }}
 spec:
   type: {{ .Values.service.type | default "ClusterIP" }}
   ports:
-    - name: "http"
-      port: {{ .Values.service.port | default 8000 }}
+    - port: {{ .Values.service.port | default 8000 }}
       targetPort: {{ .Values.webistecs.containerPort | default 80 }}
       protocol: TCP
-      {{- if and (eq (.Values.service.type | default "") "NodePort") (eq (.Values.environment | default "") "production") }}
-      nodePort: 30080
-      {{- else if and (eq (.Values.service.type | default "") "NodePort") (eq (.Values.environment | default "") "test") }}
-      nodePort: 30081
-      {{- end }}
   selector:
     {{- include "webistecs.selectorLabels" . | nindent 4 }}
-    environment: {{ .Values.environment | default "development" | lower }}
