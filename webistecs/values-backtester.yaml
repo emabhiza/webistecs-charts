@@ -5,6 +5,12 @@ webistecs:
   image:
     repository: "placeholder"
     tag: "placeholder"
+  logging:
+    enabled: true
+    module: "placeholder"
+    fileset:
+      stdout: "true"
+      stderr: "false"
 
 backtester:
   environment:
