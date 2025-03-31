@@ -58,3 +58,21 @@ backtester:
   dataDir: "/app/pricadata"
   year: "2023"
 
+
+
+dbMigrationJob:
+  image:
+    repository: "docker.io/emabhiza/webistecs-migrations"
+    tag: "test-0.0.1"
+  environment:
+    aspNetCoreEnvironment: "Backtester"
+    webistecsContext: "Data Source=/db/webistecs-backtest.db"
+  imagePullSecret: "myregistrykey"
+  volumeClaimName: "webistecs-db-pvc"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
