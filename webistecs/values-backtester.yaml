@@ -1,0 +1,11 @@
+backtester:
+  environment:
+    aspNetCoreEnvironment: "Backtester"
+    webistecsContext: "Data Source=/db/webistecs-backtest.db"
+  image:
+    repository: "docker.io/emabhiza/webistecs-backtest"
+    tag: "test-0.0.1"
+  pvc: "pricadata-pvc"
+  dataDir: "/app/pricadata"
+  year: "2023"
+
