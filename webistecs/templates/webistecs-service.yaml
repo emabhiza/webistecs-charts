@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "webistecs.fullname" . }}-svc
+  name: {{ include "webistecs.fullname" . }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
-    environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
+    environment: {{ .Values.environment | default "development" | lower }}
 spec:
-  type: NodePort
+  type: {{ .Values.service.type | default "ClusterIP" }}
   ports:
     - name: "http"
-      port: 8000
-      targetPort: {{ .Values.webistecs.containerPort }}
-      {{- if eq .Values.webistecs.environment.aspNetCoreEnvironment "Production" }}
+      port: {{ .Values.service.port | default 8000 }}
+      targetPort: {{ .Values.webistecs.containerPort | default 80 }}
+      protocol: TCP
+      {{- if and (eq (.Values.service.type | default "") "NodePort") (eq (.Values.environment | default "") "production") }}
       nodePort: 30080
-      {{- else }}
+      {{- else if and (eq (.Values.service.type | default "") "NodePort") (eq (.Values.environment | default "") "test") }}
       nodePort: 30081
       {{- end }}
-      protocol: TCP
   selector:
     {{- include "webistecs.selectorLabels" . | nindent 4 }}
-    environment: {{ .Values.webistecs.environment.aspNetCoreEnvironment | lower }}
+    environment: {{ .Values.environment | default "development" | lower }}

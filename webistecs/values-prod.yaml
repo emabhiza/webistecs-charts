@@ -1,3 +1,4 @@
+environment: "production"
 nameOverride: prod-webistecs
 
 webistecs:

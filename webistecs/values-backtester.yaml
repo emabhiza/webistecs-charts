@@ -1,3 +1,5 @@
+environment: "backtester"  # or "production"/"test" as needed
+
 # values-backtester.yaml
 webistecs:
   enabled: false  # Completely disable main webistecs deployment

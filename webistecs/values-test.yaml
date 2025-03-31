@@ -1,3 +1,4 @@
+environment: "test"
 nameOverride: test-webistecs
 
 webistecs:
