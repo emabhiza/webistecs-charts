@@ -1,3 +1,4 @@
+{{- if .Values.webistecs.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -136,3 +137,4 @@ spec:
         - name: session-volume
           persistentVolumeClaim:
             claimName: webistecs-session-pvc
+{{- end }}

@@ -16,6 +16,9 @@ spec:
     spec:
       containers:
         - name: backtester
+          command: [ "/bin/sh", "-c" ]
+          args:
+            - ls -lh /db && ls -lh /app && ls -lh && your-original-command
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
           env:
