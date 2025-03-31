@@ -12,6 +12,9 @@ spec:
     helm:
       valueFiles:
         - values-backtester.yaml
+    parameters:
+      - name: nameOverride
+        value: "backtester"  
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

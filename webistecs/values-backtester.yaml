@@ -1,15 +1,22 @@
-nameOverride: backtest-placeholder
-
 webistecs:
-  enabled: false
+  enabled: false  # Disable main webistecs deployment
+  nameOverride: ""  # Explicitly empty to avoid conflicts
+  
+  # Environment configuration
   environment:
     aspNetCoreEnvironment: "Backtest"
-  imagePullSecret: "myregistrykey"
+  
+  # Image configuration
   image:
     repository: "placeholder"
     tag: "placeholder"
+    pullPolicy: "Always"
+  
+  # Container configuration
+  containerName: "placeholder"
   containerPort: 80
-  imagePullPolicy: "Always"
+  
+  # Probes
   readinessProbe:
     path: "/healthz/ready"
     port: 80
@@ -23,12 +30,21 @@ webistecs:
     initialDelaySeconds: 15
     periodSeconds: 10
     failureThreshold: 3
+  
+  # Storage
   volumeMountPath: "/db"
   volume:
     persistentVolumeClaim:
       claimName: "placeholder-pvc"
+  
+  # Secrets
   secrets:
     webistecsSecret: "placeholder-secret"
+  
+  # Registry
+  imagePullSecret: "myregistrykey"
+  
+  # Resources
   resources:
     requests:
       memory: "128Mi"
@@ -36,41 +52,66 @@ webistecs:
     limits:
       memory: "256Mi"
       cpu: "100m"
+  
+  # Logging
   logging:
     enabled: true
     module: "placeholder"
     fileset:
-      stdout: "true"
-      stderr: "false"
+      stdout: true
+      stderr: false
 
-nodeExporter:
-  name: "node-exporter"
-  image: "prom/node-exporter:latest"
-  containerPort: 9100
-
-
+# Backtester specific configuration
 backtester:
+  enabled: true  # Explicitly enable backtester
+  
+  # Environment variables
   environment:
     aspNetCoreEnvironment: "Backtester"
     webistecsContext: "Data Source=/db/webistecs-backtest.db"
+  
+  # Image configuration
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.1"
+    pullPolicy: "Always"
+  
+  # Storage configuration
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
+  
+  # Backtest parameters
   year: "2023"
+  
+  # Resources
+  resources:
+    requests:
+      ephemeral-storage: "100Mi"
+    limits:
+      ephemeral-storage: "300Mi"
 
-
-
+# Database migration job configuration
 dbMigrationJob:
+  enabled: true
+  
+  # Image configuration
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
     tag: "test-0.0.1"
+    pullPolicy: "Always"
+  
+  # Environment
   environment:
     aspNetCoreEnvironment: "Backtester"
     webistecsContext: "Data Source=/db/webistecs-backtest.db"
+  
+  # Registry
   imagePullSecret: "myregistrykey"
+  
+  # Storage
   volumeClaimName: "webistecs-db-pvc"
+  
+  # Resources
   resources:
     requests:
       memory: "256Mi"
@@ -78,3 +119,10 @@ dbMigrationJob:
     limits:
       memory: "512Mi"
       cpu: "250m"
+
+# Node exporter configuration (monitoring)
+nodeExporter:
+  enabled: false  # Typically disabled for backtesting
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100

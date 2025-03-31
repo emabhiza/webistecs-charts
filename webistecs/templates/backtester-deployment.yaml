@@ -4,6 +4,8 @@ metadata:
   name: {{ .Release.Name }}-backtester
   labels:
     app: backtester
+    app.kubernetes.io/component: backtester
+    app.kubernetes.io/instance: {{ .Release.Name }}
   annotations:
     checksum/config: "{{ printf "%s:%s" .Values.backtester.image.repository .Values.backtester.image.tag | sha256sum }}"
     argocd.argoproj.io/hook: PostSync
@@ -13,10 +15,12 @@ spec:
   selector:
     matchLabels:
       app: backtester
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
         app: backtester
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
         - name: backtester
