@@ -1,14 +1,56 @@
-# Disable main webistecs deployment
 webistecs:
-  enabled: false  # This disables webistecs-deployment.yaml
-  # Keep other webistecs configs that are referenced elsewhere
-  containerPort: 80  # Needed by service
+  enabled: false
+  fullnameOverride: "placeholder-disabled"
+  image:
+    repository: "placeholder"   # <--- REQUIRED default placeholder
+    tag: "placeholder"          # <--- REQUIRED default placeholder
+    pullPolicy: "IfNotPresent"
+  containerName: "placeholder"
+  containerPort: 80
+  readinessProbe:
+    path: "/healthz/ready"
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: "/healthz/live"
+    port: 80
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
   environment:
-    aspNetCoreEnvironment: "Backtest"  # Needed by service
+    aspNetCoreEnvironment: "disabled-placeholder"
+    webistecsContext: ""
+  volumeMountPath: "/db"
+  volume:
+    persistentVolumeClaim:
+      claimName: "placeholder-pvc"
+  secrets:
+    webistecsSecret: "placeholder-secret"
+  logging:
+    enabled: false
+    module: "placeholder"
+    fileset:
+      stdout: false
+      stderr: false
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "100m"
+  imagePullSecret: "placeholder-secret"
+  restartPolicy: "Always"
 
-# Backtester configuration (enabled)
+# Your actual enabled backtester component:
 backtester:
   enabled: true
+  environment:
+    aspNetCoreEnvironment: "Backtester"
+    webistecsContext: "Data Source=/db/webistecs-backtest.db"
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.1"
@@ -16,28 +58,39 @@ backtester:
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
   year: "2023"
-  environment:
-    webistecsContext: "Data Source=/db/webistecs-backtest.db"
   resources:
     requests:
       ephemeral-storage: "100Mi"
     limits:
       ephemeral-storage: "300Mi"
 
-# Service configuration
-service:
-  enabled: true  # Keep service even if webistecs is disabled
-  type: ClusterIP
-  port: 8000
-
-# Migration job
 dbMigrationJob:
   enabled: true
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
     tag: "test-0.0.1"
+  environment:
+    aspNetCoreEnvironment: "Backtester"
+    webistecsContext: "Data Source=/db/webistecs-backtest.db"
+  imagePullSecret: "myregistrykey"
   volumeClaimName: "webistecs-db-pvc"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
 
-# Shared configurations
-imagePullSecrets:
-  - name: "myregistrykey"
+service:
+  enabled: true
+  type: ClusterIP
+  port: 8000
+  targetPort: 80
+  nodePort: 30081
+
+nodeExporter:
+  enabled: false
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
