@@ -18,6 +18,11 @@ spec:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
+          args:
+            - |
+              echo "Sleeping for 5 minutes before starting the app..." &&
+              sleep 300 &&
+              dotnet Webistecs.Backtester.dll
           env:
             - name: DATA_DIR
               value: "{{ .Values.backtester.dataDir }}"
