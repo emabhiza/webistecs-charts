@@ -31,6 +31,11 @@ spec:
               value: "{{ .Values.backtester.environment.webistecsContext }}"
             - name: DB_CONTEXT
               value: "WebistecsContext"
+          resources:
+            requests:
+              ephemeral-storage: "100Mi"
+            limits:
+              ephemeral-storage: "300Mi"
           volumeMounts:
             - name: pricadata-volume
               mountPath: {{ .Values.backtester.dataDir }}
