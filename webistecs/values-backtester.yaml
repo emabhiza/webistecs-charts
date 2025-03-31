@@ -1,68 +1,11 @@
+# values-backtester.yaml
 webistecs:
-  fullnameOverride: ""
-  
-  # Environment configuration
-  environment:
-    aspNetCoreEnvironment: "Backtest"
-  
-  # Image configuration
-  image:
-    repository: "placeholder"
-    tag: "placeholder"
-    pullPolicy: "Always"
-  
-  # Container configuration
-  containerName: "placeholder"
-  containerPort: 80
-  
-  # Probes
-  readinessProbe:
-    path: "/healthz/ready"
-    port: 80
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    failureThreshold: 3
-    successThreshold: 1
-  livenessProbe:
-    path: "/healthz/live"
-    port: 80
-    initialDelaySeconds: 15
-    periodSeconds: 10
-    failureThreshold: 3
-  
-  # Storage
-  volumeMountPath: "/db"
-  volume:
-    persistentVolumeClaim:
-      claimName: "placeholder-pvc"
-  
-  # Secrets
-  secrets:
-    webistecsSecret: "placeholder-secret"
-  
-  # Registry
-  imagePullSecret: "myregistrykey"
-  
-  # Resources
-  resources:
-    requests:
-      memory: "128Mi"
-      cpu: "50m"
-    limits:
-      memory: "256Mi"
-      cpu: "100m"
-  
-  # Logging
-  logging:
-    enabled: true
-    module: "placeholder"
-    fileset:
-      stdout: true
-      stderr: false
+  enabled: false  # Completely disable main webistecs deployment
+  fullnameOverride: ""  # Clear any naming overrides
 
 # Backtester specific configuration
 backtester:
-  enabled: true  # Explicitly enable backtester
+  enabled: true
   
   # Environment variables
   environment:
@@ -74,10 +17,8 @@ backtester:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.1"
     pullPolicy: "Always"
-  pullSecret: "myregistrykey"
   
-  
-  # Storage configuration
+  # Storage configuration (only using pricadata-pvc)
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
   
@@ -101,15 +42,7 @@ dbMigrationJob:
     tag: "test-0.0.1"
     pullPolicy: "Always"
   
-  # Environment
-  environment:
-    aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Data Source=/db/webistecs-backtest.db"
-  
-  # Registry
-  imagePullSecret: "myregistrykey"
-  
-  # Storage
+  # Storage (using separate PVC for DB)
   volumeClaimName: "webistecs-db-pvc"
   
   # Resources
@@ -121,12 +54,14 @@ dbMigrationJob:
       memory: "512Mi"
       cpu: "250m"
 
-# Node exporter configuration (monitoring)
-nodeExporter:
-  enabled: false  # Typically disabled for backtesting
-  name: "node-exporter"
-  image: "prom/node-exporter:latest"
-  containerPort: 9100
-  
+# Registry configuration (shared)
+imagePullSecrets:
+  - name: "myregistrykey"
+
+# Service configuration (explicitly disabled)
 service:
+  enabled: false
+
+# Monitoring (disabled)
+nodeExporter:
   enabled: false
