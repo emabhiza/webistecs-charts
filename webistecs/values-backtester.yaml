@@ -1,6 +1,5 @@
 webistecs:
-  enabled: false  # Disable main webistecs deployment
-  nameOverride: ""  # Explicitly empty to avoid conflicts
+  fullnameOverride: ""
   
   # Environment configuration
   environment:
@@ -75,6 +74,8 @@ backtester:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.1"
     pullPolicy: "Always"
+  pullSecret: "myregistrykey"
+  
   
   # Storage configuration
   pvc: "pricadata-pvc"
