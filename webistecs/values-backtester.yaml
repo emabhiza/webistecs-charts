@@ -41,6 +41,11 @@ webistecs:
       stdout: "true"
       stderr: "false"
 
+nodeExporter:
+  name: "node-exporter"
+  image: "prom/node-exporter:latest"
+  containerPort: 9100
+
 
 backtester:
   environment:
