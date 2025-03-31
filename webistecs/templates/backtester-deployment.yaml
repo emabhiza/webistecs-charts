@@ -43,6 +43,5 @@ spec:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
-      restartPolicy: Always
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
