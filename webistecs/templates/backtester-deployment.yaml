@@ -18,8 +18,6 @@ spec:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
-          command: ["/bin/sh"]
-          args: ["-c", "sleep 3600"]
           env:
             - name: DATA_DIR
               value: "{{ .Values.backtester.dataDir }}"
