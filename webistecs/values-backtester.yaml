@@ -49,10 +49,10 @@ backtester:
   enabled: true
   environment:
     aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Data Source=/db/webistecs-backtest.db"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
-    tag: "test-0.0.1"
+    tag: "test-0.0.2"
     pullPolicy: "Always"
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
@@ -70,7 +70,7 @@ dbMigrationJob:
     tag: "test-0.0.1"
   environment:
     aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Data Source=/db/webistecs-backtest.db"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
   imagePullSecret: "myregistrykey"
   volumeClaimName: "webistecs-db-pvc"
   resources:

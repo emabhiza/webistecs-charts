@@ -19,6 +19,10 @@ spec:
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Backtest
+            - name: DB_CONTEXT
+              value: "WebistecsContext"
             - name: DATA_DIR
               value: "{{ .Values.backtester.dataDir }}"
             - name: year
