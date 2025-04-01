@@ -78,3 +78,6 @@ service:
   port: 8000
   targetPort: 80
   nodePort: 30081
+
+backtester:
+  enabled: false
