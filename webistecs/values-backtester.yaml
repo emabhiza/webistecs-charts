@@ -59,6 +59,9 @@ backtester:
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
   year: "2019"
+  month: null
+  initialUsdc: "1000"
+  strategy: "MacroUptrend"
   resources:
     requests:
       ephemeral-storage: "100Mi"

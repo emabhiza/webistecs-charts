@@ -26,8 +26,14 @@ spec:
               value: "WebistecsContext"
             - name: DATA_DIR
               value: "{{ .Values.backtester.dataDir }}"
-            - name: year
+            - name: BacktestParameters__Year
               value: "{{ .Values.backtester.year }}"
+            - name: BacktestParameters__Month
+              value: "{{ .Values.backtester.month | default "" }}"
+            - name: BacktestParameters__InitialUsdc
+              value: "{{ .Values.backtester.initialUsdc | default "100" }}"
+            - name: BacktestParameters__Strategy
+              value: "{{ .Values.backtester.strategy | default "MacroUptrend" }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.backtester.environment.webistecsContext }}"
           resources:
