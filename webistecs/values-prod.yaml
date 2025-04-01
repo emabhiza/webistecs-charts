@@ -70,3 +70,11 @@ dbMigrationJob:
     limits:
       memory: "4Gi"
       cpu: "4000m"
+
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 8000
+  targetPort: 80
+  nodePort: 30081

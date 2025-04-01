@@ -54,6 +54,13 @@ nodeExporter:
   containerPort: 9100
 
 
+service:
+  enabled: true
+  type: ClusterIP
+  port: 8000
+  targetPort: 80
+
+
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
