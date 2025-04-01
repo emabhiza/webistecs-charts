@@ -67,7 +67,7 @@ dbMigrationJob:
   enabled: true
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "v0.0.10"
+    tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Backtester"
     webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
