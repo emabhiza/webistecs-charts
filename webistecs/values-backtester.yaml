@@ -45,6 +45,8 @@ webistecs:
   imagePullSecret: "placeholder-secret"
   restartPolicy: "Always"
 
+nameOverride: backtester
+
 backtester:
   enabled: true
   environment:
