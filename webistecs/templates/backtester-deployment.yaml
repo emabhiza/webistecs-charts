@@ -28,6 +28,8 @@ spec:
               value: "{{ .Values.backtester.dataDir }}"
             - name: BacktestParameters__Year
               value: "{{ .Values.backtester.year }}"
+            - name: BacktestParameters__Years
+              value: "{{ .Values.backtester.years }}"
             - name: BacktestParameters__Month
               value: "{{ .Values.backtester.month | default "" }}"
             - name: BacktestParameters__InitialUsdc

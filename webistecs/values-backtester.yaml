@@ -60,6 +60,10 @@ backtester:
   dataDir: "/app/pricadata"
   year: "2021"
   month: null
+  years:
+    - 2021
+    - 2022
+    - 2023
   initialUsdc: "1000"
   strategy: "MacroUptrend"
   resources:
