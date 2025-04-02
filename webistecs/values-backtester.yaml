@@ -58,12 +58,9 @@ backtester:
     pullPolicy: "Always"
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
-  year: null
-  month: null
-  years:
-    - 2021
-    - 2022
-    - 2023
+  year: ""
+  years: "[2021,2022,2023]"  
+  month: ""
   initialUsdc: "1000"
   strategy: "MacroUptrend"
   resources:
