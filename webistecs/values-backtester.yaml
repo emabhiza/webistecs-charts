@@ -58,7 +58,7 @@ backtester:
     pullPolicy: "Always"
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
-  year: "2021"
+  year: null
   month: null
   years:
     - 2021
