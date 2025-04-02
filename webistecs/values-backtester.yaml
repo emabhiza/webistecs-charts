@@ -59,7 +59,7 @@ backtester:
   pvc: "pricadata-pvc"
   dataDir: "/app/pricadata"
   year: "2015"
-  month: ""
+  month: "1"
   initialUsdc: "1000"
   strategy: "MacroUptrend"
   resources:

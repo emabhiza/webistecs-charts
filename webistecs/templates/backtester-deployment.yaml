@@ -22,6 +22,8 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Backtest
+            - name: SKIP_MIGRATIONS
+              value: "true"
             - name: DB_CONTEXT
               value: "WebistecsContext"
             - name: DATA_DIR
