@@ -32,8 +32,4 @@ spec:
               cpu: "{{ .Values.dbMigrationJob.resources.limits.cpu }}"
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
-      volumes:
-        - name: db-storage
-          persistentVolumeClaim:
-            claimName: {{ .Values.dbMigrationJob.volumeClaimName | quote }}
       restartPolicy: Never
