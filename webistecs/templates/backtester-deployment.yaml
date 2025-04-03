@@ -21,7 +21,7 @@ spec:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
-          
+  
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Backtest
