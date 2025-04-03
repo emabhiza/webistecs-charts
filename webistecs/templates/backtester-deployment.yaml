@@ -15,10 +15,13 @@ spec:
       labels:
         {{- include "webistecs.selectorLabels" . | nindent 8 }}
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: pi4-c7a9e0e0
       containers:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
+          
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Backtest
