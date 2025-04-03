@@ -30,9 +30,6 @@ spec:
             limits:
               memory: "{{ .Values.dbMigrationJob.resources.limits.memory }}"
               cpu: "{{ .Values.dbMigrationJob.resources.limits.cpu }}"
-          volumeMounts:
-            - name: db-storage
-              mountPath: /db
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:

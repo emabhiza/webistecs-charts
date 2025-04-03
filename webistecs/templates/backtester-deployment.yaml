@@ -52,9 +52,6 @@ spec:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
-        - name: db-volume
-          persistentVolumeClaim:
-            claimName: {{ .Values.dbMigrationJob.volumeClaimName }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}

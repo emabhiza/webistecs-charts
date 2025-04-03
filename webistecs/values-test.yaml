@@ -31,10 +31,6 @@ webistecs:
     webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
-  volumeMountPath: "/db"
-  volume:
-    persistentVolumeClaim:
-      claimName: "webistecs-db-pvc"
   resources:
     requests:
       memory: "512Mi"
@@ -70,7 +66,6 @@ dbMigrationJob:
     aspNetCoreEnvironment: "Test"
     webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
   imagePullSecret: myregistrykey
-  volumeClaimName: webistecs-db-pvc
   resources:
     requests:
       memory: "1Gi"
