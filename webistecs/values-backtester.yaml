@@ -23,7 +23,6 @@ webistecs:
   environment:
     aspNetCoreEnvironment: "disabled-placeholder"
     webistecsContext: ""
-  volumeMountPath: "/db"
   volume:
     persistentVolumeClaim:
       claimName: "placeholder-pvc"

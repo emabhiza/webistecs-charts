@@ -127,9 +127,6 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
       volumes:
-        - name: db-volume
-          persistentVolumeClaim:
-            claimName: {{ .Values.webistecs.volume.persistentVolumeClaim.claimName }}
         - name: session-volume
           persistentVolumeClaim:
             claimName: webistecs-session-pvc
