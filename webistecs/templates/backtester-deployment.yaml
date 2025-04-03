@@ -46,8 +46,6 @@ spec:
           volumeMounts:
             - name: pricadata-volume
               mountPath: {{ .Values.backtester.dataDir }}
-            - name: db-volume
-              mountPath: /db
       volumes:
         - name: pricadata-volume
           persistentVolumeClaim:
