@@ -9,7 +9,7 @@ spec:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         revision: backtest
         directories:
-          - path: webistecs/generated-jobs
+          - path: webistecs/generated-jobs/*
   template:
     metadata:
       name: backtester-{{path.basename}}
@@ -18,10 +18,10 @@ spec:
       source:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         targetRevision: backtest
-        path: webistecs
+        path: webistecs/generated-jobs/{{path.basename}}  # Key change
         helm:
           valueFiles:
-            - generated-jobs/{{path.basename}}
+            - values.yaml  # Changed from dynamic to static
       destination:
         server: https://kubernetes.default.svc
         namespace: default
