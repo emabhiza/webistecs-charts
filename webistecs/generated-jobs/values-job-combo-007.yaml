@@ -1,0 +1,28 @@
+backtester:
+  enabled: true
+  comboId: "combo-007"
+  upperIndex: 0
+  middleIndex: 1
+  lowerIndex: 2
+  fee: "0.3"
+  safetyMargin: "0.2"
+  year: "2023"
+  month: "1"
+  initialUsdc: "1000"
+  strategy: "MacroUptrend"
+  image:
+    repository: "docker.io/emabhiza/webistecs-backtest"
+    tag: "test-0.0.2"
+    pullPolicy: "Always"
+  pvc: "pricadata-test-pvc"
+  dataDir: "/app/pricadata"
+  environment:
+    aspNetCoreEnvironment: "Backtester"
+    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "300Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

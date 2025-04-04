@@ -63,9 +63,11 @@ backtester:
   strategy: "MacroUptrend"
   resources:
     requests:
-      ephemeral-storage: "100Mi"
+      cpu: "200m"        
+      memory: "300Mi"
     limits:
-      ephemeral-storage: "300Mi"
+      cpu: "500m"         
+      memory: "512Mi"
 
 dbMigrationJob:
   enabled: true

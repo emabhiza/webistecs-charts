@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: backtester-jobs
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/emabhiza/webistecs-charts.git
+        revision: HEAD
+        directories:
+          - path: webistecs/generated-jobs
+  template:
+    metadata:
+      name: backtester-{{path.basename}}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/emabhiza/webistecs-charts.git
+        targetRevision: HEAD
+        path: webistecs
+        helm:
+          valueFiles:
+            - generated-jobs/{{path.basename}}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

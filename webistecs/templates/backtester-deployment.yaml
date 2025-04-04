@@ -1,57 +1,64 @@
 {{- if .Values.backtester.enabled }}
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: {{ include "webistecs.fullname" . }}-backtester
+  name: {{ include "webistecs.fullname" . }}-backtester-{{ .Values.backtester.comboId }}
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      {{- include "webistecs.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         {{- include "webistecs.selectorLabels" . | nindent 8 }}
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: pi4-c7a9e0e0
+      restartPolicy: Never
       containers:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
           imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
-  
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Backtest
+              value: {{ .Values.backtester.environment.aspNetCoreEnvironment | quote }}
             - name: SKIP_MIGRATIONS
               value: "true"
             - name: DB_CONTEXT
               value: "WebistecsContext"
             - name: DATA_DIR
-              value: "{{ .Values.backtester.dataDir }}"
+              value: {{ .Values.backtester.dataDir | quote }}
             - name: BacktestParameters__Year
-              value: "{{ .Values.backtester.year }}"
+              value: {{ .Values.backtester.year | quote }}
             - name: BacktestParameters__Month
-              value: "{{ .Values.backtester.month }}"
+              value: {{ .Values.backtester.month | quote }}
             - name: BacktestParameters__InitialUsdc
-              value: "{{ .Values.backtester.initialUsdc | default "100" }}"
+              value: {{ .Values.backtester.initialUsdc | quote }}
             - name: BacktestParameters__Strategy
-              value: "{{ .Values.backtester.strategy | default "MacroUptrend" }}"
+              value: {{ .Values.backtester.strategy | quote }}
             - name: ConnectionStrings__WebistecsContext
-              value: "{{ .Values.backtester.environment.webistecsContext }}"
+              value: {{ .Values.backtester.environment.webistecsContext | quote }}
+
+            - name: UPPER_INDEX
+              value: "{{ .Values.backtester.upperIndex }}"
+            - name: MIDDLE_INDEX
+              value: "{{ .Values.backtester.middleIndex }}"
+            - name: LOWER_INDEX
+              value: "{{ .Values.backtester.lowerIndex }}"
+            - name: FEE
+              value: "{{ .Values.backtester.fee }}"
+            - name: SAFETY_MARGIN
+              value: "{{ .Values.backtester.safetyMargin }}"
+
           resources:
             {{- toYaml .Values.backtester.resources | nindent 12 }}
           volumeMounts:
             - name: pricadata-volume
               mountPath: {{ .Values.backtester.dataDir }}
+            - name: result-volume
+              mountPath: /app/backtest-results       
       volumes:
         - name: pricadata-volume
           persistentVolumeClaim:
             claimName: {{ .Values.backtester.pvc }}
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      {{- end }}
+        - name: result-volume
+          persistentVolumeClaim:
+            claimName: backtest-results-pvc
 {{- end }}
