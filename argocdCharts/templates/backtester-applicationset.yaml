@@ -7,7 +7,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
-        revision: HEAD
+        revision: backtest
         directories:
           - path: webistecs/generated-jobs
   template:
@@ -17,7 +17,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
-        targetRevision: HEAD
+        targetRevision: backtest
         path: webistecs
         helm:
           valueFiles:
