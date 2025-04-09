@@ -117,6 +117,7 @@ spec:
             limits:
               memory: "{{ .Values.webistecs.resources.limits.memory }}"
               cpu: "{{ .Values.webistecs.resources.limits.cpu }}"
+          volumeMounts:
             - name: session-volume
               mountPath: /session
         - name: {{ .Values.nodeExporter.name }}
