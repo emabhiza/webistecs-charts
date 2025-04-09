@@ -28,7 +28,7 @@ webistecs:
   environment:
     ASPNETCORE_URLS: "http://0.0.0.0:80"
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
   resources:
@@ -57,7 +57,7 @@ dbMigrationJob:
     tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   imagePullSecret: myregistrykey
   resources:
     requests:
