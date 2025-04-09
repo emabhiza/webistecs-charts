@@ -50,8 +50,6 @@ spec:
           volumeMounts:
             - name: grafana-data
               mountPath: "/var/lib/grafana"
-            - name: grafana-plugins
-              mountPath: "/var/lib/grafana/plugins"
             - name: grafana-config
               mountPath: /etc/grafana/grafana.ini
               subPath: grafana.ini
@@ -59,9 +57,6 @@ spec:
         - name: grafana-data
           persistentVolumeClaim:
             claimName: {{ .Values.grafana.pvcData.name }}
-        - name: grafana-plugins
-          persistentVolumeClaim:
-            claimName: {{ .Values.grafana.pvcPlugins.name }}
         - name: grafana-config
           configMap:
             name: grafana-config
