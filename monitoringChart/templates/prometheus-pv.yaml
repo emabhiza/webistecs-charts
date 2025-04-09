@@ -3,10 +3,10 @@ kind: PersistentVolume
 metadata:
   name: prometheus-pv
   labels:
-    type: local
+    type: prometheus
 spec:
   capacity:
-    storage: 983Gi
+    storage: 100Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -20,4 +20,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - Eugenes-Mac-mini.local
+                - lima-rancher-desktop
