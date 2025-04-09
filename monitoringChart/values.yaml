@@ -1,6 +1,6 @@
 global:
   namespace: monitoring
-  raspberryIP: 192.168.68.107
+  macMiniIP: 192.168.68.105
 
 coinmarketcapExporter:
   name: "coinmarketcap-exporter"
@@ -53,7 +53,7 @@ grafana:
 
   # Define two PVC references now:
   pvcData:
-    name: "grafana-local-pvc"
+    name: "grafana-pvc"
     storage: "10Gi"
 
   pvcPlugins:
@@ -103,7 +103,7 @@ prometheus:
       name: "prometheus-data"
       mountPath: "/prometheus/data"
   pvc:
-    name: "my-usb-pvc"
+    name: "prometheus-pvc"
     storage: "50Gi"
     storageClassName: "local-storage"
     accessModes: "ReadWriteOnce"
@@ -121,8 +121,8 @@ prometheus:
       coinmarketcapExporter: "coinmarketcap-exporter"
       websitecs: "websitecs"
       nodeExporter: "node-exporter"
-      coinmarketcapExporterTarget: "192.168.68.107:32005"
-      websitecsTarget: "192.168.68.107:30080"
+      coinmarketcapExporterTarget: "192.168.68.105:32005"
+      websitecsTarget: "192.168.68.105:30080"
       nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
 
 

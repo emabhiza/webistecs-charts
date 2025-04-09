@@ -20,11 +20,11 @@ data:
           - source_labels: [__meta_kubernetes_service_label_mylabel]
             target_label: websitecs
         static_configs:
-          - targets: ['192.168.68.107:30080']
+          - targets: ['192.168.68.105:30080']
 
       - job_name: 'websitecs-test'
         static_configs:
-          - targets: ['192.168.68.107:30081']
+          - targets: ['192.168.68.105:30081']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
         kubernetes_sd_configs:

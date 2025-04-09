@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /media/emabhiza/webistecsStorage/webistecs/session
+    path: /Users/emabhiza/Dev/webistecs-storage/session
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -19,4 +19,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - raspberrypi
+                - Eugenes-Mac-mini.local

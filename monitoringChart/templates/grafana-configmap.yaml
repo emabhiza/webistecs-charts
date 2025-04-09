@@ -7,4 +7,4 @@ data:
   grafana.ini: |
     [rendering]
     server_url = https://render.grafana.com
-    callback_url = http://192.168.68.107:30091/
+    callback_url = http://192.168.68.105:30091/
