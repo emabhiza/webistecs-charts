@@ -7,5 +7,7 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteMany
+  storageClassName: local-path
+  volumeMode: Filesystem
   hostPath:
     path: /mnt/data/backtest-results

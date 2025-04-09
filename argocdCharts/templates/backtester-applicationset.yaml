@@ -8,20 +8,23 @@ spec:
     - git:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         revision: backtest
-        directories:
-          - path: webistecs/generated-jobs/*
+        files:
+          - path: webistecs/generated-jobs/values-job-combo-*.yaml
   template:
     metadata:
-      name: backtester-{{path.basename}}
+      name: "backtester-{{path.basename | regexReplaceAllLiteral(`values-job-` ``) | replace `.yaml` ``}}"
+      annotations:
+        original-filename: "{{path.basename}}"
     spec:
       project: default
       source:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         targetRevision: backtest
-        path: webistecs/generated-jobs/{{path.basename}}  # Key change
+        path: webistecs
         helm:
           valueFiles:
-            - values.yaml  # Changed from dynamic to static
+            - values-backtester.yaml
+            - ../generated-jobs/{{path.basename}}
       destination:
         server: https://kubernetes.default.svc
         namespace: default
@@ -29,3 +32,6 @@ spec:
         automated:
           prune: true
           selfHeal: true
+          
+          
+          
