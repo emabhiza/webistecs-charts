@@ -56,10 +56,6 @@ grafana:
     name: "grafana-pvc"
     storage: "10Gi"
 
-  pvcPlugins:
-    name: "grafana-plugins-pvc"
-    storage: "2Gi"
-
   # Keep volumeMounts
   volumeMounts:
     - name: grafana-data
