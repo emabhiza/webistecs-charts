@@ -77,6 +77,7 @@ dbMigrationJob:
   environment:
     aspNetCoreEnvironment: "Backtester"
     webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+    SKIP_MIGRATIONS: "true"
   imagePullSecret: "myregistrykey"
   resources:
     requests:
