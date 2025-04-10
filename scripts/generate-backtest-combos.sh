@@ -27,35 +27,52 @@ for u in $upper_range; do
       safe_m=${m//./-}
       safe_l=${l//./-}
 
-      filename="$output_dir/combo-${safe_u}-${safe_m}-${safe_l}.yaml"
+filename="$output_dir/combo-${safe_u}-${safe_m}-${safe_l}.yaml"
 
-      cat <<EOF > "$filename"
-backtestParameters:
-  year: $year
-  month: $month
-  initialUsdc: $initialUsdc
-  strategy: $strategy
-combo:
-  upper:
-    start: $u
-    end: $(echo "$u - 0.5" | bc)
-    target: $u_target
-    weight: 5
-    tier: Upper
-  middle:
-    start: $m
-    end: $(echo "$m - 0.5" | bc)
-    target: $m_target
-    weight: 10
-    tier: Middle
-  lower:
-    start: $l
-    end: $(echo "$l - 0.5" | bc)
-    target: $l_target
-    weight: 15
-    tier: Lower
+cat <<EOF > "$filename"
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: backtest-${safe_u}-${safe_m}-${safe_l}-
+spec:
+  workflowTemplateRef:
+    name: backtester-template
+    namespace: default
+  arguments:
+    parameters:
+    - name: year
+      value: "$year"
+    - name: month
+      value: "$month"
+    - name: initialUsdc
+      value: "$initialUsdc"
+    - name: strategy
+      value: "$strategy"
+    - name: Combo_Upper_Start
+      value: "$u"
+    - name: Combo_Upper_EndValue
+      value: "$(echo "$u - 0.5" | bc)"
+    - name: Combo_Upper_Target
+      value: "$u_target"
+    - name: Combo_Upper_Weight
+      value: "5"
+    - name: Combo_Middle_Start
+      value: "$m"
+    - name: Combo_Middle_EndValue
+      value: "$(echo "$m - 0.5" | bc)"
+    - name: Combo_Middle_Target
+      value: "$m_target"
+    - name: Combo_Middle_Weight
+      value: "10"
+    - name: Combo_Lower_Start
+      value: "$l"
+    - name: Combo_Lower_EndValue
+      value: "$(echo "$l - 0.5" | bc)"
+    - name: Combo_Lower_Target
+      value: "$l_target"
+    - name: Combo_Lower_Weight
+      value: "15"
 EOF
-
       ((count++))
     done
   done

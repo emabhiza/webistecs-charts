@@ -1,93 +1,47 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ .Values.nameOverride }}-backtester"
-  labels:
-    app.kubernetes.io/name: backtester
-    app.kubernetes.io/instance: release-name
-    app.kubernetes.io/version: 1.16.0
-    app.kubernetes.io/component: web
-    app.kubernetes.io/part-of: webistecs
-    app.kubernetes.io/managed-by: Helm
+  name: backtester-manual-run
+  namespace: default
 spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: backtester
-        app.kubernetes.io/instance: release-name
+        app: backtester-manual-run
     spec:
       restartPolicy: Never
       containers:
         - name: backtester
-          image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
-          imagePullPolicy: "{{ .Values.backtester.image.pullPolicy }}"
+          image: emabhiza/webistecs-backtest:test-0.0.2
+          imagePullPolicy: IfNotPresent
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: "{{ .Values.backtester.environment.aspNetCoreEnvironment }}"
-            - name: DB_CONTEXT
-              value: "WebistecsContext"
-            - name: DATA_DIR
-              value: "{{ .Values.backtester.dataDir }}"
+              value: Development
             - name: BacktestParameters__Year
-              value: "{{ .Values.backtester.year }}"
+              value: "2022"
             - name: BacktestParameters__Month
-              value: "{{ .Values.backtester.month }}"
+              value: "1"
             - name: BacktestParameters__InitialUsdc
-              value: "{{ .Values.backtester.initialUsdc }}"
+              value: "1000"
             - name: BacktestParameters__Strategy
-              value: "{{ .Values.backtester.strategy }}"
-            - name: ConnectionStrings__WebistecsContext
-              value: "{{ .Values.backtester.environment.webistecsContext }}"
-            - name: FEE
-              value: "{{ .Values.backtester.fee }}"
-            - name: SAFETY_MARGIN
-              value: "{{ .Values.backtester.safetyMargin }}"
-            - name: Combo_Upper_Start
-              value: "{{ .Values.backtester.combo.upper.start }}"
-            - name: Combo_Upper_End
-              value: "{{ .Values.backtester.combo.upper.endValue }}"
-            - name: Combo_Upper_Target
-              value: "{{ .Values.backtester.combo.upper.target }}"
-            - name: Combo_Upper_Weight
-              value: "{{ .Values.backtester.combo.upper.weight }}"
-            - name: Combo_Upper_Tier
-              value: "{{ .Values.backtester.combo.upper.tier }}"
-            - name: Combo_Middle_Start
-              value: "{{ .Values.backtester.combo.middle.start }}"
-            - name: Combo_Middle_End
-              value: "{{ .Values.backtester.combo.middle.endValue }}"
-            - name: Combo_Middle_Target
-              value: "{{ .Values.backtester.combo.middle.target }}"
-            - name: Combo_Middle_Weight
-              value: "{{ .Values.backtester.combo.middle.weight }}"
-            - name: Combo_Middle_Tier
-              value: "{{ .Values.backtester.combo.middle.tier }}"
-            - name: Combo_Lower_Start
-              value: "{{ .Values.backtester.combo.lower.start }}"
-            - name: Combo_Lower_End
-              value: "{{ .Values.backtester.combo.lower.endValue }}"
-            - name: Combo_Lower_Target
-              value: "{{ .Values.backtester.combo.lower.target }}"
-            - name: Combo_Lower_Weight
-              value: "{{ .Values.backtester.combo.lower.weight }}"
-            - name: Combo_Lower_Tier
-              value: "{{ .Values.backtester.combo.lower.tier }}"
-          resources:
-            limits:
-              cpu: "{{ .Values.backtester.resources.limits.cpu }}"
-              memory: "{{ .Values.backtester.resources.limits.memory }}"
-            requests:
-              cpu: "{{ .Values.backtester.resources.requests.cpu }}"
-              memory: "{{ .Values.backtester.resources.requests.memory }}"
+              value: MacroUptrend
           volumeMounts:
             - name: pricedata-volume
-              mountPath: /app/pricedata
+              mountPath: /app/Resources
+              readOnly: true
             - name: result-volume
               mountPath: /app/backtest-results
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
       volumes:
         - name: pricedata-volume
           persistentVolumeClaim:
-            claimName: "{{ .Values.backtester.pvc }}"
+            claimName: pricedata-test-pvc
         - name: result-volume
           persistentVolumeClaim:
-            claimName: "backtest-results-pvc"
+            claimName: backtest-results-pvc
