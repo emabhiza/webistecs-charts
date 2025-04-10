@@ -73,23 +73,23 @@ backtester:
 
   combo:
     upper:
-      start: "{{ .Values.combo.upper.start }}"
-      end: "{{ .Values.combo.upper.end }}"
-      target: "{{ .Values.combo.upper.target }}"
-      weight: "{{ .Values.combo.upper.weight }}"
-      tier: "{{ .Values.combo.upper.tier }}"
+      start: -0.5
+      end: -1.0
+      target: -0.75
+      weight: 5
+      tier: Upper
     middle:
-      start: "{{ .Values.combo.middle.start }}"
-      end: "{{ .Values.combo.middle.end }}"
-      target: "{{ .Values.combo.middle.target }}"
-      weight: "{{ .Values.combo.middle.weight }}"
-      tier: "{{ .Values.combo.middle.tier }}"
+      start: -5.0
+      end: -5.5
+      target: -5.25
+      weight: 10
+      tier: Middle
     lower:
-      start: "{{ .Values.combo.lower.start }}"
-      end: "{{ .Values.combo.lower.end }}"
-      target: "{{ .Values.combo.lower.target }}"
-      weight: "{{ .Values.combo.lower.weight }}"
-      tier: "{{ .Values.combo.lower.tier }}"
+      start: -10.0
+      end: -10.5
+      target: -10.25
+      weight: 15
+      tier: Lower
 
 dbMigrationJob:
   enabled: true
