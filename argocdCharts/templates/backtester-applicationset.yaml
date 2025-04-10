@@ -13,7 +13,7 @@ spec:
         requeueAfterSeconds: 3600
   template:
     metadata:
-      name: "backtester-{{path.basename | regexReplaceAllLiteral(`combo-` ``) | replace `.yaml` ``}}"
+      name: "backtester"
       annotations:
         original-filename: "{{path.basename}}"
         argocd.argoproj.io/hook: Sync
