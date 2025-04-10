@@ -10,14 +10,9 @@ spec:
         revision: backtest
         files:
           - path: scripts/generated-combos/combo-*.yaml
-        requeueAfterSeconds: 3600
   template:
     metadata:
-      name: "backtester"
-      annotations:
-        original-filename: "{{path.basename}}"
-        argocd.argoproj.io/hook: Sync
-        argocd.argoproj.io/hook-delete-policy: HookSucceeded
+      name: "backtester-{{path.basename}}"
     spec:
       project: default
       source:
@@ -26,14 +21,11 @@ spec:
         path: webistecs
         helm:
           values: |
-            backtest:
-              configFile: /combos/{{path.basename}}
+            backtester:
+              comboId: {{path.basename | regexReplaceAll "combo-|\\.yaml" ""}}
+              {{ readFile (print "scripts/generated-combos/" path.basename) | nindent 14 }}
           valueFiles:
             - values-backtester.yaml
       destination:
         server: https://kubernetes.default.svc
         namespace: default
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true

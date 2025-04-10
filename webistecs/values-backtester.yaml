@@ -57,17 +57,39 @@ backtester:
     pullPolicy: "Always"
   pvc: "pricadata-test-pvc"
   dataDir: "/app/pricadata"
-  year: "2023"
-  month: "1"
+  year: "2023"  # Default if not specified in combo
+  month: "1"    # Default if not specified in combo
+  fee: "0.001"
+  safetyMargin: "0.05"
   initialUsdc: "1000"
   strategy: "MacroUptrend"
   resources:
     requests:
-      cpu: "200m"        
+      cpu: "200m"
       memory: "300Mi"
     limits:
-      cpu: "500m"         
+      cpu: "500m"
       memory: "512Mi"
+
+  combo:
+    upper:
+      start: "{{ .Values.combo.upper.start }}"
+      end: "{{ .Values.combo.upper.end }}"
+      target: "{{ .Values.combo.upper.target }}"
+      weight: "{{ .Values.combo.upper.weight }}"
+      tier: "{{ .Values.combo.upper.tier }}"
+    middle:
+      start: "{{ .Values.combo.middle.start }}"
+      end: "{{ .Values.combo.middle.end }}"
+      target: "{{ .Values.combo.middle.target }}"
+      weight: "{{ .Values.combo.middle.weight }}"
+      tier: "{{ .Values.combo.middle.tier }}"
+    lower:
+      start: "{{ .Values.combo.lower.start }}"
+      end: "{{ .Values.combo.lower.end }}"
+      target: "{{ .Values.combo.lower.target }}"
+      weight: "{{ .Values.combo.lower.weight }}"
+      tier: "{{ .Values.combo.lower.tier }}"
 
 dbMigrationJob:
   enabled: true

@@ -3,6 +3,7 @@ backtestParameters:
   month: 1
   initialUsdc: 1000
   strategy: MacroUptrend
+  fees: 
 combo:
   upper:
     start: -0.5
