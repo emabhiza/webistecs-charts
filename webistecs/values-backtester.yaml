@@ -65,11 +65,11 @@ backtester:
   strategy: "MacroUptrend"
   resources:
     requests:
-      cpu: "200m"
-      memory: "300Mi"
-    limits:
-      cpu: "500m"
       memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"  # 1 core
   combo:
     upper:
       start: -0.5
