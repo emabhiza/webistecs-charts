@@ -9,12 +9,15 @@ spec:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         revision: backtest
         files:
-          - path: webistecs/generated-jobs/values-job-combo-*.yaml
+          - path: scripts/generated-combos/combo-*.yaml
+        requeueAfterSeconds: 3600
   template:
     metadata:
-      name: "backtester-{{path.basename | regexReplaceAllLiteral(`values-job-` ``) | replace `.yaml` ``}}"
+      name: "backtester-{{path.basename | regexReplaceAllLiteral(`combo-` ``) | replace `.yaml` ``}}"
       annotations:
         original-filename: "{{path.basename}}"
+        argocd.argoproj.io/hook: Sync
+        argocd.argoproj.io/hook-delete-policy: HookSucceeded
     spec:
       project: default
       source:
@@ -22,9 +25,11 @@ spec:
         targetRevision: backtest
         path: webistecs
         helm:
+          values: |
+            backtest:
+              configFile: /combos/{{path.basename}}
           valueFiles:
             - values-backtester.yaml
-            - ../generated-jobs/{{path.basename}}
       destination:
         server: https://kubernetes.default.svc
         namespace: default
@@ -32,6 +37,3 @@ spec:
         automated:
           prune: true
           selfHeal: true
-          
-          
-          
