@@ -9,7 +9,7 @@ spec:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         revision: backtest
         files:
-          - path: scripts/generated-combos/combo--0-50--5-00--10-00.yaml  
+          - path: scripts/generated-combos/combo--0-50--5-00--10-00.yaml
   template:
     metadata:
       name: "backtester-{{path.basename}}"
