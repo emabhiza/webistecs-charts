@@ -4,11 +4,12 @@ backtestParameters:
   initialUsdc: 1000
   strategy: MacroUptrend
   fees: 0.02
+
 combo:
   upper:
     start: -0.5
     end: -1.0
-    target: -.75
+    target: -0.75
     weight: 5
     tier: Upper
   middle:
