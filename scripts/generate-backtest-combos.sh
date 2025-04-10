@@ -3,9 +3,9 @@
 output_dir="$(dirname "$0")/generated-combos"
 mkdir -p "$output_dir"
 
-upper_range=$(seq -0.5 -0.5 -5.0 | awk '{printf "%.1f\n", $1}')
-middle_range=$(seq -5.0 -0.5 -10.0 | awk '{printf "%.1f\n", $1}')
-lower_range=$(seq -10.0 -0.5 -15.0 | awk '{printf "%.1f\n", $1}')
+upper_range=$(seq -0.5 -0.5 -5.0 | awk '{printf "%.2f\n", $1}')
+middle_range=$(seq -5.0 -0.5 -10.0 | awk '{printf "%.2f\n", $1}')
+lower_range=$(seq -10.0 -0.5 -15.0 | awk '{printf "%.2f\n", $1}')
 
 year=2022
 month=1
@@ -38,19 +38,19 @@ backtestParameters:
 combo:
   upper:
     start: $u
-    endValue: $(echo "$u - 0.5" | bc)
+    end: $(echo "$u - 0.5" | bc)
     target: $u_target
     weight: 5
     tier: Upper
   middle:
     start: $m
-    endValue: $(echo "$m - 0.5" | bc)
+    end: $(echo "$m - 0.5" | bc)
     target: $m_target
     weight: 10
     tier: Middle
   lower:
     start: $l
-    endValue: $(echo "$l - 0.5" | bc)
+    end: $(echo "$l - 0.5" | bc)
     target: $l_target
     weight: 15
     tier: Lower
