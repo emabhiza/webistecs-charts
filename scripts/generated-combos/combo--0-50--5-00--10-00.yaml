@@ -1,0 +1,24 @@
+backtestParameters:
+  year: 2022
+  month: 1
+  initialUsdc: 1000
+  strategy: MacroUptrend
+combo:
+  upper:
+    start: -0.50
+    endValue: -1.00
+    target: 0.00
+    weight: 5
+    tier: Upper
+  middle:
+    start: -5.00
+    endValue: -5.50
+    target: -5.00
+    weight: 10
+    tier: Middle
+  lower:
+    start: -10.00
+    endValue: -10.50
+    target: -10.00
+    weight: 15
+    tier: Lower
