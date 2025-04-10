@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Output directory
-output_dir="generated-combos"
+output_dir="scripts/generated-combos"
 mkdir -p "$output_dir"
 
 # Define ranges for each tier based on the C# code
