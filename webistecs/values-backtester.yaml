@@ -55,8 +55,8 @@ backtester:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.2"
     pullPolicy: "Always"
-  pvc: "pricadata-test-pvc"
-  dataDir: "/app/pricadata"
+  pvc: "pricedata-test-pvc"
+  dataDir: "/app/pricedata"
   year: "2023"  # Default if not specified in combo
   month: "1"    # Default if not specified in combo
   fee: "0.001"

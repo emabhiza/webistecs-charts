@@ -20,10 +20,12 @@ spec:
         targetRevision: backtest
         path: webistecs
         helm:
-          values: |
+          # We use a "block scalar" (|-) and then carefully indent the readFile so that
+          # the keys from the combo file become valid YAML siblings of comboId.
+          values: |-
             backtester:
-              comboId: {{path.basename | regexReplaceAll "combo-|\\.yaml" ""}}
-              {{ readFile (print "scripts/generated-combos/" path.basename) | nindent 14 }}
+              comboId: {{ path.basename | regexReplaceAll "combo-|\\.yaml" "" }}
+{{ readFile (print "scripts/generated-combos/" path.basename) | nindent 6 }}
           valueFiles:
             - values-backtester.yaml
       destination:

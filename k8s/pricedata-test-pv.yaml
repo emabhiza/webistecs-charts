@@ -1,19 +1,21 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pricadata-test-pv
+  name: pricedata-local-pv
   labels:
-    type: pricadata
+    type: pricedata
 spec:
   capacity:
     storage: 10Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
+  persistentVolumeReclaimPolicy: Retain
+
   local:
-    path: /mnt/data/pricadata-test
+    path: /Users/emabhiza/Dev/webistecs-storage/pricedata
+
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -21,4 +23,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - pi4-c7a9e0e0
+                - lima-rancher-desktop

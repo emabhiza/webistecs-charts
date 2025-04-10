@@ -80,12 +80,12 @@ spec:
               cpu: "{{ .Values.backtester.resources.requests.cpu }}"
               memory: "{{ .Values.backtester.resources.requests.memory }}"
           volumeMounts:
-            - name: pricadata-volume
-              mountPath: /app/pricadata
+            - name: pricedata-volume
+              mountPath: /app/pricedata
             - name: result-volume
               mountPath: /app/backtest-results
       volumes:
-        - name: pricadata-volume
+        - name: pricedata-volume
           persistentVolumeClaim:
             claimName: "{{ .Values.backtester.pvc }}"
         - name: result-volume
