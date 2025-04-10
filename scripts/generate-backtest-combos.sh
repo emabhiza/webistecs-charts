@@ -38,19 +38,19 @@ backtestParameters:
 combo:
   upper:
     start: $u
-    end: $(echo "$u - 0.5" | bc)
+    endValue: $(echo "$u - 0.5" | bc)
     target: $u_target
     weight: 5
     tier: Upper
   middle:
     start: $m
-    end: $(echo "$m - 0.5" | bc)
+    endValue: $(echo "$m - 0.5" | bc)
     target: $m_target
     weight: 10
     tier: Middle
   lower:
     start: $l
-    end: $(echo "$l - 0.5" | bc)
+    endValue: $(echo "$l - 0.5" | bc)
     target: $l_target
     weight: 15
     tier: Lower
