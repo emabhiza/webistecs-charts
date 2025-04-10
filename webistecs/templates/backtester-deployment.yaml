@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: backtester-backtester
+  name: "{{ .Values.nameOverride }}-backtester"
   labels:
     app.kubernetes.io/name: backtester
     app.kubernetes.io/instance: release-name
@@ -20,7 +20,7 @@ spec:
       containers:
         - name: backtester
           image: "{{ .Values.backtester.image.repository }}:{{ .Values.backtester.image.tag }}"
-          imagePullPolicy: {{ .Values.backtester.image.pullPolicy }}
+          imagePullPolicy: "{{ .Values.backtester.image.pullPolicy }}"
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.backtester.environment.aspNetCoreEnvironment }}"
@@ -42,6 +42,36 @@ spec:
               value: "{{ .Values.backtester.fee }}"
             - name: SAFETY_MARGIN
               value: "{{ .Values.backtester.safetyMargin }}"
+            - name: Combo_Upper_Start
+              value: "{{ .Values.backtester.combo.upper.start }}"
+            - name: Combo_Upper_End
+              value: "{{ .Values.backtester.combo.upper.endValue }}"
+            - name: Combo_Upper_Target
+              value: "{{ .Values.backtester.combo.upper.target }}"
+            - name: Combo_Upper_Weight
+              value: "{{ .Values.backtester.combo.upper.weight }}"
+            - name: Combo_Upper_Tier
+              value: "{{ .Values.backtester.combo.upper.tier }}"
+            - name: Combo_Middle_Start
+              value: "{{ .Values.backtester.combo.middle.start }}"
+            - name: Combo_Middle_End
+              value: "{{ .Values.backtester.combo.middle.endValue }}"
+            - name: Combo_Middle_Target
+              value: "{{ .Values.backtester.combo.middle.target }}"
+            - name: Combo_Middle_Weight
+              value: "{{ .Values.backtester.combo.middle.weight }}"
+            - name: Combo_Middle_Tier
+              value: "{{ .Values.backtester.combo.middle.tier }}"
+            - name: Combo_Lower_Start
+              value: "{{ .Values.backtester.combo.lower.start }}"
+            - name: Combo_Lower_End
+              value: "{{ .Values.backtester.combo.lower.endValue }}"
+            - name: Combo_Lower_Target
+              value: "{{ .Values.backtester.combo.lower.target }}"
+            - name: Combo_Lower_Weight
+              value: "{{ .Values.backtester.combo.lower.weight }}"
+            - name: Combo_Lower_Tier
+              value: "{{ .Values.backtester.combo.lower.tier }}"
           resources:
             limits:
               cpu: "{{ .Values.backtester.resources.limits.cpu }}"
@@ -60,4 +90,4 @@ spec:
             claimName: "{{ .Values.backtester.pvc }}"
         - name: result-volume
           persistentVolumeClaim:
-            claimName: backtest-results-pvc
+            claimName: "backtest-results-pvc"
