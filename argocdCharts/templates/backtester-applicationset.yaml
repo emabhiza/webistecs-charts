@@ -9,7 +9,7 @@ spec:
         repoURL: https://github.com/emabhiza/webistecs-charts.git
         revision: backtest
         files:
-          - path: scripts/generated-combos/combo-*.yaml
+          - path: scripts/generated-combos/combo--0-50--5-00--10-00.yaml  # <-- Just this combo
   template:
     metadata:
       name: "backtester-{{path.basename}}"
@@ -20,8 +20,6 @@ spec:
         targetRevision: backtest
         path: webistecs
         helm:
-          # We use a "block scalar" (|-) and then carefully indent the readFile so that
-          # the keys from the combo file become valid YAML siblings of comboId.
           values: |-
             backtester:
               comboId: {{ path.basename | regexReplaceAll "combo-|\\.yaml" "" }}
