@@ -46,7 +46,7 @@ for u in $upper_range; do
 
       filename="$output_dir/combo-${safe_u}-${safe_m}-${safe_l}.yaml"
 
-      cat <<EOF > "$filename"
+    cat <<EOF > "$filename"
 backtestParameters:
   year: $year
   month: $month
@@ -55,19 +55,19 @@ backtestParameters:
 combo:
   upper:
     start: $u_formatted
-    endValue: $u_endValue
+    end: $u_endValue
     target: $u_target
     weight: 5
     tier: Upper
   middle:
     start: $m_formatted
-    endValue: $m_endValue
+    end: $m_endValue
     target: $m_target
     weight: 10
     tier: Middle
   lower:
     start: $l_formatted
-    endValue: $l_endValue
+    end: $l_endValue
     target: $l_target
     weight: 15
     tier: Lower
