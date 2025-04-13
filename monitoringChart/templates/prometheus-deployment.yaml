@@ -24,7 +24,7 @@ spec:
         prometheus.io/port: "{{ .Values.prometheus.ports.containerPort }}"
     spec:
       nodeSelector:
-        kubernetes.io/hostname: "lima-rancher-desktop"
+        kubernetes.io/hostname: "k3s"
       securityContext:
           fsGroup: 65534
       containers:

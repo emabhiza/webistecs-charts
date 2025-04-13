@@ -25,49 +25,6 @@ coinmarketcapExporter:
       cpu: "200m"
 
 
-grafana:
-  name: "grafana"
-  labels:
-    app: "grafana"
-    component: "ui"
-  replicas: 1
-  image:
-    repository: "grafana/grafana-enterprise"
-    tag: "11.0.0"
-  securityContext:
-    runAsUser: 472
-  env:
-    disableLoginForm: "true"
-    logLevel: "info"
-    disableInitialAdminCreation: "false"
-  ports:
-    containerPort: 3000
-    nodePort: 30091
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-
-  # Define two PVC references now:
-  pvcData:
-    name: "grafana-pvc"
-    storage: "10Gi"
-
-  # Keep volumeMounts
-  volumeMounts:
-    - name: grafana-data
-      mountPath: "/var/lib/grafana"
-    - name: grafana-plugins
-      mountPath: "/var/lib/grafana/plugins"
-
-  service:
-    type: NodePort
-
-
-
 prometheus:
   name: "prometheus"
   labels:

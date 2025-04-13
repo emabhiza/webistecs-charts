@@ -10,10 +10,12 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
+  persistentVolumeReclaimPolicy: Retain
+
   local:
-    path: /media/emabhiza/webistecsStorage/webistecs/pricedata
+    path: /Users/emabhiza/Dev/webistecs-storage/pricedata
+
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -21,4 +23,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - raspberrypi
+                - k3s
