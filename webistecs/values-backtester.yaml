@@ -50,7 +50,7 @@ backtester:
   enabled: true
   environment:
     aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=localhost;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.2"

@@ -2,27 +2,7 @@ global:
   namespace: monitoring
   macMiniIP: 192.168.68.105
 
-coinmarketcapExporter:
-  name: "coinmarketcap-exporter"
-  replicas: 0 # turned off
-  image:
-    repository: emabhiza/coinmarketcap-exporter
-    tag: beta-16
-  imagePullSecrets: "myregistrykey"
-  containerPort: 9101
-  service:
-    type: NodePort
-    nodePort: 32005
-  environment:
-    apiKey: "b842737a-d60a-479b-9de6-892b49a16581"
-    currency: "USD"
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
+
 
 
 prometheus:

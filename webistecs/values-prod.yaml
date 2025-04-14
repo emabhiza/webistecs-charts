@@ -57,7 +57,7 @@ dbMigrationJob:
     tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Production"
-    webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=localhost;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
     SKIP_MIGRATIONS: "false"
   imagePullSecret: myregistrykey
   resources:
