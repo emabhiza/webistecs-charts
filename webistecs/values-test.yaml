@@ -28,8 +28,8 @@ webistecs:
   environment:
     aspNetCoreEnvironment: "Test"
     ASPNETCORE_URLS: "http://0.0.0.0:80"
-    webistecsContext: "Host=localhost;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
-  secrets:
+    webistecsContext: "Host=host.docker.internal;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
+
     webistecsSecret: "webistecs-secret"
   resources:
     requests:
@@ -64,7 +64,7 @@ dbMigrationJob:
     tag: "test-0.0.1"
   environment:
     aspNetCoreEnvironment: "Test"
-    webistecsContext: "Host=localhost;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=host.docker.internal;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
     SKIP_MIGRATIONS: "false"
   imagePullSecret: myregistrykey
   resources:
