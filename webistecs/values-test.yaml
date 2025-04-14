@@ -29,6 +29,7 @@ webistecs:
     aspNetCoreEnvironment: "Test"
     ASPNETCORE_URLS: "http://0.0.0.0:80"
     webistecsContext: "Host=host.docker.internal;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
+  secrets:
     webistecsSecret: "webistecs-secret"
   resources:
     requests:
