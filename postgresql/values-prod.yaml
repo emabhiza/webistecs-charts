@@ -11,8 +11,9 @@ postgres:
   database: webistecs
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 5432
+  nodePort: 30034  # <- Chose a static NodePort (Different from test)
 
 persistence:
   enabled: true
@@ -20,3 +21,5 @@ persistence:
   storageClass: ""
 
 resources: {}
+
+fullnameOverride: postgresql-prod

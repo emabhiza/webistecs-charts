@@ -11,8 +11,9 @@ postgres:
   database: webistecs-test
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 5432
+  nodePort: 30033
 
 persistence:
   enabled: true
