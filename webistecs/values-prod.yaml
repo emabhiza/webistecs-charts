@@ -54,7 +54,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "v0.0.1"
+    tag: "test-0.0.1"
   environment:
     aspNetCoreEnvironment: "Production"
     webistecsContext: "Host=postgresql-prod-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
