@@ -23,8 +23,8 @@ spec:
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
             - name: DB_CONTEXT
               value: "WebistecsContext"
-            - name: "{{ .Values.dbMigrationJob.environment.SKIP_MIGRATIONS }}"
-              value: "true"
+            - name: SKIP_MIGRATIONS
+              value: "{{ .Values.dbMigrationJob.environment.SKIP_MIGRATIONS }}"
           resources:
             requests:
               memory: "{{ .Values.dbMigrationJob.resources.requests.memory }}"
