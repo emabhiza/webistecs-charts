@@ -50,22 +50,46 @@ backtester:
   enabled: true
   environment:
     aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=localhost;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
   image:
     repository: "docker.io/emabhiza/webistecs-backtest"
     tag: "test-0.0.2"
     pullPolicy: "Always"
-  pvc: "pricadata-test-pvc"
-  dataDir: "/app/pricadata"
-  year: "2023"
-  month: "1"
+  pvc: "pricedata-test-pvc"
+  dataDir: "/app/pricedata"
+  year: "2023"  # Default if not specified in combo
+  month: "1"    # Default if not specified in combo
+  fee: "0.001"
+  safetyMargin: "0.05"
   initialUsdc: "1000"
   strategy: "MacroUptrend"
   resources:
     requests:
-      ephemeral-storage: "100Mi"
+      memory: "512Mi"
+      cpu: "500m"
     limits:
-      ephemeral-storage: "300Mi"
+      memory: "1Gi"
+      cpu: "1000m"  # 1 core
+  combo:
+    upper:
+      start: -0.5
+      endValue: -1.0
+      target: -0.75
+      weight: 5
+      tier: Upper
+    middle:
+      start: -5.0
+      endValue: -5.5
+      target: -5.25
+      weight: 10
+      tier: Middle
+    lower:
+      start: -10.0
+      endValue: -10.5
+      target: -10.25
+      weight: 15
+      tier: Lower
+
 
 dbMigrationJob:
   enabled: true
@@ -74,7 +98,8 @@ dbMigrationJob:
     tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Backtester"
-    webistecsContext: "Host=192.168.68.107;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=192.168.68.105;Port=5432;Database=webistecs-backtest;Username=myappuser;Password=mypassword"
+    SKIP_MIGRATIONS: "true"
   imagePullSecret: "myregistrykey"
   resources:
     requests:

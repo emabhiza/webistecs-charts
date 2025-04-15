@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+postgres:
+  user: myappuser
+  password: mypassword
+  database: webistecs-test
+
+service:
+  type: NodePort
+  port: 5432
+  nodePort: 30033
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+resources: {}

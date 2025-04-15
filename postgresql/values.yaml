@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+postgres:
+  user: myappuser
+  password: mypassword
+  database: webistecs-test
+
+service:
+  type: ClusterIP
+  port: 5432
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""
+
+resources: {}

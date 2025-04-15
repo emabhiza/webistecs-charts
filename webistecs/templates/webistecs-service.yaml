@@ -1,4 +1,17 @@
-{{- if .Values.service.enabled }}
+{{- /*
+This template works with both:
+1. Production setup (service config at root .Values)
+2. Backtester jobs (service config under .Values.backtester)
+*/ -}}
+
+{{- $service := .Values.service -}}
+{{- if .Values.backtester -}}
+  {{- if .Values.backtester.service -}}
+    {{- $service = .Values.backtester.service -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if $service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,11 +19,12 @@ metadata:
   labels:
     {{- include "webistecs.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type | default "ClusterIP" }}
+  type: {{ $service.type | default "ClusterIP" }}
   ports:
-    - port: {{ .Values.service.port | default 8000 }}
-      targetPort: {{ .Values.webistecs.containerPort | default 80 }}
+    - port: {{ $service.port | default 8000 }}
+      targetPort: {{ $service.targetPort | default (($.Values.webistecs).containerPort | default 80) }}
       protocol: TCP
+      name: http
   selector:
     {{- include "webistecs.selectorLabels" . | nindent 4 }}
 {{- end }}

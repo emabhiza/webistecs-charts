@@ -1,74 +1,7 @@
 global:
   namespace: monitoring
-  raspberryIP: 192.168.68.107
+  macMiniIP: 192.168.68.105
 
-coinmarketcapExporter:
-  name: "coinmarketcap-exporter"
-  replicas: 0 # turned off
-  image:
-    repository: emabhiza/coinmarketcap-exporter
-    tag: beta-16
-  imagePullSecrets: "myregistrykey"
-  containerPort: 9101
-  service:
-    type: NodePort
-    nodePort: 32005
-  environment:
-    apiKey: "b842737a-d60a-479b-9de6-892b49a16581"
-    currency: "USD"
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-
-
-grafana:
-  name: "grafana"
-  labels:
-    app: "grafana"
-    component: "ui"
-  replicas: 1
-  image:
-    repository: "grafana/grafana-enterprise"
-    tag: "11.0.0"
-  securityContext:
-    runAsUser: 472
-  env:
-    disableLoginForm: "true"
-    logLevel: "info"
-    disableInitialAdminCreation: "false"
-  ports:
-    containerPort: 3000
-    nodePort: 30091
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-
-  # Define two PVC references now:
-  pvcData:
-    name: "grafana-local-pvc"
-    storage: "10Gi"
-
-  pvcPlugins:
-    name: "grafana-plugins-pvc"
-    storage: "2Gi"
-
-  # Keep volumeMounts
-  volumeMounts:
-    - name: grafana-data
-      mountPath: "/var/lib/grafana"
-    - name: grafana-plugins
-      mountPath: "/var/lib/grafana/plugins"
-
-  service:
-    type: NodePort
 
 
 
@@ -103,7 +36,7 @@ prometheus:
       name: "prometheus-data"
       mountPath: "/prometheus/data"
   pvc:
-    name: "my-usb-pvc"
+    name: "prometheus-pvc"
     storage: "50Gi"
     storageClassName: "local-storage"
     accessModes: "ReadWriteOnce"
@@ -121,8 +54,8 @@ prometheus:
       coinmarketcapExporter: "coinmarketcap-exporter"
       websitecs: "websitecs"
       nodeExporter: "node-exporter"
-      coinmarketcapExporterTarget: "192.168.68.107:32005"
-      websitecsTarget: "192.168.68.107:30080"
+      coinmarketcapExporterTarget: "192.168.68.105:32005"
+      websitecsTarget: "192.168.68.105:30080"
       nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
 
 
