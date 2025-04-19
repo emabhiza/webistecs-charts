@@ -8,15 +8,23 @@ image:
 postgres:
   user: myappuser
   password: mypassword
-  database: webistecs-test
+  database: webistecs  # change to webistecs-test for test env
+  env:
+    - name: PGDATA
+      value: /pgdata
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 5432
+  nodePort: 30034  # adjust for test (e.g., 30033)
 
 persistence:
   enabled: true
   size: 5Gi
-  storageClass: ""
+  storageClass: longhorn
 
 resources: {}
+
+volumeMounts:
+  - name: postgres-storage
+    mountPath: /pgdata

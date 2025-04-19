@@ -1,30 +1,4 @@
-replicaCount: 1
-
-image:
-  repository: postgres
-  tag: "15"
-  pullPolicy: IfNotPresent
-
 postgres:
-  user: myappuser
-  password: mypassword
   database: webistecs-test
-  env:
-    - name: PGDATA
-      value: /var/lib/postgresql/data/pgdata
-
 service:
-  type: NodePort
-  port: 5432
   nodePort: 30033
-
-persistence:
-  enabled: true
-  size: 5Gi
-  storageClass: longhorn  # <-- now that you're using Longhorn!
-
-resources: {}
-
-volumeMounts:
-  - name: postgres-storage
-    mountPath: /var/lib/postgresql/data/pgdata
