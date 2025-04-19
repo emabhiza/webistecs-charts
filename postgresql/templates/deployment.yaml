@@ -24,12 +24,12 @@ spec:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.database }}
             - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
+              value: /pgdata
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: postgres-storage
-              mountPath: /var/lib/postgresql/data/pgdata
+              mountPath: /pgdata
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
