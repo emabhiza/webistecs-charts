@@ -55,6 +55,10 @@ prometheus:
       coinmarketcapExporterTarget: "192.168.68.105:32005"
       websitecsTarget: "192.168.68.105:30080"
       nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup: 0
 
 prometheusNodeExporter:
   enabled: true
