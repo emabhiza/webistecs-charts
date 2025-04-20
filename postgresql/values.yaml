@@ -12,7 +12,7 @@ postgres:
       value: /pgdata
 
     - name: POSTGRES_INITDB_ARGS
-      value: "--auth-host=scram-sha-256
+      value: "--auth-host=scram-sha-256"
     - name: POSTGRES_HOST_AUTH_METHOD
       value: "scram-sha-256"
 
