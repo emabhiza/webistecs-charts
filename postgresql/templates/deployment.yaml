@@ -27,7 +27,7 @@ spec:
               value: /pgdata/data
             # Critical security additions (NEW)
             - name: POSTGRES_INITDB_ARGS
-              value: "--auth-host=scram-sha-256 --no-postgres-role"
+              value: "--auth-host=scram-sha-256"
             - name: POSTGRES_HOST_AUTH_METHOD
               value: "scram-sha-256"
           ports:
