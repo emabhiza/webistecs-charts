@@ -1,7 +1,28 @@
 postgres:
-  database: webistecs-test  
-  user: myappuser           
-  password: mypassword     
+  database: webistecs-test
+  user: myappuser
+  password: mypassword
+  env:
+    - name: PGDATA
+      value: /pgdata
+    - name: POSTGRES_INITDB_ARGS
+      value: "--auth-host=scram-sha-256"
+    - name: POSTGRES_HOST_AUTH_METHOD
+      value: "scram-sha-256"
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
 
 service:
-  nodePort: 30033          
+  type: NodePort
+  port: 5432
+  nodePort: 30033
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: longhorn
