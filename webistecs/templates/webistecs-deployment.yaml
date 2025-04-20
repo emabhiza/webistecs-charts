@@ -50,6 +50,9 @@ spec:
               value: /session/WTelegram.session
             - name: DB_CONTEXT
               value: "WebistecsContext"
+            - name: ConnectionStrings__WebistecsContext
+              value: "{{ .Values.webistecs.environment.webistecsContext }}"
+            # ============= END OF FIX =============
             - name: COINBASE__PRIVATEKEY
               valueFrom:
                 secretKeyRef:
@@ -60,8 +63,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: coinbase__privateName
-            - name: ConnectionStrings__WebistecsContext
-              value: "{{ .Values.webistecs.environment.webistecsContext }}"
             - name: NEWRELIC__APIKEY
               valueFrom:
                 secretKeyRef:
