@@ -25,6 +25,11 @@ spec:
               value: {{ .Values.postgres.database }}
             - name: PGDATA
               value: /pgdata/data
+            # Critical security additions (NEW)
+            - name: POSTGRES_INITDB_ARGS
+              value: "--auth-host=scram-sha-256 --no-postgres-role"
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "scram-sha-256"
           ports:
             - containerPort: 5432
           volumeMounts:

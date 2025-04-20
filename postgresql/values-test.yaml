@@ -1,5 +1,7 @@
 postgres:
-  database: webistecs-test
+  database: webistecs-test  
+  user: myappuser           
+  password: mypassword     
 
 service:
-  nodePort: 30033
+  nodePort: 30033          
