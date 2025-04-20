@@ -7,7 +7,7 @@ webistecs:
   containerName: webistecs
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "test-0.0.5"
+    tag: "test-0.0.6"
   readinessProbe:
     path: /healthz/ready
     port: 80
