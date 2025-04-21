@@ -12,7 +12,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /Users/emabhiza/Dev/webistecs-storage/monitoring/prometheus
+    path: /var/lib/prometheus
   nodeAffinity:
     required:
       nodeSelectorTerms:
