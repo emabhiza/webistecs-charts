@@ -7,7 +7,7 @@ webistecs:
   containerName: webistecs
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "v0.0.3"
+    tag: "v0.0.1"
   readinessProbe:
     path: /healthz/ready  # Changed from /healthz
     port: 80
@@ -54,7 +54,7 @@ nodeExporter:
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "v0.0.3"
+    tag: "v0.0.1"
   environment:
     aspNetCoreEnvironment: "Production"
     webistecsContext: "Host=postgresql-prod-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
