@@ -24,8 +24,7 @@ webistecs:
     successThreshold: 1
   containerPort: 80
   imagePullPolicy: "Always"
-  imagePullSecrets:
-    - name: myregistrykey
+  imagePullSecret: myregistrykey     
   restartPolicy: "Always"
   environment:
     ASPNETCORE_URLS: "http://0.0.0.0:80"
@@ -67,7 +66,7 @@ dbMigrationJob:
     aspNetCoreEnvironment: "Test"
     webistecsContext: "Host=postgresql-test-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
     SKIP_MIGRATIONS: "false"
-  imagePullSecret: myregistrykey
+  imagePullSecret: "myregistrykey"
   resources:
     requests:
       memory: "1Gi"
