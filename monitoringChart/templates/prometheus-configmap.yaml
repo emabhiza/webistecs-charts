@@ -11,9 +11,6 @@ data:
       scrape_interval: {{ .Values.prometheus.scrapeInterval }}
 
     scrape_configs:
-      - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.coinmarketcapExporter }}'
-        static_configs:
-          - targets: ['{{ .Values.prometheus.configMap.scrapeConfigs.coinmarketcapExporterTarget }}']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.websitecs }}'
         relabel_configs:
