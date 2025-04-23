@@ -7,7 +7,7 @@ webistecs:
   containerName: webistecs
   image:
     repository: "docker.io/emabhiza/webistecs"
-    tag: "test-0.0.8"
+    tag: "test-0.0.10"
   readinessProbe:
     path: /healthz/ready
     port: 80
@@ -61,7 +61,7 @@ service:
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
-    tag: "test-0.0.8"
+    tag: "test-0.0.10"
   environment:
     aspNetCoreEnvironment: "Test"
     webistecsContext: "Host=postgresql-test-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
