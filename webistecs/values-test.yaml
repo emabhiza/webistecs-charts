@@ -5,6 +5,7 @@ nameOverride: test-webistecs
 
 webistecs:
   enabled: true
+  aspNetCoreEnvironment: "Test"
   replicaCount: 1
   containerName: webistecs
   image:
