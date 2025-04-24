@@ -19,6 +19,8 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.dbMigrationJob.environment.aspNetCoreEnvironment }}"
+            - name: Application__Environment
+              value: "{{ .Values.webistecs.application.environment }}"
             - name: ConnectionStrings__WebistecsContext
               value: "{{ .Values.dbMigrationJob.environment.webistecsContext }}"
             - name: DB_CONTEXT
