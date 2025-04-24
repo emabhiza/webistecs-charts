@@ -7,7 +7,6 @@ webistecs:
   enabled: true
   replicaCount: 1
   containerName: webistecs
-  aspNetCoreEnvironment: "Test"
   image:
     repository: "docker.io/emabhiza/webistecs"
     tag: *webistecsImageTag
@@ -27,12 +26,13 @@ webistecs:
     successThreshold: 1
   containerPort: 80
   imagePullPolicy: "Always"
-  imagePullSecret: myregistrykey
+  imagePullSecret: myregistrykey     
   restartPolicy: "Always"
   application:
     environment: "Test"
   environment:
     ASPNETCORE_URLS: "http://0.0.0.0:80"
+    aspNetCoreEnvironment: "Test"
     webistecsContext: "Host=postgresql-test-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
@@ -49,6 +49,7 @@ webistecs:
     fileset:
       stdout: "true"
       stderr: "false"
+
 nodeExporter:
   name: node-exporter
   image: prom/node-exporter:latest
