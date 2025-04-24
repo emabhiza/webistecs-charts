@@ -28,6 +28,8 @@ webistecs:
   imagePullPolicy: "Always"
   imagePullSecret: myregistrykey     
   restartPolicy: "Always"
+  application:
+    environment: "Test"
   environment:
     ASPNETCORE_URLS: "http://0.0.0.0:80"
     aspNetCoreEnvironment: "Test"
