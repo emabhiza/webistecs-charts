@@ -17,11 +17,11 @@ data:
           - source_labels: [__meta_kubernetes_service_label_mylabel]
             target_label: websitecs
         static_configs:
-          - targets: ['192.168.68.105:30080']
+          - targets: ['prod-webistecs.default.svc:8000']
 
       - job_name: 'websitecs-test'
         static_configs:
-          - targets: ['192.168.68.105:30081']
+          - targets: ['test-webistecs.default.svc:8000']
 
       - job_name: '{{ .Values.prometheus.configMap.scrapeConfigs.nodeExporter }}'
         kubernetes_sd_configs:
