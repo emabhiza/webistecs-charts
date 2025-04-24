@@ -48,6 +48,8 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
+            - name: Application__Environment
+              value: "{{ .Values.webistecs.application.environment }}"
             - name: TELEGRAM__SESSION_PATH
               value: /session/WTelegram.session
             - name: DB_CONTEXT
