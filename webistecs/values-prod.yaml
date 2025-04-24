@@ -1,7 +1,7 @@
-imageTag: &webistecsImageTag "v-0.0.1"
-
 environment: "production"
 nameOverride: prod-webistecs
+
+imageTag: &webistecsImageTag "v-0.0.1"
 
 webistecs:
   enabled: true
