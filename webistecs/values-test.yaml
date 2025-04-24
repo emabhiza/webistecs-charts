@@ -24,7 +24,6 @@ webistecs:
     initialDelaySeconds: 15
     periodSeconds: 10
     failureThreshold: 3
-    successThreshold: 1
   containerPort: 80
   imagePullPolicy: "Always"
   imagePullSecret: myregistrykey     
