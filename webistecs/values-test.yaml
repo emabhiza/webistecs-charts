@@ -1,4 +1,4 @@
-imageTag: &webistecsImageTag "test-0.0.16"
+imageTag: &webistecsImageTag "v0.0.17"
 
 environment: "Test"
 nameOverride: test-webistecs
