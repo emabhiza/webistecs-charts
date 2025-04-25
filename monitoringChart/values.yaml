@@ -5,6 +5,8 @@ global:
 prometheus:
   name: "prometheus"
   affinity: {}
+  nodeSelector: { }  # This clears node selector
+  tolerations: [ ]   # Clears any tolerations
   labels:
     app: "prometheus"
     component: "server"
