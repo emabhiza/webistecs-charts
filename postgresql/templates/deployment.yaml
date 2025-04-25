@@ -1,59 +1,71 @@
+{{- range $name, $config := .Values.postgresqlInstances }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "postgresql.fullname" . }}
+  name: postgresql-{{ $name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ $config.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "postgresql.name" . }}
+      app: postgresql-{{ $name }}
   template:
     metadata:
       labels:
-        app: {{ include "postgresql.name" . }}
+        app: postgresql-{{ $name }}
     spec:
       containers:
         - name: postgres
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ $config.image.repository }}:{{ $config.image.tag }}"
+          imagePullPolicy: {{ $config.image.pullPolicy }}
           env:
             - name: POSTGRES_USER
-              value: {{ .Values.postgres.user }}
+              value: "{{ $config.postgres.user }}"
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgres.password }}
+              value: "{{ $config.postgres.password }}"
             - name: POSTGRES_DB
-              value: {{ .Values.postgres.database }}
+              value: "{{ $config.postgres.database }}"
             - name: PGDATA
-              value: /pgdata/data
-            # Critical security additions (NEW)
-            - name: POSTGRES_INITDB_ARGS
-              value: "--auth-host=scram-sha-256"
-            - name: POSTGRES_HOST_AUTH_METHOD
-              value: "scram-sha-256"
+              value: "{{ $config.postgres.pgdata }}"
+            {{- range $envKey, $envVal := $config.postgres.additionalEnv }}
+            - name: {{ $envKey }}
+              value: "{{ $envVal }}"
+            {{- end }}
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: postgres-storage
               mountPath: /pgdata
+              subPath: {{ $name }} # This keeps each env data separate
           livenessProbe:
             exec:
-              command:
-                - pg_isready
-                - -U
-                - {{ .Values.postgres.user }}
+              command: ["pg_isready", "-U", "{{ $config.postgres.user }}"]
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
           readinessProbe:
             exec:
-              command:
-                - pg_isready
-                - -U
-                - {{ .Values.postgres.user }}
+              command: ["pg_isready", "-U", "{{ $config.postgres.user }}"]
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: {{ include "postgresql.fullname" . }}-pvc
+            claimName: {{ $.Values.global.persistence.pvcName }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-{{ $name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.port }}
+      targetPort: 5432
+      {{- if eq $config.service.type "NodePort" }}
+      nodePort: {{ $config.service.nodePort }}
+      {{- end }}
+  selector:
+    app: postgresql-{{ $name }}
+---
+{{- end }}
