@@ -24,13 +24,6 @@ spec:
         runAsUser: 65534
         runAsGroup: 65534
         fsGroup: 65534
-      initContainers:
-        - name: volume-permission-fix
-          image: busybox:1.35
-          command: ["sh", "-c", "mkdir -p /prometheus/data && chown -R 65534:65534 /prometheus/data"]
-          volumeMounts:
-            - name: prometheus-data
-              mountPath: /prometheus/data
       containers:
         - name: {{ .Values.prometheus.name }}
           image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
