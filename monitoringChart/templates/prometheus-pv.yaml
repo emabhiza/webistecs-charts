@@ -13,11 +13,3 @@ spec:
   storageClassName: local-storage
   local:
     path: /media/emabhiza/webistecsStorage/prometheus-data
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - k3d-k3s-server-0
