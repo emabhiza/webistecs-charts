@@ -13,11 +13,3 @@ spec:
   storageClassName: local-storage
   local:
     path: /var/lib/prometheus
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - k3s
