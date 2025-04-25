@@ -50,8 +50,6 @@ spec:
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
             - name: Application__Environment
               value: "{{ .Values.webistecs.application.environment }}"
-            - name: TELEGRAM__SESSION_PATH
-              value: /session/WTelegram.session
             - name: DB_CONTEXT
               value: "WebistecsContext"
             - name: ConnectionStrings__WebistecsContext
@@ -121,9 +119,6 @@ spec:
             limits:
               memory: "{{ .Values.webistecs.resources.limits.memory }}"
               cpu: "{{ .Values.webistecs.resources.limits.cpu }}"
-          volumeMounts:
-            - name: session-volume
-              mountPath: /session
         - name: {{ .Values.nodeExporter.name }}
           image: "{{ .Values.nodeExporter.image }}"
           ports:
@@ -131,8 +126,4 @@ spec:
       restartPolicy: {{ .Values.webistecs.restartPolicy }}
       imagePullSecrets:
         - name: {{ .Values.webistecs.imagePullSecret }}
-      volumes:
-        - name: session-volume
-          persistentVolumeClaim:
-            claimName: webistecs-session-pvc
 {{- end }}
