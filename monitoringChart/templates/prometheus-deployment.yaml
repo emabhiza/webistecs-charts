@@ -21,9 +21,8 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: k3d-k3s-server-0
       securityContext:
-        runAsUser: 65534
-        runAsGroup: 65534
-        fsGroup: 65534
+        runAsUser: 0  
+        runAsGroup: 0 
       containers:
         - name: {{ .Values.prometheus.name }}
           image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
