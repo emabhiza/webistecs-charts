@@ -4,9 +4,8 @@ metadata:
   name: postgres-shared-pvc
 spec:
   accessModes:
-    - ReadWriteMany # Match PV access mode
+    - ReadWriteMany
   resources:
     requests:
       storage: 5Gi
   volumeName: postgres-shared-pv
-  storageClassName: ""

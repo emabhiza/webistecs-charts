@@ -6,6 +6,7 @@ spec:
   capacity:
     storage: 5Gi
   accessModes:
-    - ReadWriteMany # Use RWX to share, or RWO if same node
+    - ReadWriteMany
   hostPath:
-    path: /Users/emabhiza/Dev/webistecs-storage/database
+    path: /webistecs-storage/database
+    type: DirectoryOrCreate
