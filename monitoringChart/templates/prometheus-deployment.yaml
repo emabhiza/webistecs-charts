@@ -7,7 +7,6 @@ metadata:
     app: {{ .Values.prometheus.labels.app }}
     component: {{ .Values.prometheus.labels.component }}
 spec:
-
   replicas: {{ .Values.prometheus.replicas }}
   selector:
     matchLabels:
@@ -18,19 +17,17 @@ spec:
       labels:
         app: {{ .Values.prometheus.labels.app }}
         component: {{ .Values.prometheus.labels.component }}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/metrics"
-        prometheus.io/port: "{{ .Values.prometheus.ports.containerPort }}"
     spec:
       nodeSelector:
-        kubernetes.io/hostname: "k3s"
+        kubernetes.io/hostname: k3d-k3s-server-0
       securityContext:
-          fsGroup: 65534
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
       initContainers:
         - name: volume-permission-fix
           image: busybox:1.35
-          command: [ "sh", "-c", "mkdir -p /prometheus/data && chown -R 65534:65534 /prometheus/data" ]
+          command: ["sh", "-c", "mkdir -p /prometheus/data && chown -R 65534:65534 /prometheus/data"]
           volumeMounts:
             - name: prometheus-data
               mountPath: /prometheus/data
@@ -44,21 +41,17 @@ spec:
           ports:
             - containerPort: {{ .Values.prometheus.ports.containerPort }}
           volumeMounts:
-            - name: {{ .Values.prometheus.volumeMounts.config.name }}
+            - name: config-volume
               mountPath: {{ .Values.prometheus.volumeMounts.config.mountPath }}
-            - name: {{ .Values.prometheus.volumeMounts.data.name }}
+            - name: prometheus-data
               mountPath: {{ .Values.prometheus.volumeMounts.data.mountPath }}
           resources:
-            requests:
-              memory: "{{ .Values.prometheus.resources.requests.memory }}"
-              cpu: "{{ .Values.prometheus.resources.requests.cpu }}"
-            limits:
-              memory: "{{ .Values.prometheus.resources.limits.memory }}"
-              cpu: "{{ .Values.prometheus.resources.limits.cpu }}"
+            {{- toYaml .Values.prometheus.resources | nindent 12 }}
       volumes:
-        - name: {{ .Values.prometheus.volumeMounts.data.name }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.prometheus.pvc.name }}
-        - name: {{ .Values.prometheus.volumeMounts.config.name }}
+        - name: prometheus-data
+          hostPath:
+            path: /Users/emabhiza/Dev/webistecs-storage/prometheus-data
+            type: DirectoryOrCreate
+        - name: config-volume
           configMap:
             name: {{ .Values.prometheus.configMap.name }}
