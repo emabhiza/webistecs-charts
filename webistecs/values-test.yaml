@@ -33,7 +33,7 @@ webistecs:
   environment:
     ASPNETCORE_URLS: "http://0.0.0.0:80"
     aspNetCoreEnvironment: "Test"
-    webistecsContext: "Host=postgresql-test-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=postgresql-test.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
   secrets:
     webistecsSecret: "webistecs-secret"
   resources:
@@ -68,7 +68,7 @@ dbMigrationJob:
     tag: *webistecsImageTag
   environment:
     aspNetCoreEnvironment: "Test"
-    webistecsContext: "Host=postgresql-test-postgresql.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=postgresql-test.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
     SKIP_MIGRATIONS: "false"
   imagePullSecret: "myregistrykey"
   resources:
