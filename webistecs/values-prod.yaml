@@ -11,7 +11,7 @@ webistecs:
     repository: "docker.io/emabhiza/webistecs"
     tag:  *webistecsImageTag
   readinessProbe:
-    path: /healthz/ready  # Changed from /healthz
+    path: /healthz/ready
     port: 80
     initialDelaySeconds: 5
     periodSeconds: 10
@@ -49,12 +49,6 @@ webistecs:
       stdout: "true"
       stderr: "false"
 
-nodeExporter:
-  name: node-exporter
-  image: prom/node-exporter:latest
-  containerPort: 9100
-
-
 dbMigrationJob:
   image:
     repository: "docker.io/emabhiza/webistecs-migrations"
@@ -72,13 +66,17 @@ dbMigrationJob:
       memory: "1Gi"
       cpu: "1"
 
-
 service:
   enabled: true
   type: ClusterIP
   port: 8000
   targetPort: 80
   nodePort: 30081
+
+nodeExporter:
+  name: node-exporter
+  image: prom/node-exporter:latest
+  containerPort: 9100
 
 backtester:
   enabled: false
