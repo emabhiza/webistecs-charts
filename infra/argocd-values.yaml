@@ -1,11 +1,12 @@
 server:
   service:
-    type: LoadBalancer
+    type: NodePort
     ports:
       http: 80
+
 configs:
   params:
-    server.insecure: true  # If you're only serving over HTTP
+    server.insecure: true  
 
 rbac:
   policy.csv: |

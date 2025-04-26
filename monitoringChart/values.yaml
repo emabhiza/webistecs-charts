@@ -1,6 +1,6 @@
 global:
   namespace: monitoring
-  macMiniIP: 192.168.68.105
+  macMiniIP: 192.168.68.109
 
 prometheus:
   name: "prometheus"
@@ -52,11 +52,10 @@ prometheus:
     scrapeConfigs:
       kubernetesPods: "kubernetes-pods"
       kubeStateMetrics: "kube-state-metrics"
-      coinmarketcapExporter: "coinmarketcap-exporter"
       websitecs: "websitecs"
       nodeExporter: "node-exporter"
-      coinmarketcapExporterTarget: "192.168.68.105:32005"
-      websitecsTarget: "192.168.68.105:30080"
+      coinmarketcapExporterTarget: "192.168.68.109:32005"
+      websitecsTarget: "192.168.68.109:30080"
       nodeExporterTarget: "node-exporter.monitoring.svc.cluster.local:9100"
   securityContext:
     runAsUser: 65534 
