@@ -30,21 +30,21 @@ spec:
           imagePullPolicy: {{ .Values.webistecs.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.webistecs.containerPort }}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: {{ .Values.webistecs.readinessProbe.path }}*/}}
-{{/*              port: {{ .Values.webistecs.readinessProbe.port }}*/}}
-{{/*            initialDelaySeconds: {{ .Values.webistecs.readinessProbe.initialDelaySeconds }}*/}}
-{{/*            periodSeconds: {{ .Values.webistecs.readinessProbe.periodSeconds }}*/}}
-{{/*            failureThreshold: {{ .Values.webistecs.readinessProbe.failureThreshold }}*/}}
-{{/*            successThreshold: {{ .Values.webistecs.readinessProbe.successThreshold }}*/}}
-{{/*          livenessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              path: {{ .Values.webistecs.livenessProbe.path }}*/}}
-{{/*              port: {{ .Values.webistecs.livenessProbe.port }}*/}}
-{{/*            initialDelaySeconds: {{ .Values.webistecs.livenessProbe.initialDelaySeconds }}*/}}
-{{/*            periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}*/}}
-{{/*            failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}*/}}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.webistecs.readinessProbe.path }}
+              port: {{ .Values.webistecs.readinessProbe.port }}
+            initialDelaySeconds: {{ .Values.webistecs.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.webistecs.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.webistecs.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.webistecs.readinessProbe.successThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.webistecs.livenessProbe.path }}
+              port: {{ .Values.webistecs.livenessProbe.port }}
+            initialDelaySeconds: {{ .Values.webistecs.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.webistecs.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.webistecs.livenessProbe.failureThreshold }}
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.webistecs.environment.aspNetCoreEnvironment }}"
