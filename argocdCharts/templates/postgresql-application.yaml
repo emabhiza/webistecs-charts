@@ -11,7 +11,7 @@ spec:
     path: postgresql
     helm:
       valueFiles:
-        - values-production.yaml
+        - values-prod.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default
