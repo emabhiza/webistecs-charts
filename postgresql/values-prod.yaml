@@ -25,12 +25,6 @@ postgresqlInstances:
       port: 5432
       nodePort: 30034
 
-persistence:
-  enabled: true
-  size: 5Gi
-  pvcName: postgres-shared-pvc  # Reference the shared PVC
-  subPath: prod                 # Ensure prod data isolation
-
 resources:
   requests:
     memory: "256Mi"
