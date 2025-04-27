@@ -13,16 +13,16 @@ webistecs:
   readinessProbe:
     path: /healthz/ready
     port: 80
-    initialDelaySeconds: 5
+    initialDelaySeconds: 30
     periodSeconds: 10
     failureThreshold: 3
-    successThreshold: 1
+    successThreshold: 5
   livenessProbe:
     path: /healthz/live
     port: 80
-    initialDelaySeconds: 15
+    initialDelaySeconds: 30
     periodSeconds: 10
-    failureThreshold: 3
+    failureThreshold: 5
   containerPort: 80
   imagePullPolicy: "Always"
   imagePullSecret: "myregistrykey"
