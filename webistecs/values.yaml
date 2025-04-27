@@ -1,2 +1,18 @@
-# values.yaml (empty but valid YAML)
-enabled: true 
+# values.yaml (base configuration)
+enabled: true
+
+# Default values that work for production
+webistecs:
+  containerPort: 80  # Production default
+  environment:
+    ASPNETCORE_URLS: "http://0.0.0.0:80"  # Production default
+  
+  # Probe defaults (point to main containerPort)
+  readinessProbe:
+    port: "{{ .Values.webistecs.containerPort }}"
+  livenessProbe:
+    port: "{{ .Values.webistecs.containerPort }}"
+
+# Service configuration
+service:
+  targetPort: "{{ .Values.webistecs.containerPort }}"  # Dynamic port mapping

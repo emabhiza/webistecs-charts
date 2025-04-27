@@ -12,25 +12,25 @@ webistecs:
     tag: *webistecsImageTag
   readinessProbe:
     path: /healthz/ready
-    port: 80
+    port: 8080
     initialDelaySeconds: 5
     periodSeconds: 10
     failureThreshold: 3
     successThreshold: 1
   livenessProbe:
     path: /healthz/live
-    port: 80
+    port: 8080
     initialDelaySeconds: 15
     periodSeconds: 10
     failureThreshold: 3
-  containerPort: 80
+  containerPort: 8080
   imagePullPolicy: "Always"
   imagePullSecret: "myregistrykey"
   restartPolicy: "Always"
   application:
     environment: "Staging"
   environment:
-    ASPNETCORE_URLS: "http://0.0.0.0:80"
+    ASPNETCORE_URLS: "http://0.0.0.0:8080"
     aspNetCoreEnvironment: "Staging"
     webistecsContext: "Host=postgresql-staging.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
   secrets:
@@ -69,8 +69,7 @@ dbMigrationJob:
 service:
   enabled: true
   type: ClusterIP
-  port: 8000
-  targetPort: 80
+  targetPort: 8080
 #  nodePort: 30082  
 
 nodeExporter:
