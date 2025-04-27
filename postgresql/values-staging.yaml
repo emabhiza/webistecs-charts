@@ -1,6 +1,6 @@
 global:
   persistence:
-    pvcName: postgres-shared-pvc # Using shared PVC for all
+    pvcName: postgres-shared-pvc
 
 postgresqlInstances:
   staging:

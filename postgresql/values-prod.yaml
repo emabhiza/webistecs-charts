@@ -1,9 +1,6 @@
-replicaCount: 1
-
-image:
-  repository: postgres
-  tag: "15"
-  pullPolicy: IfNotPresent
+global:
+  persistence:
+    pvcName: postgres-shared-pvc
 
 postgresqlInstances:
   prod:
