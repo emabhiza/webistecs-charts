@@ -3,25 +3,6 @@ global:
     pvcName: postgres-shared-pvc # Using shared PVC for all
 
 postgresqlInstances:
-  prod:
-    replicaCount: 1
-    image:
-      repository: postgres
-      tag: "15"
-      pullPolicy: IfNotPresent
-    postgres:
-      database: webistecs
-      user: myappuser
-      password: mypassword
-      pgdata: /pgdata/data
-      additionalEnv:
-        POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
-        POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
-    service:
-      type: NodePort
-      port: 5432
-      nodePort: 30034
-
   staging:
     replicaCount: 1
     image:
