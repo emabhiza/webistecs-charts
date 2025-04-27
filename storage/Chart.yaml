@@ -1,0 +1,4 @@
+apiVersion: v2
+name: storage
+description: Shared storage for PostgreSQL apps
+version: 0.1.0
