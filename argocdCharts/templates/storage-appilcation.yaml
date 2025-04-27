@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
-    targetRevision: HEAD
+    targetRevision: main
     path: storage
   destination:
     server: 'https://kubernetes.default.svc'
