@@ -1,0 +1,82 @@
+imageTag: &webistecsImageTag "test-0.0.2"
+
+environment: "Staging"
+nameOverride: staging-webistecs
+
+webistecs:
+  enabled: true
+  replicaCount: 1
+  containerName: webistecs
+  image:
+    repository: "docker.io/emabhiza/webistecs"
+    tag: *webistecsImageTag
+  readinessProbe:
+    path: /healthz/ready
+    port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: /healthz/live
+    port: 80
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3
+  containerPort: 80
+  imagePullPolicy: "Always"
+  imagePullSecret: "myregistrykey"
+  restartPolicy: "Always"
+  application:
+    environment: "Staging"
+  environment:
+    ASPNETCORE_URLS: "http://0.0.0.0:80"
+    aspNetCoreEnvironment: "Staging"
+    webistecsContext: "Host=postgresql-staging.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+  secrets:
+    webistecsSecret: "webistecs-secret"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  logging:
+    enabled: "true"
+    module: "docker"
+    fileset:
+      stdout: "true"
+      stderr: "false"
+
+dbMigrationJob:
+  image:
+    repository: "docker.io/emabhiza/webistecs-migrations"
+    tag: *webistecsImageTag
+  environment:
+    aspNetCoreEnvironment: "Staging"
+    webistecsContext: "Host=postgresql-staging.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    SKIP_MIGRATIONS: "false"
+  imagePullSecret: myregistrykey
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 8000
+  targetPort: 80
+  nodePort: 30082  # Different NodePort if using NodePort type (not same as prod)
+
+nodeExporter:
+  name: node-exporter
+  image: prom/node-exporter:latest
+  containerPort: 9100
+
+backtester:
+  enabled: false
