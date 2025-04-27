@@ -1,0 +1,2 @@
+if pv and pvc 
+kubectl patch pv postgres-shared-pv -p '{"spec":{"storageClassName":"local-path"}}'

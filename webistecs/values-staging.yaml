@@ -71,7 +71,7 @@ service:
   type: ClusterIP
   port: 8000
   targetPort: 80
-  nodePort: 30082  # Different NodePort if using NodePort type (not same as prod)
+#  nodePort: 30082  
 
 nodeExporter:
   name: node-exporter

@@ -10,19 +10,19 @@ webistecs:
   image:
     repository: "docker.io/emabhiza/webistecs"
     tag: *webistecsImageTag
-  readinessProbe:
-    path: /healthz/ready
-    port: 8080  
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    failureThreshold: 3
-    successThreshold: 1
-  livenessProbe:
-    path: /healthz/live
-    port: 8080
-    initialDelaySeconds: 45
-    periodSeconds: 10
-    failureThreshold: 3
+#  readinessProbe:
+#    path: /healthz/ready
+#    port: 8080  
+#    initialDelaySeconds: 30
+#    periodSeconds: 10
+#    failureThreshold: 3
+#    successThreshold: 1
+#  livenessProbe:
+#    path: /healthz/live
+#    port: 8080
+#    initialDelaySeconds: 45
+#    periodSeconds: 10
+#    failureThreshold: 3
   containerPort: 8080
   imagePullPolicy: "Always"
   imagePullSecret: "myregistrykey"     
