@@ -1,34 +1,46 @@
-replicaCount: 1
-
-image:
-  repository: postgres
-  tag: "15"
-  pullPolicy: IfNotPresent
-
-postgres:
-  database: webistecs
-  user: myappuser
-  password: mypassword
-  pgdata: /pgdata/data
-  additionalEnv:
-    POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
-    POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
-
-service:
-  type: NodePort
-  port: 5432
-  nodePort: 30035  # Changed from prod (30034) to avoid conflict
-
-persistence:
-  enabled: true
-  size: 5Gi
-  pvcName: postgres-shared-pvc  # If sharing PVC, careful with subPath!
-  subPath: staging              # **staging data isolation**
-
-resources:
-  requests:
-    memory: "256Mi"
-    cpu: "100m"
-  limits:
-    memory: "512Mi"
-    cpu: "500m"
+postgresqlInstances:
+  prod:
+    replicaCount: 1
+    image:
+      repository: postgres
+      tag: "15"
+      pullPolicy: IfNotPresent
+    postgres:
+      user: myappuser
+      password: mypassword
+      database: webistecs
+      pgdata: /pgdata
+      additionalEnv: {}
+    service:
+      type: ClusterIP
+      port: 5432
+  test:
+    replicaCount: 1
+    image:
+      repository: postgres
+      tag: "15"
+      pullPolicy: IfNotPresent
+    postgres:
+      user: myappuser
+      password: mypassword
+      database: webistecs
+      pgdata: /pgdata
+      additionalEnv: {}
+    service:
+      type: ClusterIP
+      port: 5432
+  staging:
+    replicaCount: 1
+    image:
+      repository: postgres
+      tag: "15"
+      pullPolicy: IfNotPresent
+    postgres:
+      user: myappuser
+      password: mypassword
+      database: webistecs
+      pgdata: /pgdata
+      additionalEnv: {}
+    service:
+      type: ClusterIP
+      port: 5432
