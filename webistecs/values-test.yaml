@@ -10,27 +10,27 @@ webistecs:
   image:
     repository: "docker.io/emabhiza/webistecs"
     tag: *webistecsImageTag
-#  readinessProbe:
-#    path: /healthz/ready
-#    port: 8080  
-#    initialDelaySeconds: 30
-#    periodSeconds: 10
-#    failureThreshold: 3
-#    successThreshold: 1
-#  livenessProbe:
-#    path: /healthz/live
-#    port: 8080
-#    initialDelaySeconds: 45
-#    periodSeconds: 10
-#    failureThreshold: 3
-  containerPort: 8080
+  readinessProbe:
+    path: /healthz/ready
+    port: 80  
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  livenessProbe:
+    path: /healthz/live
+    port: 80
+    initialDelaySeconds: 45
+    periodSeconds: 10
+    failureThreshold: 3
+  containerPort: 80
   imagePullPolicy: "Always"
   imagePullSecret: "myregistrykey"     
   restartPolicy: "Always"
   application:
     environment: "Test"
   environment:
-    ASPNETCORE_URLS: "http://0.0.0.0:8080"
+    ASPNETCORE_URLS: "http://0.0.0.0:80"
     aspNetCoreEnvironment: "Test"
     webistecsContext: "Host=postgresql-test.default.svc.cluster.local;Port=5432;Database=webistecs-test;Username=myappuser;Password=mypassword"
   secrets:
@@ -65,14 +65,12 @@ dbMigrationJob:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-
 service:
   enabled: true
   type: ClusterIP
   port: 8000
-  targetPort: 8080  
-  nodePort: 30081
-
+  targetPort: 80
+  
 nodeExporter:
   name: node-exporter
   image: prom/node-exporter:latest

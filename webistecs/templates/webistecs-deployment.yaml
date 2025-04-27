@@ -97,21 +97,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.webistecs.secrets.webistecsSecret }}
                   key: TELEGRAM__FUNCTIONS
-            - name: Telegram__Listener__Id
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__LISTENER_ID
-            - name: Telegram__Listener__Hash
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__API_HASH
-            - name: Telegram__Listener__PhoneNumber
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.webistecs.secrets.webistecsSecret }}
-                  key: TELEGRAM__PHONE_NUMBER
           resources:
             requests:
               memory: "{{ .Values.webistecs.resources.requests.memory }}"
