@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://your-git-repo'
+    repoURL: 'https://github.com/emabhiza/webistecs-charts.git'
     targetRevision: HEAD
     path: storage
   destination:
