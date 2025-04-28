@@ -1,4 +1,4 @@
-imageTag: &webistecsImageTag "v0.0.2"
+imageTag: &webistecsImageTag "v0.0.3"
 
 environment: "Production"
 nameOverride: prod-webistecs
