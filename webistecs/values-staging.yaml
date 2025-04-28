@@ -55,7 +55,7 @@ dbMigrationJob:
     tag: *webistecsImageTag
   environment:
     aspNetCoreEnvironment: "Staging"
-    webistecsContext: "Host=postgresql-staging.default.svc.cluster.local;Port=5432;Database=webistecs;Username=myappuser;Password=mypassword"
+    webistecsContext: "Host=postgresql-staging.default.svc.cluster.local;Port=5432;Database=webistecs-staging;Username=myappuser;Password=mypassword"
     SKIP_MIGRATIONS: "false"
   imagePullSecret: myregistrykey
   resources:
